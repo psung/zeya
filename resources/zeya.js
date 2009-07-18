@@ -2,6 +2,12 @@ var current_index;
 var library;
 var audio;
 
+function clearChildren(c) {
+    while (c.childNodes.length >= 1) {
+        c.removeChild(c.firstChild);
+    }
+}
+
 function init() {
     current_index = null;
     library = null;
@@ -56,6 +62,10 @@ function select_item(index) {
     audio = new Audio('/getcontent?' + escape(library[index].location));
     audio.setAttribute('autoplay', 'true');
     audio.load();
+    clearChildren(document.getElementById('title_text'));
+    clearChildren(document.getElementById('artist_text'));
+    document.getElementById('title_text').appendChild(document.createTextNode(library[index].title));
+    document.getElementById('artist_text').appendChild(document.createTextNode(library[index].artist));
     set_ui_state('play');
 }
 
