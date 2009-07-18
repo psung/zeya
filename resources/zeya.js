@@ -62,6 +62,11 @@ function select_item(index) {
     entry = library[index];
     audio = new Audio('/getcontent?' + escape(entry.location));
     audio.setAttribute('autoplay', 'true');
+    if (current_index < library.length - 1) {
+        audio.addEventListener('ended',
+                               select_item_fn(current_index + 1),
+                               false);
+    }
     audio.load();
     clearChildren(document.getElementById('title_text'));
     clearChildren(document.getElementById('artist_text'));
@@ -69,6 +74,13 @@ function select_item(index) {
     document.getElementById('artist_text').appendChild(document.createTextNode(entry.artist));
     document.title = entry.title + ' (' + entry.artist + ') - Zeya';
     set_ui_state('play');
+}
+
+function select_item_fn(index) {
+    var current_index = index;
+    return function() {
+        select_item(current_index);
+    }
 }
 
 function set_ui_state(new_state) {
