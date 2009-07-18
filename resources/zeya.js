@@ -15,7 +15,7 @@ function load_collection() {
     var req = new XMLHttpRequest();
     req.open('GET', '/getlibrary', true);
     req.onreadystatechange = function(e) {
-        if (req.status == 200 && req.responseText != '') {
+        if (req.readyState == 4 && req.status == 200) {
             library = JSON.parse(req.responseText);
             for (var index = 0; index < library.length; index++) {
                 var item = library[index];
