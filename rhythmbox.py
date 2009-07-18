@@ -90,4 +90,4 @@ class RhythmboxBackend():
                 decode_command = "/usr/bin/lame -S --decode \"%s\" -"
             print decode_command
             p = subprocess.Popen((decode_command % (key,)) + " | /usr/bin/oggenc -Q -b 64 -",
-                                 bufsize = 100000, stdout = out_stream, shell = True)
+                                 bufsize = 32768, stdout = out_stream, shell = True)
