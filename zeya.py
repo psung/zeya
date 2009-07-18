@@ -47,7 +47,7 @@ class ZeyaHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
-        json.dump(library_contents, self.wfile, ensure_ascii=False)
+        self.wfile.write(library_repr)
         self.wfile.close()
     def serve_static_content(self, path):
         try:
@@ -61,10 +61,13 @@ class ZeyaHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             self.send_error(404, 'File not found: %s' % (path,))
 
 def main():
-    global library_contents
+    global library_contents, library_repr
+    print "Loading library..."
     library_contents = rb.get_library_contents()
+    library_repr = json.dumps(library_contents, ensure_ascii=False)
     server = BaseHTTPServer.HTTPServer(('', 8080), ZeyaHandler)
     try:
+        print "Ready to serve!"
         server.serve_forever()
     except KeyboardInterrupt:
         pass
