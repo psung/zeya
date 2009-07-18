@@ -51,9 +51,12 @@ function select_item(index) {
     current_index = index;
     if (audio != null) {
         audio.pause();
+        set_ui_state('pause');
     }
     audio = new Audio('/getcontent?' + escape(library[index].location));
-    play();
+    audio.setAttribute('autoplay', 'true');
+    audio.load();
+    set_ui_state('play');
 }
 
 function set_ui_state(new_state) {
