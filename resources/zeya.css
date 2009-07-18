@@ -18,3 +18,11 @@ span.control img.grayed {
 body {
     background-color: #fbfbfb;
 }
+
+a:link {
+    color: #00c;
+}
+
+a:visited {
+    color: #00c;
+}
