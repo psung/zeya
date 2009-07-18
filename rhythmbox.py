@@ -89,6 +89,8 @@ class RhythmboxBackend():
                 decode_command = "/usr/bin/flac -d -c --totally-silent \"%s\""
             elif key.endswith('.mp3'):
                 decode_command = "/usr/bin/lame -S --decode \"%s\" -"
+            elif key.endswith('.ogg'):
+                decode_command = "/usr/bin/oggdec -Q -o - \"%s\""
             print decode_command
             p = subprocess.Popen((decode_command % (key,)) + " | /usr/bin/oggenc -Q -b 64 -",
                                  bufsize = 32768, stdout = out_stream, shell = True)
