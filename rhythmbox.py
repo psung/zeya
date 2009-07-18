@@ -5,50 +5,82 @@ import re
 import subprocess
 import urllib
 
+from xml.parsers import expat
+
 RB_DBFILE = '~/.local/share/rhythmbox/rhythmdb.xml'
+
+class RhythmboxDbHandler():
+    def __init__(self):
+        self.files = set()
+        self.contents = []
+        self.in_song = False
+        self.in_title = False
+        self.in_artist = False
+        self.in_album = False
+        self.in_location = False
+    def startElement(self, name, attrs):
+        if name == 'entry' and attrs['type'] == 'song':
+            self.in_song = True
+            self.current_title = ''
+            self.current_artist = ''
+            self.current_album = ''
+            self.current_location = ''
+        if name == 'title':
+            self.in_title = True
+        if name == 'artist':
+            self.in_artist = True
+        if name == 'album':
+            self.in_album = True
+        if name == 'location':
+            self.in_location = True
+    def endElement(self, name):
+        if self.in_song and name == 'entry':
+            self.in_song = False
+            if self.current_location.startswith('file://'):
+                path = urllib.unquote(self.current_location[7:])
+                self.contents.append({ 'title': self.current_title,
+                                       'artist': self.current_artist,
+                                       'album': self.current_album,
+                                       'location': path })
+                self.files.add(path)
+        if self.in_title and name == 'title':
+            self.in_title = False
+        if self.in_artist and name == 'artist':
+            self.in_artist = False
+        if self.in_album and name == 'album':
+            self.in_album = False
+        if self.in_location and name == 'location':
+            self.in_location = False
+    def characters(self, ch):
+        if self.in_song:
+            if self.in_title:
+                self.current_title += ch
+            if self.in_artist:
+                self.current_artist += ch
+            if self.in_album:
+                self.current_album += ch
+            if self.in_location:
+                self.current_location += ch
+    def getFiles(self):
+        return self.files
+    def getContents(self):
+        return self.contents
 
 class RhythmboxBackend():
     def __init__(self):
         self._files = set()
         self._contents = None
     def get_library_contents(self):
-        if self._contents:
-            return self._contents
-        contents = []
-        files = set()
-        with open(os.path.expanduser(RB_DBFILE)) as f:
-            in_song = False
-            for line in f:
-                line = line.strip()
-                m = re.match(' *<entry type="(.*)">', line)
-                if m:
-                    in_song = m.group(1) == 'song'
-                    location = ''
-                    artist = 'Unknown'
-                    album = 'Unknown'
-                    title = 'Unknown'
-
-                # TODO: decode properly using an XML parser.
-                m = re.match(" *<location>file://(.*)</location>\n?", line)
-                if m:
-                    location = urllib.unquote(m.group(1))
-                m = re.match(" *<title>(.*)</title>\n?", line)
-                if m:
-                    title = m.group(1)
-                m = re.match(" *<artist>(.*)</artist>\n?", line)
-                if m:
-                    artist = m.group(1)
-                m = re.match(" *<album>(.*)</album>\n?", line)
-                if m:
-                    album = m.group(1)
-
-                if re.match(" *</entry>", line) and in_song:
-                    files.add(location)
-                    contents.append({ "location": location, "title": title,
-                                      "artist": artist, "album": album })
-        self._files = files
-        self._contents = contents
-        return contents
+        if not self._contents:
+            handler = RhythmboxDbHandler()
+            p = expat.ParserCreate()
+            p.StartElementHandler = handler.startElement
+            p.EndElementHandler = handler.endElement
+            p.CharacterDataHandler = handler.characters
+            p.ParseFile(open(os.path.expanduser(RB_DBFILE)))
+            self._contents = handler.getContents()
+            self._files = handler.getFiles()
+        return self._contents
     def get_content(self, key, out_stream):
         if key in self._files:
             print key
