@@ -79,6 +79,7 @@ class RhythmboxBackend():
             p.CharacterDataHandler = handler.characters
             p.ParseFile(open(os.path.expanduser(RB_DBFILE)))
             self._contents = handler.getContents()
+            self._contents.sort(key = (lambda item: item['location']))
             self._files = handler.getFiles()
         return self._contents
     def get_content(self, key, out_stream):
