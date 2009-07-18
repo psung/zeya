@@ -3,6 +3,7 @@ span.control img {
     padding: 5px;
     cursor: hand;
     cursor: pointer;
+    vertical-align: middle;
 }
 
 span.control img.activated {
@@ -13,6 +14,17 @@ span.control img.activated {
 span.control img.grayed {
     opacity: 0.4;
     cursor: default;
+}
+
+span.title {
+    font-size: large;
+    font-weight: bold;
+    margin-left: 1em;
+}
+
+span.artist {
+    font-size: small;
+    font-style: italic;
 }
 
 body {
