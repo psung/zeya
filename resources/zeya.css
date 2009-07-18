@@ -1,0 +1,20 @@
+span.control img {
+    border: 1px solid transparent;
+    padding: 5px;
+    cursor: hand;
+    cursor: pointer;
+}
+
+span.control img.activated {
+    border: 1px inset #eee;
+    background-color: #eee;
+}
+
+span.control img.grayed {
+    opacity: 0.4;
+    cursor: default;
+}
+
+body {
+    background-color: #fbfbfb;
+}

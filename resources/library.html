@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+  <link rel="stylesheet" type="text/css" href="zeya.css">
+  <script type="text/javascript" src="zeya.js"><!--
+  // --></script>
+  <title>Zeya</title>
+</head>
+<body onload="init()">
+  <p><audio id="audioctl" src=""/></p>
+  <p>
+    <span id="play_button" class="control">
+      <img id="play_img" src="play.png" alt="Play" onclick="play()">
+    </span>
+    <span id="pause_button" class="control">
+      <img id="pause_img" src="pause.png" alt="Play" onclick="pause()">
+    </span>
+  </p>
+  <div id="loading">
+    <p>Loading collection...</p>
+  </div>
+  <div id="collection">
+    <p></p>
+  </div>
+</p>
+</body>
+</html>
