@@ -59,13 +59,15 @@ function select_item(index) {
         audio.pause();
         set_ui_state('pause');
     }
-    audio = new Audio('/getcontent?' + escape(library[index].location));
+    entry = library[index];
+    audio = new Audio('/getcontent?' + escape(entry.location));
     audio.setAttribute('autoplay', 'true');
     audio.load();
     clearChildren(document.getElementById('title_text'));
     clearChildren(document.getElementById('artist_text'));
-    document.getElementById('title_text').appendChild(document.createTextNode(library[index].title));
-    document.getElementById('artist_text').appendChild(document.createTextNode(library[index].artist));
+    document.getElementById('title_text').appendChild(document.createTextNode(entry.title));
+    document.getElementById('artist_text').appendChild(document.createTextNode(entry.artist));
+    document.title = entry.title + ' (' + entry.artist + ') - Zeya';
     set_ui_state('play');
 }
 
