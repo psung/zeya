@@ -38,3 +38,18 @@ a:link {
 a:visited {
     color: #00c;
 }
+
+table#collection_table {
+    width: 100%;
+}
+
+table#collection_table td {
+    padding: 0px;
+}
+
+table#collection_table thead td {
+    background-color: #eee;
+    border: 1px outset #eee;
+    font-weight: bold;
+    padding: 1px;
+}

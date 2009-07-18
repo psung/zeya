@@ -17,7 +17,7 @@ function init() {
 }
 
 function load_collection() {
-    var c = document.getElementById('collection');
+    var t = document.getElementById('collection_table');
     var req = new XMLHttpRequest();
     req.open('GET', '/getlibrary', true);
     req.onreadystatechange = function(e) {
@@ -25,13 +25,23 @@ function load_collection() {
             library = JSON.parse(req.responseText);
             for (var index = 0; index < library.length; index++) {
                 var item = library[index];
-                link = document.createElement("a")
+
+                link = document.createElement('a');
                 link.setAttribute('href', '#');
                 link.setAttribute('onclick', 'select_item(' + index + '); return false;');
                 link.appendChild(document.createTextNode(item.title));
-                c.appendChild(link);
-                c.appendChild(document.createTextNode(" " + item.artist));
-                c.appendChild(document.createElement('br'));
+
+                tr = document.createElement('tr');
+                td1 = document.createElement('td');
+                td2 = document.createElement('td');
+                td3 = document.createElement('td');
+                td1.appendChild(link);
+                td2.appendChild(document.createTextNode(item.artist));
+                td3.appendChild(document.createTextNode(item.album));
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                tr.appendChild(td3);
+                t.appendChild(tr);
             }
             document.getElementById('loading').style.display = 'none';
         }
