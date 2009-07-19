@@ -86,11 +86,14 @@ class RhythmboxBackend():
         if key in self._files:
             print key
             if key.endswith('.flac'):
-                decode_command = "/usr/bin/flac -d -c --totally-silent \"%s\""
+                decode_command = ["/usr/bin/flac", "-d", "-c", "--totally-silent", key]
             elif key.endswith('.mp3'):
-                decode_command = "/usr/bin/lame -S --decode \"%s\" -"
+                decode_command = ["/usr/bin/lame", "-S", "--decode", key, "-"]
             elif key.endswith('.ogg'):
-                decode_command = "/usr/bin/oggdec -Q -o - \"%s\""
-            print decode_command
-            p = subprocess.Popen((decode_command % (key,)) + " | /usr/bin/oggenc -Q -b 64 -",
-                                 bufsize = 32768, stdout = out_stream, shell = True)
+                decode_command = ["/usr/bin/oggdec", "-Q", "-o", "-", key]
+            else:
+                print "No decode command found for %s" % (key,)
+            p1 = subprocess.Popen(decode_command, stdout=subprocess.PIPE)
+            p2 = subprocess.Popen(["/usr/bin/oggenc", "-Q", "-b", "64", "-"],
+                                  stdin=p1.stdout,
+                                  stdout=out_stream)
