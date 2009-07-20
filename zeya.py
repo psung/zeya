@@ -5,13 +5,23 @@
 
 import BaseHTTPServer
 
+import getopt
 import json
 import urllib
+import sys
 
 from rhythmbox import RhythmboxBackend
 
+# Store the state of the library.
 library_contents = []
 library_repr = ""
+
+class BadArgsError(Exception):
+    """
+    Error due to incorrect command-line invocation of this program.
+    """
+    def __init__(self):
+        pass
 
 # TODO: support a multithreaded server.
 
@@ -60,7 +70,7 @@ class ZeyaHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type', 'audio/ogg')
         self.end_headers()
-        rb.get_content(path, self.wfile)
+        backend.get_content(path, self.wfile)
         self.wfile.close()
     def serve_library(self):
         """
@@ -89,11 +99,39 @@ class ZeyaHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         except IOError:
             self.send_error(404, 'File not found: %s' % (path,))
 
+def getOptions():
+    """
+    Parse the arguments and return a tuple (show_help, backend), or raise
+    BadArgsError if the invocation was not valid.
+
+    show_help: whether user requested help information
+    backend: string containing backend to use (only supported value right now
+             is "rhythmbox"
+    """
+    help_msg = False
+    backend_type = "rhythmbox"
+    try:
+        opts, file_list = getopt.getopt(sys.argv[1:], "h",
+                                        ["help", "backend="])
+    except getopt.GetoptError:
+        raise BadArgsError()
+    for flag, value in opts:
+        if flag in ("-h", "--help"):
+            help_msg = True
+        if flag in ("--backend"):
+            backend_type = value
+    if backend_type != "rhythmbox":
+        raise BadArgsError()
+    return (help_msg, backend_type)
+
+def usage():
+    print "Usage: zeya.py [-h|--help] [--backend=rhythmbox]"
+
 def main():
     global library_contents, library_repr
     # Read the library.
     print "Loading library..."
-    library_contents = rb.get_library_contents()
+    library_contents = backend.get_library_contents()
     library_repr = json.dumps(library_contents, ensure_ascii=False)
     server = BaseHTTPServer.HTTPServer(('', 8080), ZeyaHandler)
     # Start up a web server.
@@ -106,5 +144,15 @@ def main():
         server.server_close()
 
 if __name__ == '__main__':
-    rb = RhythmboxBackend()
+    try:
+        (show_help, backend_type) = getOptions()
+    except BadArgsError:
+        usage()
+        sys.exit(1)
+    if show_help:
+        usage()
+        sys.exit(0)
+    print "Using %r backend" % (backend_type,)
+    if backend_type == "rhythmbox":
+        backend = RhythmboxBackend()
     main()
