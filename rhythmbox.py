@@ -5,6 +5,8 @@ import re
 import subprocess
 import urllib
 
+from backend import LibraryBackend
+
 from xml.parsers import expat
 
 RB_DBFILE = '~/.local/share/rhythmbox/rhythmdb.xml'
@@ -41,7 +43,7 @@ class RhythmboxDbHandler():
                 self.contents.append({ 'title': self.current_title,
                                        'artist': self.current_artist,
                                        'album': self.current_album,
-                                       'location': path })
+                                       'key': path })
                 self.files.add(path)
         if self.in_title and name == 'title':
             self.in_title = False
@@ -66,7 +68,7 @@ class RhythmboxDbHandler():
     def getContents(self):
         return self.contents
 
-class RhythmboxBackend():
+class RhythmboxBackend(LibraryBackend):
     def __init__(self):
         self._files = set()
         self._contents = None
@@ -79,7 +81,8 @@ class RhythmboxBackend():
             p.CharacterDataHandler = handler.characters
             p.ParseFile(open(os.path.expanduser(RB_DBFILE)))
             self._contents = handler.getContents()
-            self._contents.sort(key = (lambda item: item['location']))
+            # Sort by filename.
+            self._contents.sort(key = (lambda item: item['key']))
             self._files = handler.getFiles()
         return self._contents
     def get_content(self, key, out_stream):

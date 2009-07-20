@@ -70,7 +70,7 @@ function select_item(index) {
         set_ui_state('pause');
     }
     entry = library[index];
-    audio = new Audio('/getcontent?' + escape(entry.location));
+    audio = new Audio('/getcontent?' + escape(entry.key));
     audio.setAttribute('autoplay', 'true');
     if (current_index < library.length - 1) {
         audio.addEventListener('ended',
