@@ -59,6 +59,8 @@ function load_collection() {
     req.send(null);
 }
 
+// TODO: add previous and next buttons.
+
 // Pause the currently playing song.
 function pause() {
     if (current_index != null) {
