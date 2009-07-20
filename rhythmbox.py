@@ -108,12 +108,11 @@ class RhythmboxBackend(LibraryBackend):
         # we don't read arbitrary (possibly non-existent or non-music) files.
         if key in self._files:
             print "Handing request for %s" % (key,)
-            # TODO: case-normalize these filenames.
-            if key.endswith('.flac'):
+            if key.lower().endswith('.flac'):
                 decode_command = ["/usr/bin/flac", "-d", "-c", "--totally-silent", key]
-            elif key.endswith('.mp3'):
+            elif key.lower().endswith('.mp3'):
                 decode_command = ["/usr/bin/lame", "-S", "--decode", key, "-"]
-            elif key.endswith('.ogg'):
+            elif key.lower().endswith('.ogg'):
                 decode_command = ["/usr/bin/oggdec", "-Q", "-o", "-", key]
             else:
                 print "No decode command found for %s" % (key,)
