@@ -1,0 +1,30 @@
+Zeya - a web music server.
+
+
+AUTHORS
+
+Copyright (C) 2009 Phil Sung <psung at alum.mit.edu>
+
+Zeya uses public-domain icons from tango-icon-theme, created by:
+  Ulisse Perusin <uli.peru at gmail.com>
+  Steven Garrity <sgarrity at silverorange.com>
+  Lapo Calamandrei <calamandrei at gmail.com>
+  Ryan Collier <rcollier at novell.com>
+  Rodney Dawes <dobey at novell.com>
+  Andreas Nilsson <nisses.mail at home.se>
+  Tuomas Kuosmanen <tigert at tigert.com>
+  Garrett LeSage <garrett at novell.com>
+  Jakub Steiner <jimmac at novell.com>
+
+
+INSTRUCTIONS
+
+1. (Optional) Add the directory containing zeya.py to your PATH.
+
+2. Install the Ogg/Vorbis encoder and the decoders for one or more of the
+   following: Ogg/Vorbis, FLAC, and MP3. On an Ubuntu system you can do this
+   with:
+
+     aptitude install vorbis-tools flac lame
+
+3. Run zeya.py.
