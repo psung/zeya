@@ -20,8 +20,8 @@ class RhythmboxDbHandler():
         # List containing library metadata (see backend.LibraryBackend for full
         # description).
         self.contents = []
-        # Maintain a set of just the paths for fast membership tests.
-        self.files = set()
+        # Map the keys (ints) to the original file paths.
+        self.filelist = []
         self.in_song = False     # Are we inside a <entry type="song"> ?
         self.in_title = False    # Are we inside a <title> ?
         self.in_artist = False   # Are we inside a <artist> ?
@@ -52,11 +52,12 @@ class RhythmboxDbHandler():
                 # The <location> field contains a URL-encoded version of the
                 # file path. Use the decoded version in all of our data
                 # structures.
+                next_index = len(self.filelist)
                 path = urllib.unquote(self.current_location[7:])
                 self.contents.append(
                     {'title':self.current_title, 'artist':self.current_artist,
-                     'album':self.current_album, 'key':path})
-                self.files.add(path)
+                     'album':self.current_album, 'key':next_index})
+                self.filelist.append(path)
         if self.in_title and name == 'title':
             self.in_title = False
         if self.in_artist and name == 'artist':
@@ -78,7 +79,7 @@ class RhythmboxDbHandler():
             if self.in_location:
                 self.current_location += ch
     def getFiles(self):
-        return self.files
+        return self.filelist
     def getContents(self):
         return self.contents
 
@@ -99,26 +100,26 @@ class RhythmboxBackend(LibraryBackend):
             p.CharacterDataHandler = handler.characters
             p.ParseFile(open(os.path.expanduser(RB_DBFILE)))
             self._contents = handler.getContents()
-            # Sort the items by filename.
-            self._contents.sort(key = (lambda item: item['key']))
             self._files = handler.getFiles()
+            # Sort the items by filename.
+            self._contents.sort(key = (lambda item: self._files[item['key']]))
         return self._contents
     def get_content(self, key, out_stream):
-        # Verify that the key is a path that was already in the collection, so
-        # we don't read arbitrary (possibly non-existent or non-music) files.
-        if key in self._files:
-            print "Handing request for %s" % (key,)
-            if key.lower().endswith('.flac'):
-                decode_command = ["/usr/bin/flac", "-d", "-c", "--totally-silent", key]
-            elif key.lower().endswith('.mp3'):
-                decode_command = ["/usr/bin/lame", "-S", "--decode", key, "-"]
-            elif key.lower().endswith('.ogg'):
-                decode_command = ["/usr/bin/oggdec", "-Q", "-o", "-", key]
+        try:
+            # Obtain the path to the original file.
+            path = self._files[int(key)]
+            print "Handing request for %s" % (path,)
+            if path.lower().endswith('.flac'):
+                decode_command = ["/usr/bin/flac", "-d", "-c", "--totally-silent", path]
+            elif path.lower().endswith('.mp3'):
+                decode_command = ["/usr/bin/lame", "-S", "--decode", path, "-"]
+            elif path.lower().endswith('.ogg'):
+                decode_command = ["/usr/bin/oggdec", "-Q", "-o", "-", path]
             else:
-                print "No decode command found for %s" % (key,)
+                print "No decode command found for %s" % (path,)
             # Pipe the decode command into the encode command.
             p1 = subprocess.Popen(decode_command, stdout=subprocess.PIPE)
             p2 = subprocess.Popen(["/usr/bin/oggenc", "-Q", "-b", "64", "-"],
                                   stdin=p1.stdout, stdout=out_stream)
-        else:
+        except KeyError, ValueError:
             print "Received invalid request for %r" % (key,)
