@@ -8,7 +8,7 @@
   <title>Zeya</title>
 </head>
 <body onload="init()">
-  <p>
+  <div id="header">
     <span id="previous_button" class="control">
       <img id="previous_img" src="previous.png" alt="Previous" onclick="previous()" title="Previous">
     </span>
@@ -23,21 +23,25 @@
     </span>
     <span class="title" id="title_text"></span>
     <span class="artist" id="artist_text"></span>
-  </p>
-  <div id="loading">
-    <p>Loading collection...</p>
   </div>
-  <div id="collection">
-    <p></p>
-    <table id="collection_table">
-      <thead>
-	<tr>
-	  <td style="width: 42%">Title</td>
-	  <td style="width: 29%">Artist</td>
-	  <td style="width: 29%">Album</td>
-	</tr>
-      </thead>
-    </table>
+  <div id="footer">
+    <div id="footer-content">
+      Powered by <a href="http://web.psung.name/zeya/" target="_blank">Zeya</a>
+    </div>
+  </div>
+  <div id="content">
+    <div id="loading">Loading collection...</div>
+    <div id="collection">
+      <table id="collection_table">
+	<thead>
+	  <tr>
+	    <td style="width: 42%">Title</td>
+	    <td style="width: 29%">Artist</td>
+	    <td style="width: 29%">Album</td>
+	  </tr>
+	</thead>
+      </table>
+    </div>
   </div>
 </p>
 </body>

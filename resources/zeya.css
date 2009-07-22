@@ -1,14 +1,72 @@
+body {
+    background-color: #fbfbfb;
+    margin: 0;
+    border: 0;
+    padding: 0;
+    height: 100%;
+    max-height: 100%;
+    font-family: sans-serif;
+    overflow: hidden;
+}
+
+#header {
+    position: absolute;
+    padding: 0px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    overflow: auto;
+    background-color: #f6f5f4;
+    border-bottom: 1px solid #999;
+}
+
+#footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 16px;
+    overflow: hidden;
+    background: #f6f5f4;
+    border-top: 1px solid #999;
+}
+
+#footer-content {
+    padding: 1px;
+    text-align: right;
+    font-size: 72%;
+}
+
+#content {
+    position: fixed;
+    top: 40px;
+    left: 0;
+    bottom: 16px;
+    right: 0;
+    overflow: auto;
+    padding: 1px;
+}
+
+#loading {
+    text-align: center;
+}
+
 span.control img {
     border: 1px solid transparent;
-    padding: 5px;
+    padding: 4px;
+    margin: 4px 1px;
     cursor: hand;
     cursor: pointer;
     vertical-align: middle;
 }
 
 span.control img.activated {
-    border: 1px inset #eee;
-    background-color: #eee;
+    border-bottom: 1px solid #b6b3b0;
+    border-right: 1px solid #b6b3b0;
+    border-top: 1px solid #888582;
+    border-left: 1px solid #888582;
+    background-color: #d6d4d2;
 }
 
 span.control img.grayed {
@@ -27,16 +85,12 @@ span.artist {
     font-style: italic;
 }
 
-body {
-    background-color: #fbfbfb;
-}
-
 a:link {
-    color: #00c;
+    color: #00a;
 }
 
 a:visited {
-    color: #00c;
+    color: #00a;
 }
 
 table#collection_table {
@@ -48,8 +102,8 @@ table#collection_table td {
 }
 
 table#collection_table thead td {
-    background-color: #eee;
-    border: 1px outset #eee;
+    background-color: #eeecea;
+    border: 1px outset #eeecea;
     font-weight: bold;
     padding: 1px;
 }
