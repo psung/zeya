@@ -21,6 +21,9 @@
 
 # Zeya - a web music server.
 
+# Work with python2.5
+from __future__ import with_statement
+
 import BaseHTTPServer
 
 import getopt
