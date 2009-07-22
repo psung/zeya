@@ -44,8 +44,6 @@ class BadArgsError(Exception):
     def __init__(self):
         pass
 
-# TODO: change UI so play controls are always visible.
-
 # TODO: support a multithreaded server.
 
 class ZeyaHandler(BaseHTTPServer.BaseHTTPRequestHandler):
