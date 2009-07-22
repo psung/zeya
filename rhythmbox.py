@@ -128,7 +128,7 @@ class RhythmboxBackend(LibraryBackend):
         try:
             # Obtain the path to the original file.
             path = self._files[int(key)]
-            print "Handing request for %s" % (path,)
+            print "Handling request for %s" % (path,)
             if path.lower().endswith('.flac'):
                 decode_command = ["/usr/bin/flac", "-d", "-c", "--totally-silent", path]
             elif path.lower().endswith('.mp3'):
