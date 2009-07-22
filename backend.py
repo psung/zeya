@@ -67,9 +67,13 @@ class LibraryBackend():
         here.
         """
         raise NotImplementedError()
-    def write_content(self, key, out_stream):
+
+    def get_content(self, key, out_stream):
         """
         Retrieve the file data associated with the specified key and write an
         audio/ogg encoded version to out_stream.
         """
+        filename_to_stream(self.get_filename_from_key(key), out_stream)
+
+    def get_filename_from_key(self, key):
         raise NotImplementedError()
