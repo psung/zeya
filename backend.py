@@ -17,6 +17,31 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Zeya. If not, see <http://www.gnu.org/licenses/>.
 
+import subprocess
+
+def filename_to_stream(filename, out_stream):
+    try:
+        # Obtain the path to the original file.
+        print "Handing request for %s" % (filename,)
+        if filename.lower().endswith('.flac'):
+            decode_command = ["/usr/bin/flac", "-d", "-c", "--totally-silent", filename]
+        elif filename.lower().endswith('.mp3'):
+            #decode_command = ["/usr/bin/lame", "-S", "--decode", filename, "-"]
+            #decode_command = ("/usr/bin/mpg321 -s -q \"%s\""%filename).split()
+            decode_command = ["/usr/bin/mpg321", "-s", "-q", filename]
+            #print 'dc', decode_command
+        elif filename.lower().endswith('.ogg'):
+            decode_command = ["/usr/bin/oggdec", "-Q", "-o", "-", filename]
+        else:
+            print "No decode command found for %s" % (filename,)
+        # Pipe the decode command into the encode command.
+        print 'dc', decode_command
+        p1 = subprocess.Popen(decode_command, stdout=subprocess.PIPE)
+        p2 = subprocess.Popen(["/usr/bin/oggenc", "-r", "-Q", "-b", "64", "-"],
+                              stdin=p1.stdout, stdout=out_stream)
+        #p2 = subprocess.Popen("/usr/bin/oggenc -".split(),
+    except KeyError, ValueError:
+        print "Received invalid request for %r" % (key,)
 
 # This interface is implemented by all library backends.
 
