@@ -27,9 +27,13 @@ from __future__ import with_statement
 import BaseHTTPServer
 
 import getopt
-import json
 import urllib
 import sys
+try:
+    import json
+    json.dumps
+except AttributeError:
+    import simplejson as json
 
 from rhythmbox import RhythmboxBackend
 
