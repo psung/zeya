@@ -25,6 +25,12 @@ INSTRUCTIONS
    following: Ogg/Vorbis, FLAC, and MP3. On an Ubuntu system you can do this
    with:
 
-     aptitude install vorbis-tools flac lame python-json
+    aptitude install vorbis-tools flac lame
+
+2a. If you're using the plain directory backend, also do:
+		aptitude install python-tagpy
+
+2b.	You may also need simplejson if you're not on python2.6:
+		aptitude install python-simplejson
 
 3. Run zeya.py.
