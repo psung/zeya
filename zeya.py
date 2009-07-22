@@ -154,6 +154,7 @@ def main():
     print "Loading library..."
     library_contents = backend.get_library_contents()
     library_repr = json.dumps(library_contents, ensure_ascii=False)
+    # TODO: allow setting port via --port flag.
     server = BaseHTTPServer.HTTPServer(('', 8080), ZeyaHandler)
     # Start up a web server.
     print "Ready to serve!"
