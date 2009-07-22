@@ -186,5 +186,5 @@ if __name__ == '__main__':
     if backend_type == "rhythmbox":
         backend = RhythmboxBackend()
     elif backend_type == 'directory':
-        backend = SingleRecursedDir('nowhere')
+        backend = SingleRecursedDir('/vid/fragmede/music/pink/')
     main()
