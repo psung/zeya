@@ -59,7 +59,12 @@ function load_collection() {
     req.send(null);
 }
 
-// TODO: add previous and next buttons.
+// Skip to the next song.
+function next() {
+    if (current_index != null) {
+        select_next();
+    }
+}
 
 // Pause the currently playing song.
 function pause() {
@@ -77,6 +82,17 @@ function play() {
     }
 }
 
+// Skip to the beginning of the current song, or to the previous song.
+function previous() {
+    if (current_index != null) {
+        if (audio.currentTime > 5.00) {
+            audio.currentTime = 0.0;
+        } else {
+            select_previous();
+        }
+    }
+}
+
 // Load the song with the given index.
 function select_item(index) {
     // Pause the currently playing song.
@@ -91,7 +107,7 @@ function select_item(index) {
     current_index = index;
     // When this song is finished, advance to the next one.
     if (index < library.length - 1) {
-        audio.addEventListener('ended', select_item_fn(index + 1), false);
+        audio.addEventListener('ended', select_next, false);
     }
     audio.load();
     // Update the UI.
@@ -103,27 +119,43 @@ function select_item(index) {
     set_ui_state('play');
 }
 
-// Wrapper around select_item.
-function select_item_fn(index) {
-    var current_index = index;
-    return function() {
-        select_item(current_index);
+// Load the next song in the list (with wraparound).
+function select_next() {
+    if (current_index == library.length - 1) {
+        select_item(0);
+    } else {
+        select_item(current_index + 1);
+    }
+}
+
+// Load the previous song in the list (with wraparound).
+function select_previous() {
+    if (current_index == 0) {
+        select_item(library.length - 1);
+    } else {
+        select_item(current_index - 1);
     }
 }
 
 // Set the state of the UI.
 function set_ui_state(new_state) {
     if (new_state == 'grayed') {
-        // Both buttons grayed.
+        // All buttons grayed.
+        document.getElementById("previous_img").className = 'grayed';
         document.getElementById("play_img").className = 'grayed';
         document.getElementById("pause_img").className = 'grayed';
+        document.getElementById("next_img").className = 'grayed';
     } else if (new_state == 'play') {
         // 'Play' depressed
+        document.getElementById("previous_img").className = '';
         document.getElementById("play_img").className = 'activated';
         document.getElementById("pause_img").className = '';
+        document.getElementById("next_img").className = '';
     } else {
         // 'Pause' depressed
+        document.getElementById("previous_img").className = '';
         document.getElementById("pause_img").className = 'activated';
         document.getElementById("play_img").className = '';
+        document.getElementById("previous_img").className = '';
     }
 }
