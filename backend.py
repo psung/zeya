@@ -35,7 +35,6 @@ def filename_to_stream(filename, out_stream):
         else:
             print "No decode command found for %s" % (filename,)
         # Pipe the decode command into the encode command.
-        print 'dc', decode_command
         p1 = subprocess.Popen(decode_command, stdout=subprocess.PIPE)
         p2 = subprocess.Popen(["/usr/bin/oggenc", "-r", "-Q", "-b", "64", "-"],
                               stdin=p1.stdout, stdout=out_stream)
