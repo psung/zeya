@@ -148,8 +148,8 @@ def getOptions():
             help_msg = True
         if flag in ("--backend"):
             backend_type = value
-        if backend_type not in valid_backends:
-            raise BadArgsError()
+            if backend_type not in valid_backends:
+                raise BadArgsError()
     return (help_msg, backend_type)
 
 def usage():
