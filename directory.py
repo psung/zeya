@@ -88,7 +88,9 @@ class SingleRecursedDir(LibraryBackend):
 
                 data = {KEY: i,
                         ARTIST: tag.artist,
-                        TITLE: tag.title,
+                        # Make sure TITLE is not blank so user has something to
+                        # click on.
+                        TITLE: tag.title or os.path.basename(filename),
                         ALBUM: tag.album,
                        }
                 self.db.append(data)
