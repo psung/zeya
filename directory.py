@@ -17,18 +17,19 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Zeya. If not, see <http://www.gnu.org/licenses/>.
 
+
+# Directory backend. (Experimental)
+#
 # This is very much work in progress.
 #
 # Fundamental questions regarding database handling and how to store db info
 # have yet to be handled. Also, how to handle new files if the database is
 # being reloaded is completely unaddressed.
-#
 
 import os
 import tagpy
 import pickle
 
-# Directory backend.
 from backend import LibraryBackend
 
 KEY = 'key'
@@ -73,10 +74,10 @@ class SingleRecursedDir(LibraryBackend):
         i = 0 # Use simple int as key (sub-optimal, but better than sending
               # entire path across wire for small db's)
         for path, dirs, files in os.walk(self._media_path):
-            for file in [os.path.abspath(os.path.join(path, filename)) for
+            for filename in [os.path.abspath(os.path.join(path, filename)) for
                          filename in files]:
                 try:
-                    tag = tagpy.FileRef(file).tag()
+                    tag = tagpy.FileRef(filename).tag()
                 except ValueError:
                     # If there was a ValueError, then ignore the file (assuming
                     # non-audio helper file)
@@ -88,7 +89,7 @@ class SingleRecursedDir(LibraryBackend):
                         ALBUM: tag.album,
                        }
                 self.db.append(data)
-                self.key_filename[i] = file
+                self.key_filename[i] = filename
                 i += 1
 
     def get_library_contents(self):
