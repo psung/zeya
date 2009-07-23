@@ -38,6 +38,9 @@ except (ImportError, AttributeError):
 from rhythmbox import RhythmboxBackend
 from directory import SingleRecursedDir
 
+DEFAULT_PORT = 8080
+DEFAULT_BACKEND = "rhythmbox"
+
 # Store the state of the library.
 library_contents = []
 library_repr = ""
@@ -48,8 +51,10 @@ class BadArgsError(Exception):
     """
     Error due to incorrect command-line invocation of this program.
     """
-    def __init__(self):
-        pass
+    def __init__(self, message):
+        self.error_message = message
+    def __str__(self):
+        return "Error: %s" % (self.error_message,)
 
 # TODO: support a multithreaded server.
 
@@ -129,40 +134,47 @@ class ZeyaHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 def getOptions():
     """
-    Parse the arguments and return a tuple (show_help, backend), or raise
+    Parse the arguments and return a tuple (show_help, backend, port), or raise
     BadArgsError if the invocation was not valid.
 
     show_help: whether user requested help information
     backend: string containing backend to use (only supported value right now
-             is "rhythmbox"
+             is "rhythmbox")
+    port: port number to listen on
     """
     help_msg = False
-    backend_type = "rhythmbox"
+    port = DEFAULT_PORT
+    backend_type = DEFAULT_BACKEND
     try:
-        opts, file_list = getopt.getopt(sys.argv[1:], "h",
-                                        ["help", "backend="])
+        opts, file_list = getopt.getopt(sys.argv[1:], "hp:",
+                                        ["help", "backend=", "port="])
     except getopt.GetoptError:
-        raise BadArgsError()
+        raise BadArgsError("Unsupported options")
     for flag, value in opts:
         if flag in ("-h", "--help"):
             help_msg = True
         if flag in ("--backend"):
             backend_type = value
             if backend_type not in valid_backends:
-                raise BadArgsError()
-    return (help_msg, backend_type)
+                raise BadArgsError("Unsupported backend type")
+        if flag in ("-p", "--port"):
+            try:
+                port = int(value)
+            except ValueError:
+                raise BadArgsError("Invalid port setting %r" % (value,))
+    return (help_msg, backend_type, port)
 
 def usage():
-    print "Usage: zeya.py [-h|--help] [--backend=rhythmbox]"
+    print "Usage: zeya.py [-h|--help] [--backend=rhythmbox] [--port]"
 
-def main():
+def main(port):
     global library_contents, library_repr
     # Read the library.
     print "Loading library..."
     library_contents = backend.get_library_contents()
     library_repr = json.dumps(library_contents, ensure_ascii=False)
-    # TODO: allow setting port via --port flag.
-    server = BaseHTTPServer.HTTPServer(('', 8080), ZeyaHandler)
+    server = BaseHTTPServer.HTTPServer(('', port), ZeyaHandler)
+    print "Listening on port %d" % (port,)
     # Start up a web server.
     print "Ready to serve!"
     try:
@@ -174,8 +186,9 @@ def main():
 
 if __name__ == '__main__':
     try:
-        (show_help, backend_type) = getOptions()
-    except BadArgsError:
+        (show_help, backend_type, port) = getOptions()
+    except BadArgsError, e:
+        print e
         usage()
         sys.exit(1)
     if show_help:
@@ -186,4 +199,4 @@ if __name__ == '__main__':
         backend = RhythmboxBackend()
     elif backend_type == 'directory':
         backend = SingleRecursedDir('/vid/fragmede/music/pink/')
-    main()
+    main(port)
