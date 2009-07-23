@@ -35,9 +35,6 @@ try:
 except (ImportError, AttributeError):
     import simplejson as json
 
-from rhythmbox import RhythmboxBackend
-from directory import SingleRecursedDir
-
 DEFAULT_PORT = 8080
 DEFAULT_BACKEND = "rhythmbox"
 
@@ -196,7 +193,11 @@ if __name__ == '__main__':
         sys.exit(0)
     print "Using %r backend" % (backend_type,)
     if backend_type == "rhythmbox":
+        # Import the backend modules conditionally, so users don't have to
+        # install dependencies unless they are actually used.
+        from rhythmbox import RhythmboxBackend
         backend = RhythmboxBackend()
     elif backend_type == 'directory':
+        from directory import SingleRecursedDir
         backend = SingleRecursedDir('/vid/fragmede/music/pink/')
     main(port)
