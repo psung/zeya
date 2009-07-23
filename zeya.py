@@ -27,15 +27,22 @@ from __future__ import with_statement
 import BaseHTTPServer
 
 import getopt
-import json
 import urllib
 import sys
+try:
+    import json
+    json.dumps
+except AttributeError:
+    import simplejson as json
 
 from rhythmbox import RhythmboxBackend
+from directory import SingleRecursedDir
 
 # Store the state of the library.
 library_contents = []
 library_repr = ""
+
+valid_backends = ['rhythmbox', 'directory']
 
 class BadArgsError(Exception):
     """
@@ -141,8 +148,8 @@ def getOptions():
             help_msg = True
         if flag in ("--backend"):
             backend_type = value
-    if backend_type != "rhythmbox":
-        raise BadArgsError()
+        if backend_type not in valid_backends:
+            raise BadArgsError()
     return (help_msg, backend_type)
 
 def usage():
@@ -177,4 +184,6 @@ if __name__ == '__main__':
     print "Using %r backend" % (backend_type,)
     if backend_type == "rhythmbox":
         backend = RhythmboxBackend()
+    elif backend_type == 'directory':
+        backend = SingleRecursedDir('/vid/fragmede/music/pink/')
     main()

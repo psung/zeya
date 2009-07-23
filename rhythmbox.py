@@ -124,22 +124,3 @@ class RhythmboxBackend(LibraryBackend):
             # Sort the items by filename.
             self._contents.sort(key = (lambda item: self._files[item['key']]))
         return self._contents
-    def get_content(self, key, out_stream):
-        try:
-            # Obtain the path to the original file.
-            path = self._files[int(key)]
-            print "Handling request for %s" % (path,)
-            if path.lower().endswith('.flac'):
-                decode_command = ["/usr/bin/flac", "-d", "-c", "--totally-silent", path]
-            elif path.lower().endswith('.mp3'):
-                decode_command = ["/usr/bin/lame", "-S", "--decode", path, "-"]
-            elif path.lower().endswith('.ogg'):
-                decode_command = ["/usr/bin/oggdec", "-Q", "-o", "-", path]
-            else:
-                print "No decode command found for %s" % (path,)
-            # Pipe the decode command into the encode command.
-            p1 = subprocess.Popen(decode_command, stdout=subprocess.PIPE)
-            p2 = subprocess.Popen(["/usr/bin/oggenc", "-Q", "-b", "64", "-"],
-                                  stdin=p1.stdout, stdout=out_stream)
-        except KeyError, ValueError:
-            print "Received invalid request for %r" % (key,)
