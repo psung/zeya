@@ -124,3 +124,5 @@ class RhythmboxBackend(LibraryBackend):
             # Sort the items by filename.
             self._contents.sort(key = (lambda item: self._files[item['key']]))
         return self._contents
+    def get_filename_from_key(self, key):
+        return self._files[int(key)]
