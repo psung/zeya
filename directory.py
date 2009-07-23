@@ -41,6 +41,9 @@ DB='db'
 KEY_FILENAME = 'key_filename'
 
 class SingleRecursedDir(LibraryBackend):
+    """
+    Object that controls access to music in a given directory.
+    """
     def __init__(self, media_path, save_db=True):
         self._media_path = media_path
         self._save_db = save_db
@@ -98,11 +101,7 @@ class SingleRecursedDir(LibraryBackend):
     def get_filename_from_key(self, key):
         return self.key_filename[int(key)]
 
-# Path to XML file containing Rhythmbox library
 class MultipleDirBackend(LibraryBackend):
-    """
-    Object that controls access to a Rhythmbox music collection.
-    """
     def __init__(self, media_path_list):
         self._media_path_list = media_path_list
         self.dbs = []
@@ -112,4 +111,3 @@ class MultipleDirBackend(LibraryBackend):
     def get_library_contents(self):
         # Memoize self._contents and self._files.
         return []
-
