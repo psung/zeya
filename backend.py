@@ -21,7 +21,7 @@ import subprocess
 
 def filename_to_stream(filename, out_stream):
     try:
-        print "Handing request for %s" % (filename,)
+        print "Handling request for %s" % (filename,)
         if filename.lower().endswith('.flac'):
             decode_command = ["/usr/bin/flac", "-d", "-c", "--totally-silent", filename]
         elif filename.lower().endswith('.mp3'):
