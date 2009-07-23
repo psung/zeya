@@ -22,16 +22,20 @@ INSTRUCTIONS
 
 1. (Optional) Add the directory containing zeya.py to your PATH.
 
-2. Install the Ogg/Vorbis encoder and the decoders for one or more of the
+2. Install dependencies:
+
+   Install the Ogg/Vorbis encoder and the decoders for one or more of the
    following: Ogg/Vorbis, FLAC, and MP3. On an Ubuntu system you can do this
    with:
 
-    aptitude install vorbis-tools flac lame
+    aptitude install vorbis-tools flac mpg321
 
-2a. If you're using the plain directory backend, also do:
-		aptitude install python-tagpy
+   Python <=2.5 users will need to install the simplejson library:
 
-2b.	You may also need simplejson if you're not on python2.6:
-		aptitude install python-simplejson
+    aptitude install python-simplejson
 
-3. Run zeya.py.
+   If you're using the directory backend (experimental), also install tagpy:
+
+    aptitude install python-tagpy
+
+3. Run zeya.py. The --help flag shows the available options.
