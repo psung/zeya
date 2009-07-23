@@ -32,7 +32,7 @@ import sys
 try:
     import json
     json.dumps
-except AttributeError:
+except (ImportError, AttributeError):
     import simplejson as json
 
 from rhythmbox import RhythmboxBackend
