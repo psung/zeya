@@ -25,7 +25,8 @@ def filename_to_stream(filename, out_stream):
         if filename.lower().endswith('.flac'):
             decode_command = ["/usr/bin/flac", "-d", "-c", "--totally-silent", filename]
         elif filename.lower().endswith('.mp3'):
-            #decode_command = ["/usr/bin/lame", "-S", "--decode", filename, "-"]
+            # It seems that either lame or mpg321 work for decoding MP3s here.
+            # decode_command = ["/usr/bin/lame", "-S", "--decode", filename, "-"]
             decode_command = ["/usr/bin/mpg321", "-s", "-q", filename]
         elif filename.lower().endswith('.ogg'):
             decode_command = ["/usr/bin/oggdec", "-Q", "-o", "-", filename]
