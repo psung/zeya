@@ -142,9 +142,10 @@ def getOptions():
     help_msg = False
     port = DEFAULT_PORT
     backend_type = DEFAULT_BACKEND
+    path = None
     try:
         opts, file_list = getopt.getopt(sys.argv[1:], "hp:",
-                                        ["help", "backend=", "port="])
+                                        ["help", "backend=", "port=", "path="])
     except getopt.GetoptError:
         raise BadArgsError("Unsupported options")
     for flag, value in opts:
@@ -154,15 +155,19 @@ def getOptions():
             backend_type = value
             if backend_type not in valid_backends:
                 raise BadArgsError("Unsupported backend type")
+        if flag in ("--path"):
+            path = value
         if flag in ("-p", "--port"):
             try:
                 port = int(value)
             except ValueError:
                 raise BadArgsError("Invalid port setting %r" % (value,))
-    return (help_msg, backend_type, port)
+    if backend_type == 'directory' and path is None:
+        raise BadArgsError("Directory backend needs a path (--path)")
+    return (help_msg, backend_type, port, path)
 
 def usage():
-    print "Usage: zeya.py [-h|--help] [--backend=rhythmbox] [--port]"
+    print "Usage: zeya.py [-h|--help] [--backend=rhythmbox] [--port] [--path]"
 
 def main(port):
     global library_contents, library_repr
@@ -183,7 +188,7 @@ def main(port):
 
 if __name__ == '__main__':
     try:
-        (show_help, backend_type, port) = getOptions()
+        (show_help, backend_type, port, path) = getOptions()
     except BadArgsError, e:
         print e
         usage()
@@ -199,5 +204,5 @@ if __name__ == '__main__':
         backend = RhythmboxBackend()
     elif backend_type == 'directory':
         from directory import SingleRecursedDir
-        backend = SingleRecursedDir('/vid/fragmede/music/pink/')
+        backend = SingleRecursedDir(path)
     main(port)
