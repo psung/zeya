@@ -69,7 +69,11 @@ class LibraryBackend():
         Retrieve the file data associated with the specified key and write an
         audio/ogg encoded version to out_stream.
         """
+        # This is a convenience implementation of this method.
         filename_to_stream(self.get_filename_from_key(key), out_stream)
 
     def get_filename_from_key(self, key):
+        # Retrieve the filename that 'key' is backed by. This is not part of
+        # the public API, but is used in the default implementation of
+        # get_content.
         raise NotImplementedError()
