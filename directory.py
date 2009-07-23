@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2009 Phil Sung
+# Copyright (C) 2009 Samson Yeung, Phil Sung
 #
 # This file is part of Zeya.
 #
