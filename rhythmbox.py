@@ -21,7 +21,6 @@
 # Rhythmbox backend.
 
 import os
-import re
 import subprocess
 import urllib
 
