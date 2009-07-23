@@ -21,7 +21,6 @@ import subprocess
 
 def filename_to_stream(filename, out_stream):
     try:
-        # Obtain the path to the original file.
         print "Handing request for %s" % (filename,)
         if filename.lower().endswith('.flac'):
             decode_command = ["/usr/bin/flac", "-d", "-c", "--totally-silent", filename]
