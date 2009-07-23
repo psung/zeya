@@ -27,9 +27,7 @@ def filename_to_stream(filename, out_stream):
             decode_command = ["/usr/bin/flac", "-d", "-c", "--totally-silent", filename]
         elif filename.lower().endswith('.mp3'):
             #decode_command = ["/usr/bin/lame", "-S", "--decode", filename, "-"]
-            #decode_command = ("/usr/bin/mpg321 -s -q \"%s\""%filename).split()
             decode_command = ["/usr/bin/mpg321", "-s", "-q", filename]
-            #print 'dc', decode_command
         elif filename.lower().endswith('.ogg'):
             decode_command = ["/usr/bin/oggdec", "-Q", "-o", "-", filename]
         else:
@@ -38,7 +36,6 @@ def filename_to_stream(filename, out_stream):
         p1 = subprocess.Popen(decode_command, stdout=subprocess.PIPE)
         p2 = subprocess.Popen(["/usr/bin/oggenc", "-r", "-Q", "-b", "64", "-"],
                               stdin=p1.stdout, stdout=out_stream)
-        #p2 = subprocess.Popen("/usr/bin/oggenc -".split(),
     except KeyError, ValueError:
         print "Received invalid request for %r" % (key,)
 
