@@ -151,11 +151,11 @@ def getOptions():
     for flag, value in opts:
         if flag in ("-h", "--help"):
             help_msg = True
-        if flag in ("--backend"):
+        if flag in ("--backend",):
             backend_type = value
             if backend_type not in valid_backends:
                 raise BadArgsError("Unsupported backend type")
-        if flag in ("--path"):
+        if flag in ("--path",):
             path = value
         if flag in ("-p", "--port"):
             try:
