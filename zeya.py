@@ -167,7 +167,7 @@ def getOptions():
     return (help_msg, backend_type, port, path)
 
 def usage():
-    print "Usage: zeya.py [-h|--help] [--backend=rhythmbox] [--port] [--path]"
+    print "Usage: zeya.py [-h|--help] [--backend=[rhythmbox|directory]] [--port] [--path=PATH]"
 
 def main(port):
     global library_contents, library_repr
