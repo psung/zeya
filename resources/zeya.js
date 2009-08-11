@@ -7,6 +7,8 @@ var library;
 var current_index;
 // Audio object we'll use for playing songs.
 var audio;
+// Current application state ('grayed', 'play', 'pause')
+var current_state = 'grayed';
 
 // Clear all the children of c.
 function clearChildren(c) {
@@ -22,6 +24,31 @@ function init() {
     audio = null;
     set_ui_state('grayed');
     load_collection();
+}
+
+function keypress_handler(e) {
+    if(window.event) {
+        keynum = e.keyCode; // IE
+    } else if(e.which) {
+        keynum = e.which; // Other browsers
+    } else {
+        return true;
+    }
+    if (String.fromCharCode(keynum) == ' ') {
+        if (current_state == 'play') {
+            pause();
+        } else if (current_state == 'pause') {
+            play();
+        }
+        return false;
+    } else if (String.fromCharCode(keynum) == 'j') {
+        next();
+        return false;
+    } else if (String.fromCharCode(keynum) == 'k') {
+        previous();
+        return false;
+    }
+    return true;
 }
 
 // Request the collection from the server and render a table to display it.
@@ -158,4 +185,5 @@ function set_ui_state(new_state) {
         document.getElementById("play_img").className = '';
         document.getElementById("previous_img").className = '';
     }
+    current_state = new_state;
 }
