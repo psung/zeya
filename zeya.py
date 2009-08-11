@@ -119,6 +119,7 @@ class ZeyaHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         Serve static content from the resources/ directory.
         """
         try:
+            # TODO - fix this by reading from sys.argv[0] so resources is found properly
             # path already has a leading '/' in front of it.
             with open('resources' + path) as f:
                 self.send_response(200)
