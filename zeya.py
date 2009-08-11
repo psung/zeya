@@ -127,9 +127,17 @@ def ZeyaHandler(resource_basedir):
             Serve static content from the resources/ directory.
             """
             try:
-                # path already has a leading '/' in front of it.
-                abs_path = os.path.join(resource_basedir, 'resources', path[1:])
-                with open(abs_path) as f:
+                # path already has a leading '/' in front of it. Strip it.
+                full_path = os.path.join(resource_basedir, path[1:])
+                # Ensure that the basedir we use for security checks ends in '/'.
+                effective_basedir = os.path.join(resource_basedir, '')
+                # Prevent directory traversal attacks. Canonicalize the
+                # filename we're going to open and verify that it's inside the
+                # resource directory.
+                if not os.path.abspath(full_path).startswith(effective_basedir):
+                    self.send_error(404, 'File not found: %s' % (path,))
+                    return
+                with open(full_path) as f:
                     self.send_response(200)
                     self.send_header('Content-type', self.get_content_type(path))
                     self.end_headers()
@@ -187,7 +195,9 @@ def main(port):
     library_contents = backend.get_library_contents()
     library_repr = json.dumps(library_contents, ensure_ascii=False)
     basedir = os.path.abspath(os.path.dirname(sys.argv[0]))
-    server = BaseHTTPServer.HTTPServer(('', port), ZeyaHandler(basedir))
+    server = BaseHTTPServer.HTTPServer(
+        ('', port),
+        ZeyaHandler(os.path.join(basedir, 'resources')))
     print "Listening on port %d" % (port,)
     # Start up a web server.
     print "Ready to serve!"
