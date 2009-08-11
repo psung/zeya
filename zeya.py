@@ -28,6 +28,7 @@ import BaseHTTPServer
 
 import getopt
 import urllib
+import os
 import sys
 try:
     import json
@@ -55,80 +56,89 @@ class BadArgsError(Exception):
 
 # TODO: support a multithreaded server.
 
-class ZeyaHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+def ZeyaHandler(resource_basedir):
     """
-    Web server request handler.
+    Wrapper around the actual HTTP request handler implementation class. We
+    need to create a closure so that the inner class can remember the base
+    directory for resources.
     """
-    def do_GET(self):
-        """
-        Handle a GET request.
-        """
-        # http://host/ yields the library main page.
-        if self.path == '/':
-            self.serve_static_content('/library.html')
-        # http://host/getlibrary returns a representation of the music
-        # collection.
-        elif self.path == '/getlibrary':
-            self.serve_library()
-        # http://host/getcontent?key yields an Ogg stream of the file
-        # associated with the specified key.
-        elif self.path.startswith('/getcontent?'):
-            self.serve_content(urllib.unquote(self.path[12:]))
-        # All other paths are assumed to be static content.
-        # http://host/foo is mapped to resources/foo.
-        else:
-            self.serve_static_content(self.path)
-    def get_content_type(self, path):
-        """
-        Return the MIME type associated with the given path.
-        """
-        path = path.lower()
-        if path.endswith('.html'):
-            return 'text/html'
-        elif path.endswith('.png'):
-            return 'image/png'
-        elif path.endswith('.css'):
-            return 'text/css'
-        elif path.endswith('.ogg'):
-            return 'audio/ogg'
-        else:
-            return 'application/octet-stream'
-    def serve_content(self, path):
-        """
-        Serve an audio stream (audio/ogg).
-        """
-        self.send_response(200)
-        self.send_header('Content-type', 'audio/ogg')
-        self.end_headers()
-        backend.get_content(path, self.wfile)
-        self.wfile.close()
-    def serve_library(self):
-        """
-        Serve a representation of the library.
 
-        We take the output of backend.get_library_contents(), dump it as JSON,
-        and give that to the client.
+    class ZeyaHandlerImpl(BaseHTTPServer.BaseHTTPRequestHandler):
         """
-        self.send_response(200)
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
-        self.wfile.write(library_repr.encode('utf-8'))
-        self.wfile.close()
-    def serve_static_content(self, path):
+        Web server request handler.
         """
-        Serve static content from the resources/ directory.
-        """
-        try:
-            # TODO - fix this by reading from sys.argv[0] so resources is found properly
-            # path already has a leading '/' in front of it.
-            with open('resources' + path) as f:
-                self.send_response(200)
-                self.send_header('Content-type', self.get_content_type(path))
-                self.end_headers()
-                self.wfile.write(f.read())
-                self.wfile.close()
-        except IOError:
-            self.send_error(404, 'File not found: %s' % (path,))
+        def do_GET(self):
+            """
+            Handle a GET request.
+            """
+            # http://host/ yields the library main page.
+            if self.path == '/':
+                self.serve_static_content('/library.html')
+            # http://host/getlibrary returns a representation of the music
+            # collection.
+            elif self.path == '/getlibrary':
+                self.serve_library()
+            # http://host/getcontent?key yields an Ogg stream of the file
+            # associated with the specified key.
+            elif self.path.startswith('/getcontent?'):
+                self.serve_content(urllib.unquote(self.path[12:]))
+            # All other paths are assumed to be static content.
+            # http://host/foo is mapped to resources/foo.
+            else:
+                self.serve_static_content(self.path)
+        def get_content_type(self, path):
+            """
+            Return the MIME type associated with the given path.
+            """
+            path = path.lower()
+            if path.endswith('.html'):
+                return 'text/html'
+            elif path.endswith('.png'):
+                return 'image/png'
+            elif path.endswith('.css'):
+                return 'text/css'
+            elif path.endswith('.ogg'):
+                return 'audio/ogg'
+            else:
+                return 'application/octet-stream'
+        def serve_content(self, path):
+            """
+            Serve an audio stream (audio/ogg).
+            """
+            self.send_response(200)
+            self.send_header('Content-type', 'audio/ogg')
+            self.end_headers()
+            backend.get_content(path, self.wfile)
+            self.wfile.close()
+        def serve_library(self):
+            """
+            Serve a representation of the library.
+
+            We take the output of backend.get_library_contents(), dump it as JSON,
+            and give that to the client.
+            """
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write(library_repr.encode('utf-8'))
+            self.wfile.close()
+        def serve_static_content(self, path):
+            """
+            Serve static content from the resources/ directory.
+            """
+            try:
+                # path already has a leading '/' in front of it.
+                abs_path = os.path.join(resource_basedir, 'resources', path[1:])
+                with open(abs_path) as f:
+                    self.send_response(200)
+                    self.send_header('Content-type', self.get_content_type(path))
+                    self.end_headers()
+                    self.wfile.write(f.read())
+                    self.wfile.close()
+            except IOError:
+                self.send_error(404, 'File not found: %s' % (path,))
+
+    return ZeyaHandlerImpl
 
 def getOptions():
     """
@@ -176,7 +186,8 @@ def main(port):
     print "Loading library..."
     library_contents = backend.get_library_contents()
     library_repr = json.dumps(library_contents, ensure_ascii=False)
-    server = BaseHTTPServer.HTTPServer(('', port), ZeyaHandler)
+    basedir = os.path.abspath(os.path.dirname(sys.argv[0]))
+    server = BaseHTTPServer.HTTPServer(('', port), ZeyaHandler(basedir))
     print "Listening on port %d" % (port,)
     # Start up a web server.
     print "Ready to serve!"
