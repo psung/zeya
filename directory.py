@@ -20,6 +20,9 @@
 
 # Directory backend. (Experimental)
 #
+# Files in the specified directory are read for artist/title/album tag which is
+# then saved in a database. The
+#
 # This is very much work in progress.
 #
 # Fundamental questions regarding database handling and how to store db info
@@ -37,10 +40,11 @@ TITLE = 'title'
 ARTIST = 'artist'
 ALBUM = 'album'
 
-DB='db'
+DB = 'db'
 KEY_FILENAME = 'key_filename'
+MTIMES = 'mtimes'
 
-class SingleRecursedDir(LibraryBackend):
+class DirectoryBackend(LibraryBackend):
     """
     Object that controls access to music in a given directory.
     """
@@ -49,6 +53,8 @@ class SingleRecursedDir(LibraryBackend):
         self._save_db = save_db
         self.db = []
         self.key_filename = {}
+        self.mtimes = {}
+
         self.setup_db()
 
     def get_db_filename(self):
@@ -57,8 +63,7 @@ class SingleRecursedDir(LibraryBackend):
     def setup_db(self):
         if os.path.exists(self.get_db_filename()):
             self.read_db_from_disk()
-        else:
-            self.fill_db()
+        self.fill_db()
         if self._save_db:
             self.save_db()
 
@@ -66,34 +71,44 @@ class SingleRecursedDir(LibraryBackend):
         self.info = pickle.load(open(self.get_db_filename(), 'r'))
         self.db = self.info[DB]
         self.key_filename = self.info[KEY_FILENAME]
+        self.mtimes = self.info[MTIMES]
+
+        #for path, dirs, files in os.walk(self._media_path):
 
     def save_db(self):
         self.info = {DB: self.db,
+                     MTIMES: self.mtimes,
                      KEY_FILENAME: self.key_filename}
         pickle.dump(self.info, open(self.get_db_filename(), 'wb+'))
 
     def fill_db(self):
         # Walk
-        i = 0 # Use simple int as key (sub-optimal, but better than sending
-              # entire path across wire for small db's)
+        i = len(self.key_filename) # Use simple int as key (sub-optimal, but
+        # better than sending entire path across wire for small db's)
         for path, dirs, files in os.walk(self._media_path):
             for filename in [os.path.abspath(os.path.join(path, filename)) for
                          filename in files]:
-                try:
-                    tag = tagpy.FileRef(filename).tag()
-                except ValueError:
-                    # If there was a ValueError, then ignore the file (assuming
-                    # non-audio helper file)
-                    continue
+                file_mtime = os.stat(filename).st_mtime
+                rec_mtime = self.mtimes.get(filename, 0)
 
-                data = {KEY: i,
-                        ARTIST: tag.artist,
-                        TITLE: tag.title,
-                        ALBUM: tag.album,
-                       }
-                self.db.append(data)
-                self.key_filename[i] = filename
-                i += 1
+                if rec_mtime <= file_mtime:
+                    try:
+                        tag = tagpy.FileRef(filename).tag()
+                    except:
+                        # If there was any exception, then ignore the file and
+                        # continue. Catching ValueError is sufficient to catch
+                        # non-audio but we want to not abort from this.
+                        continue
+
+                    data = {KEY: i,
+                            ARTIST: tag.artist,
+                            TITLE: tag.title,
+                            ALBUM: tag.album,
+                           }
+                    self.db.append(data)
+                    self.key_filename[i] = filename
+                    self.mtimes[filename] = file_mtime
+                    i += 1
 
     def get_library_contents(self):
         return self.db
@@ -101,13 +116,3 @@ class SingleRecursedDir(LibraryBackend):
     def get_filename_from_key(self, key):
         return self.key_filename[int(key)]
 
-class MultipleDirBackend(LibraryBackend):
-    def __init__(self, media_path_list):
-        self._media_path_list = media_path_list
-        self.dbs = []
-        for path in media_path_list:
-            self.dbs.append(SingleRecursedDir(path))
-
-    def get_library_contents(self):
-        # Memoize self._contents and self._files.
-        return []

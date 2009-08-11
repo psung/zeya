@@ -42,7 +42,7 @@ DEFAULT_BACKEND = "rhythmbox"
 library_contents = []
 library_repr = ""
 
-valid_backends = ['rhythmbox', 'directory']
+valid_backends = ['rhythmbox', 'dir']
 
 class BadArgsError(Exception):
     """
@@ -203,7 +203,7 @@ if __name__ == '__main__':
         # install dependencies unless they are actually used.
         from rhythmbox import RhythmboxBackend
         backend = RhythmboxBackend()
-    elif backend_type == 'directory':
-        from directory import SingleRecursedDir
-        backend = SingleRecursedDir(path)
+    elif backend_type == 'dir':
+        from directory import DirectoryBackend
+        backend = DirectoryBackend(path)
     main(port)
