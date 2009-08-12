@@ -82,9 +82,6 @@ class DirectoryBackend(LibraryBackend):
         pickle.dump(self.info, open(self.get_db_filename(), 'wb+'))
 
     def fill_db(self):
-        # Walk
-        i = len(self.key_filename) # Use simple int as key (sub-optimal, but
-        # better than sending entire path across wire for small db's)
         for path, dirs, files in os.walk(self._media_path):
             for filename in [os.path.abspath(os.path.join(path, filename)) for
                          filename in files]:
@@ -100,15 +97,17 @@ class DirectoryBackend(LibraryBackend):
                         # non-audio but we want to not abort from this.
                         continue
 
-                    data = {KEY: i,
+                    # Use simple int as key (sub-optimal, but better than
+                    # sending entire path across wire for small db's)
+                    next_key = len(self.key_filename)
+                    data = {KEY: next_key,
                             ARTIST: tag.artist,
                             TITLE: tag.title,
                             ALBUM: tag.album,
                            }
                     self.db.append(data)
-                    self.key_filename[i] = filename
+                    self.key_filename[next_key] = filename
                     self.mtimes[filename] = file_mtime
-                    i += 1
 
     def get_library_contents(self):
         return self.db
