@@ -18,16 +18,10 @@
 # along with Zeya. If not, see <http://www.gnu.org/licenses/>.
 
 
-# Directory backend. (Experimental)
+# Directory backend.
 #
 # Files in the specified directory are read for artist/title/album tag which is
-# then saved in a database. The
-#
-# This is very much work in progress.
-#
-# Fundamental questions regarding database handling and how to store db info
-# have yet to be handled. Also, how to handle new files if the database is
-# being reloaded is completely unaddressed.
+# then saved in a database (zeya.db) stored in that directory.
 
 import os
 import tagpy
@@ -51,8 +45,11 @@ class DirectoryBackend(LibraryBackend):
     def __init__(self, media_path, save_db=True):
         self._media_path = media_path
         self._save_db = save_db
+        # Sequence of dicts containing song metadata (key, artist, title, album)
         self.db = []
+        # Dict mapping keys to source filenames
         self.key_filename = {}
+        # Dict mapping filenames to mtimes
         self.mtimes = {}
 
         self.setup_db()
@@ -61,19 +58,37 @@ class DirectoryBackend(LibraryBackend):
         return os.path.join(self._media_path, 'zeya.db')
 
     def setup_db(self):
-        if os.path.exists(self.get_db_filename()):
-            self.read_db_from_disk()
-        self.fill_db()
+        # Load the previous database from file, and convert it to a
+        # representation where it can serve as a metadata cache (keyed by
+        # filename) when we load the file collection.
+        previous_db = self.load_previous_db()
+        self.fill_db(previous_db)
         if self._save_db:
             self.save_db()
 
-    def read_db_from_disk(self):
-        self.info = pickle.load(open(self.get_db_filename(), 'r'))
-        self.db = self.info[DB]
-        self.key_filename = self.info[KEY_FILENAME]
-        self.mtimes = self.info[MTIMES]
-
-        #for path, dirs, files in os.walk(self._media_path):
+    def load_previous_db(self):
+        """
+        Read the existing database on disk and return a dict mapping each
+        filename to the (mtime, metadata) associated with the filename.
+        """
+        filename_to_metadata_map = {}
+        try:
+            # Load the old data structures from file.
+            info = pickle.load(open(self.get_db_filename(), 'r'))
+            key_to_metadata_map = {}
+            prev_mtimes = info[MTIMES]
+            # Construct a map from keys to metadata.
+            for db_entry in info[DB]:
+                key_to_metadata_map[db_entry[KEY]] = db_entry
+            # Construct a map from filename to (mtime, metadata) associated
+            # with that file.
+            for (key, filename) in info[KEY_FILENAME].iteritems():
+                filename_to_metadata_map[filename] = \
+                    (prev_mtimes[filename], key_to_metadata_map[key])
+        except IOError:
+            # Couldn't read the file. Just return an empty data structure.
+            pass
+        return filename_to_metadata_map
 
     def save_db(self):
         self.info = {DB: self.db,
@@ -81,14 +96,28 @@ class DirectoryBackend(LibraryBackend):
                      KEY_FILENAME: self.key_filename}
         pickle.dump(self.info, open(self.get_db_filename(), 'wb+'))
 
-    def fill_db(self):
+    def fill_db(self, previous_db):
+        """
+        Populate the database, given the output of load_previous_db.
+        """
+        # Iterate over all the files.
         for path, dirs, files in os.walk(self._media_path):
             for filename in [os.path.abspath(os.path.join(path, filename)) for
                          filename in files]:
+                # For each file that we encounter, see if we have cached data
+                # for it, and if we do, use it instead of calling out to tagpy.
+                # previous_db acts as a cache of mtime and metadata, keyed by
+                # filename.
+                rec_mtime, old_metadata = previous_db.get(filename, (None, None))
                 file_mtime = os.stat(filename).st_mtime
-                rec_mtime = self.mtimes.get(filename, 0)
 
-                if rec_mtime <= file_mtime:
+                if rec_mtime is not None and rec_mtime >= file_mtime:
+                    # Use cached data. However, we potentially renumber the
+                    # keys every time, so the old KEY is no good. We'll update
+                    # the KEY field later.
+                    metadata = old_metadata
+                else:
+                    # In this branch, we actually need to read the file.
                     try:
                         tag = tagpy.FileRef(filename).tag()
                     except:
@@ -96,22 +125,21 @@ class DirectoryBackend(LibraryBackend):
                         # continue. Catching ValueError is sufficient to catch
                         # non-audio but we want to not abort from this.
                         continue
+                    # Set the artist, title, and album now, and the key below.
+                    metadata = { ARTIST: tag.artist,
+                                 TITLE: tag.title,
+                                 ALBUM: tag.album,
+                               }
 
-                    # Use simple int as key (sub-optimal, but better than
-                    # sending entire path across wire for small db's)
-                    next_key = len(self.key_filename)
-                    data = {KEY: next_key,
-                            ARTIST: tag.artist,
-                            TITLE: tag.title,
-                            ALBUM: tag.album,
-                           }
-                    self.db.append(data)
-                    self.key_filename[next_key] = filename
-                    self.mtimes[filename] = file_mtime
+                # Number the keys consecutively starting from 0.
+                next_key = len(self.key_filename)
+                metadata[KEY] = next_key
+                self.db.append(metadata)
+                self.key_filename[next_key] = filename
+                self.mtimes[filename] = file_mtime
 
     def get_library_contents(self):
         return self.db
 
     def get_filename_from_key(self, key):
         return self.key_filename[int(key)]
-
