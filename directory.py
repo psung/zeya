@@ -131,6 +131,10 @@ class DirectoryBackend(LibraryBackend):
                                  ALBUM: tag.album,
                                }
 
+                # Ensure that the title is not empty, because the user has to
+                # click on it.
+                metadata[TITLE] = metadata[TITLE] or os.path.basename(filename)
+
                 # Number the keys consecutively starting from 0.
                 next_key = len(self.key_filename)
                 metadata[KEY] = next_key
