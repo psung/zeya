@@ -1,2 +1,5 @@
-Add favicon
-take 'dir' as backend name because I'm just that lazy...
+- Add favicon
+- take 'dir' as backend name because I'm just that lazy...
+- when end of playlist is hit, the 'play' button remains pressed and currently
+	playing doesn't change even though nothing is playing
+- add function for repeat/repeat album/repeat 1
