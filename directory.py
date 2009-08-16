@@ -58,7 +58,7 @@ class DirectoryBackend(LibraryBackend):
         self.setup_db()
 
     def get_db_filename(self):
-        return os.path.join(self._media_path, 'zeya.db')
+        return os.path.expanduser(os.path.join(self._media_path, 'zeya.db'))
 
     def setup_db(self):
         if os.path.exists(self.get_db_filename()):
