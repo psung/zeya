@@ -39,3 +39,30 @@ INSTRUCTIONS
     aptitude install python-tagpy
 
 3. Run zeya.py. The --help flag shows the available options.
+
+
+CLIENT SUPPORT
+
+Zeya has been tested in the following browsers:
+
+* Firefox 3.5.2
+
+  All Firefox versions >= 3.5 should work. No issues are known.
+
+* Chrome 3.0.198.1
+
+  Zeya works, with a couple of caveats, described below.
+
+  Known issues:
+
+  Latency between when you click on a song and when it starts playing is very
+  high.
+
+    Chrome seems to require the Content-Length header to be set on audio data,
+    so we have to finish encoding the entire file before we can send any data
+    to the client. In addition, Chrome seems to request each audio file twice.
+
+  Zeya does not advance to the next song when the current one has finished.
+
+    This is due to chromium bug 16768 and is fixed in Chrome/chromium >=
+    r23336. <http://code.google.com/p/chromium/issues/detail?id=16768>
