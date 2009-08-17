@@ -82,4 +82,6 @@ class LibraryBackend():
         # Retrieve the filename that 'key' is backed by. This is not part of
         # the public API, but is used in the default implementation of
         # get_content.
+        #
+        # Raise KeyError if the key is not valid.
         raise NotImplementedError()
