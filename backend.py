@@ -19,7 +19,7 @@
 
 import subprocess
 
-def filename_to_stream(filename, out_stream):
+def filename_to_stream(filename, out_stream, buffered = False):
     try:
         print "Handling request for %s" % (filename,)
         if filename.lower().endswith('.flac'):
@@ -32,10 +32,16 @@ def filename_to_stream(filename, out_stream):
             decode_command = ["/usr/bin/oggdec", "-Q", "-o", "-", filename]
         else:
             print "No decode command found for %s" % (filename,)
+        encode_command = ["/usr/bin/oggenc", "-r", "-Q", "-b", "64", "-"]
         # Pipe the decode command into the encode command.
         p1 = subprocess.Popen(decode_command, stdout=subprocess.PIPE)
-        p2 = subprocess.Popen(["/usr/bin/oggenc", "-r", "-Q", "-b", "64", "-"],
-                              stdin=p1.stdout, stdout=out_stream)
+        if buffered:
+            # Read the entire output and then write it to the output stream.
+            p2 = subprocess.Popen(encode_command, stdin=p1.stdout, stdout=subprocess.PIPE)
+            out_stream.write(p2.stdout.read())
+        else:
+            # Stream the encoder output directly.
+            p2 = subprocess.Popen(encode_command, stdin=p1.stdout, stdout=out_stream)
     except KeyError, ValueError:
         print "Received invalid request for %r" % (key,)
 
@@ -64,13 +70,13 @@ class LibraryBackend():
         """
         raise NotImplementedError()
 
-    def get_content(self, key, out_stream):
+    def get_content(self, key, out_stream, buffered = False):
         """
         Retrieve the file data associated with the specified key and write an
         audio/ogg encoded version to out_stream.
         """
         # This is a convenience implementation of this method.
-        filename_to_stream(self.get_filename_from_key(key), out_stream)
+        filename_to_stream(self.get_filename_from_key(key), out_stream, buffered)
 
     def get_filename_from_key(self, key):
         # Retrieve the filename that 'key' is backed by. This is not part of

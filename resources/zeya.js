@@ -129,7 +129,8 @@ function select_item(index) {
     }
     // Start streaming the new song.
     entry = library[index];
-    audio = new Audio('/getcontent?' + escape(entry.key));
+    // Get a buffered stream of the desired file.
+    audio = new Audio('/getcontent?buffered=true&key=' + escape(entry.key));
     audio.setAttribute('autoplay', 'true');
     current_index = index;
     // When this song is finished, advance to the next one.

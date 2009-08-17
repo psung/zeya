@@ -30,6 +30,9 @@ import getopt
 import urllib
 import os
 import sys
+import tempfile
+import traceback
+import urlparse
 try:
     import json
     json.dumps
@@ -78,7 +81,7 @@ def ZeyaHandler(resource_basedir):
             # collection.
             elif self.path == '/getlibrary':
                 self.serve_library()
-            # http://host/getcontent?key yields an Ogg stream of the file
+            # http://host/getcontent?key=N yields an Ogg stream of the file
             # associated with the specified key.
             elif self.path.startswith('/getcontent?'):
                 self.serve_content(urllib.unquote(self.path[12:]))
@@ -101,14 +104,37 @@ def ZeyaHandler(resource_basedir):
                 return 'audio/ogg'
             else:
                 return 'application/octet-stream'
-        def serve_content(self, path):
+        def serve_content(self, query):
             """
             Serve an audio stream (audio/ogg).
             """
+            # The query is of the form key=N or key=N&buffered=true.
+            args = urlparse.parse_qs(query)
+            key = args['key'][0] if args.has_key('key') else ''
+            # If buffering is activated, encode the entire file and serve the
+            # Content-Length header. This increases song load latency because
+            # we can't serve any of the file until we've finished encoding the
+            # whole thing. However, Chrome needs the Content-Length header to
+            # accompany audio data.
+            buffered = args['buffered'][0] if args.has_key('buffered') else ''
+
             self.send_response(200)
             self.send_header('Content-type', 'audio/ogg')
-            self.end_headers()
-            backend.get_content(path, self.wfile)
+            if buffered:
+                # Complete the transcode and write to a temporary file.
+                # Determine its length and serve the Content-Length header.
+                output_file = tempfile.TemporaryFile()
+                backend.get_content(key, output_file, buffered=True)
+                output_file.seek(0)
+                data = output_file.read()
+                self.send_header('Content-Length', str(len(data)))
+                self.end_headers()
+                self.wfile.write(data)
+            else:
+                # Don't determine the Content-Length. Just stream to the client
+                # on the fly.
+                self.end_headers()
+                backend.get_content(key, self.wfile)
             self.wfile.close()
         def serve_library(self):
             """
@@ -140,10 +166,12 @@ def ZeyaHandler(resource_basedir):
                 with open(full_path) as f:
                     self.send_response(200)
                     self.send_header('Content-type', self.get_content_type(path))
+                    data = f.read()
+                    self.send_header('Content-Length', str(len(data)))
                     self.end_headers()
-                    self.wfile.write(f.read())
-                    self.wfile.close()
+                    self.wfile.write(data)
             except IOError:
+                traceback.print_exc()
                 self.send_error(404, 'File not found: %s' % (path,))
 
     return ZeyaHandlerImpl
