@@ -1,1 +1,6 @@
-Add favicon
+- Add favicon
+
+- When end of playlist is hit, the 'play' button remains pressed and currently
+	playing doesn't change even though nothing is playing
+
+- Add function for repeat/repeat album/repeat 1
