@@ -10,6 +10,9 @@ var audio;
 // Current application state ('grayed', 'play', 'pause')
 var current_state = 'grayed';
 
+// We need to buffer streams for Chrome.
+var using_webkit = navigator.userAgent.indexOf("AppleWebKit") > -1;
+
 // Clear all the children of c.
 function clearChildren(c) {
     while (c.childNodes.length >= 1) {
@@ -130,7 +133,8 @@ function select_item(index) {
     // Start streaming the new song.
     entry = library[index];
     // Get a buffered stream of the desired file.
-    audio = new Audio('/getcontent?buffered=true&key=' + escape(entry.key));
+    bufferParam = using_webkit ? 'buffered=true&' : '';
+    audio = new Audio('/getcontent?' + bufferParam + 'key=' + escape(entry.key));
     audio.setAttribute('autoplay', 'true');
     current_index = index;
     // When this song is finished, advance to the next one.
