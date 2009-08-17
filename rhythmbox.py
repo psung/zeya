@@ -124,4 +124,7 @@ class RhythmboxBackend(LibraryBackend):
             self._contents.sort(key = (lambda item: self._files[item['key']]))
         return self._contents
     def get_filename_from_key(self, key):
-        return self._files[int(key)]
+        try:
+            return self._files[int(key)]
+        except IndexError:
+            raise KeyError("Invalid key: %r" % (key,))
