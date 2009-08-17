@@ -209,8 +209,8 @@ def getOptions():
                 port = int(value)
             except ValueError:
                 raise BadArgsError("Invalid port setting %r" % (value,))
-    if backend_type == 'directory' and path is None:
-        raise BadArgsError("Directory backend needs a path (--path)")
+    if backend_type == 'dir' and path is None:
+        raise BadArgsError("Directory (dir) backend needs a path (--path)")
     return (help_msg, backend_type, port, path)
 
 def usage():
