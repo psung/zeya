@@ -32,7 +32,11 @@ import os
 import sys
 import tempfile
 import traceback
-import urlparse
+try:
+    from urlparse import parse_qs
+except: # (ImportError, AttributeError):
+    from cgi import parse_qs
+
 try:
     import json
     json.dumps
@@ -109,7 +113,7 @@ def ZeyaHandler(resource_basedir):
             Serve an audio stream (audio/ogg).
             """
             # The query is of the form key=N or key=N&buffered=true.
-            args = urlparse.parse_qs(query)
+            args = parse_qs(query)
             key = args['key'][0] if args.has_key('key') else ''
             # If buffering is activated, encode the entire file and serve the
             # Content-Length header. This increases song load latency because
