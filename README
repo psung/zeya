@@ -34,7 +34,7 @@ INSTRUCTIONS
 
     aptitude install python-simplejson
 
-   If you're using the directory backend (experimental), also install tagpy:
+   If you're using the directory backend, also install tagpy:
 
     aptitude install python-tagpy
 
