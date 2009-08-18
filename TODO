@@ -4,3 +4,5 @@
 	playing doesn't change even though nothing is playing
 
 - Add function for repeat/repeat album/repeat 1
+
+- --path should imply --backend=dir
