@@ -137,17 +137,17 @@ function select_item(index) {
     audio = new Audio('/getcontent?' + bufferParam + 'key=' + escape(entry.key));
     audio.setAttribute('autoplay', 'true');
     current_index = index;
-    // When this song is finished, advance to the next one.
-    if (index < library.length - 1) {
+    if (index == library.length - 1) {
+        // When this song is finished, stop playing (if this was the last song
+        // in the list).
+        audio.addEventListener('ended', stop, false);
+    } else {
+        // Otherwise, advance to the next song.
         audio.addEventListener('ended', select_next, false);
     }
     audio.load();
     // Update the UI.
-    clearChildren(document.getElementById('title_text'));
-    clearChildren(document.getElementById('artist_text'));
-    document.getElementById('title_text').appendChild(document.createTextNode(entry.title));
-    document.getElementById('artist_text').appendChild(document.createTextNode(entry.artist));
-    document.title = entry.title + ' (' + entry.artist + ') - Zeya';
+    set_title(entry.title, entry.artist);
     set_ui_state('play');
 }
 
@@ -166,6 +166,24 @@ function select_previous() {
         select_item(library.length - 1);
     } else {
         select_item(current_index - 1);
+    }
+}
+
+// Sets the title/artist fields that are displayed in the header, and the page
+// title.
+function set_title(title, artist) {
+    clearChildren(document.getElementById('title_text'));
+    clearChildren(document.getElementById('artist_text'));
+    if (title != '') {
+        document.getElementById('title_text').appendChild(document.createTextNode(title));
+    }
+    if (artist != '') {
+        document.getElementById('artist_text').appendChild(document.createTextNode(artist));
+    }
+    if (title == '' && artist == '') {
+        document.title = 'Zeya';
+    } else {
+        document.title = title + ' (' + artist + ') - Zeya';
     }
 }
 
@@ -191,4 +209,11 @@ function set_ui_state(new_state) {
         document.getElementById("previous_img").className = '';
     }
     current_state = new_state;
+}
+
+// Stop playback.
+function stop() {
+    audio.pause();
+    set_ui_state('grayed');
+    set_title('', '');
 }
