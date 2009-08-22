@@ -72,7 +72,15 @@ class RhythmboxDbHandler():
                 # file path. Use the decoded version in all of our data
                 # structures.
                 next_index = len(self.filelist)
-                path = urllib.unquote(self.current_location[7:])
+                # raw_path is a unicode string whose code points are a UTF-8
+                # encoded version of the file we want to open (i.e. every code
+                # point is in 0..255).
+                raw_path = urllib.unquote(self.current_location[7:])
+                # Convert to an 8-bit string containing the same data.
+                eight_bit_path = ''.join([chr(ord(c)) for c in raw_path])
+                # Now obtain a unicode string. The decoder expects to be passed
+                # filenames as unicode strings.
+                path = eight_bit_path.decode('utf-8')
                 self.contents.append(
                     {'title':self.current_title, 'artist':self.current_artist,
                      'album':self.current_album, 'key':next_index})
