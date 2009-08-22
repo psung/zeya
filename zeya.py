@@ -46,10 +46,6 @@ except (ImportError, AttributeError):
 DEFAULT_PORT = 8080
 DEFAULT_BACKEND = "rhythmbox"
 
-# Store the state of the library.
-library_contents = []
-library_repr = ""
-
 valid_backends = ['rhythmbox', 'dir']
 
 class BadArgsError(Exception):
@@ -63,11 +59,11 @@ class BadArgsError(Exception):
 
 # TODO: support a multithreaded server.
 
-def ZeyaHandler(resource_basedir):
+def ZeyaHandler(library_repr, resource_basedir):
     """
     Wrapper around the actual HTTP request handler implementation class. We
-    need to create a closure so that the inner class can remember the base
-    directory for resources.
+    need to create a closure so that the inner class can receive the library
+    data and the base directory for resources.
     """
 
     class ZeyaHandlerImpl(BaseHTTPServer.BaseHTTPRequestHandler):
@@ -221,7 +217,6 @@ def usage():
     print "Usage: zeya.py [-h|--help] [--backend=[rhythmbox|dir]] [--port] [--path=PATH]"
 
 def main(port):
-    global library_contents, library_repr
     # Read the library.
     print "Loading library..."
     library_contents = backend.get_library_contents()
@@ -229,7 +224,7 @@ def main(port):
     basedir = os.path.abspath(os.path.dirname(sys.argv[0]))
     server = BaseHTTPServer.HTTPServer(
         ('', port),
-        ZeyaHandler(os.path.join(basedir, 'resources')))
+        ZeyaHandler(library_repr, os.path.join(basedir, 'resources')))
     print "Listening on port %d" % (port,)
     # Start up a web server.
     print "Ready to serve!"
