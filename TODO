@@ -5,6 +5,4 @@
 
 - Add function for repeat/repeat album/repeat 1
 
-- --path should imply --backend=dir
-
 - Show a spinner icon when songs are loading
