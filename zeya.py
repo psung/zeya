@@ -189,6 +189,8 @@ def getOptions():
     help_msg = False
     port = DEFAULT_PORT
     backend_type = DEFAULT_BACKEND
+    # This is set to False if --backend is explicitly set
+    is_backend_default_value = True
     path = None
     try:
         opts, file_list = getopt.getopt(sys.argv[1:], "hp:",
@@ -199,6 +201,7 @@ def getOptions():
         if flag in ("-h", "--help"):
             help_msg = True
         if flag in ("--backend",):
+            is_backend_default_value = False
             backend_type = value
             if backend_type not in valid_backends:
                 raise BadArgsError("Unsupported backend type")
@@ -211,6 +214,9 @@ def getOptions():
                 raise BadArgsError("Invalid port setting %r" % (value,))
     if backend_type == 'dir' and path is None:
         raise BadArgsError("Directory (dir) backend needs a path (--path)")
+    # If --backend is not set explicitly, --path=... implies --backend=dir
+    if path is not None and is_backend_default_value:
+        backend_type = 'dir'
     return (help_msg, backend_type, port, path)
 
 def usage():
