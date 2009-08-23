@@ -95,10 +95,13 @@ a:visited {
 
 table#collection_table {
     width: 100%;
+    table-layout: fixed;
 }
 
 table#collection_table td {
     padding: 0px;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 table#collection_table thead td {
