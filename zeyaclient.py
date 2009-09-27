@@ -27,26 +27,20 @@ def run(server_path):
     library_file = urllib2.urlopen(server_path + "/getlibrary")
     library_data = json.loads(library_file.read())
     print "Loaded %d songs from library." % (len(library_data),)
-    try:
-        while True:
-            query = raw_input("Query? ")
-            if not query:
-                break
-            try:
-                for song in library_data:
-                    if song_matches(query, song):
-                        print "%s - %s" % (song['title'], song['artist'])
-                        song_url = "%s/getcontent?key=%d" % \
-                            (server_path, song['key'])
-                        p = subprocess.Popen(
-                            ["/usr/bin/ogg123", "-q", song_url])
-                        p.communicate()
-            except KeyboardInterrupt:
-                pass
-    except KeyboardInterrupt:
-        pass
-    finally:
-        urllib.urlcleanup()
+    while True:
+        query = raw_input("Query? ")
+        if not query:
+            break
+        try:
+            for song in library_data:
+                if song_matches(query, song):
+                    print "%s - %s" % (song['title'], song['artist'])
+                    song_url = "%s/getcontent?key=%d" % \
+                        (server_path, song['key'])
+                    p = subprocess.Popen(["/usr/bin/ogg123", "-q", song_url])
+                    p.communicate()
+        except KeyboardInterrupt:
+            pass
 
 if __name__ == "__main__":
     run(sys.argv[1])
