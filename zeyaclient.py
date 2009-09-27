@@ -31,16 +31,12 @@ def run(server_path):
         query = raw_input("Query? ")
         if not query:
             break
-        try:
-            for song in library_data:
-                if song_matches(query, song):
-                    print "%s - %s" % (song['title'], song['artist'])
-                    song_url = "%s/getcontent?key=%d" % \
-                        (server_path, song['key'])
-                    p = subprocess.Popen(["/usr/bin/ogg123", "-q", song_url])
-                    p.communicate()
-        except KeyboardInterrupt:
-            pass
+        for song in library_data:
+            if song_matches(query, song):
+                print "%s - %s" % (song['title'], song['artist'])
+                song_url = "%s/getcontent?key=%d" % (server_path, song['key'])
+                p = subprocess.Popen(["/usr/bin/ogg123", "-q", song_url])
+                p.communicate()
 
 if __name__ == "__main__":
     run(sys.argv[1])
