@@ -8,7 +8,7 @@
 
 import subprocess
 import sys
-import urllib
+import urllib2
 
 try:
     import json
@@ -24,7 +24,7 @@ def song_matches(query, song):
                    or part in song['artist'].lower() for part in parts)
 
 def run(server_path):
-    library_file = urllib.urlopen(server_path + "/getlibrary")
+    library_file = urllib2.urlopen(server_path + "/getlibrary")
     library_data = json.loads(library_file.read())
     print "Loaded %d songs from library." % (len(library_data),)
     try:
