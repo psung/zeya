@@ -39,4 +39,7 @@ def run(server_path):
                 p.communicate()
 
 if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print "Usage: zeyaclient.py http://server:8080"
+        sys.exit(1)
     run(sys.argv[1])
