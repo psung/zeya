@@ -1,10 +1,31 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
+# Copyright (C) 2009 Phil Sung
+#
+# This file is part of Zeya.
+#
+# Zeya is free software: you can redistribute it and/or modify it under the
+# terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Zeya is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with Zeya. If not, see <http://www.gnu.org/licenses/>.
+
+
 # Console frontend to Zeya server.
 #
 # Usage:
 #   zeyaclient.py http://server.local:8080
+#
+# The user is prompted for a query, and all songs matching it are played. The
+# query may be matched against the title, artist, or album of the song.
 
 import subprocess
 import sys
@@ -30,6 +51,8 @@ def song_matches(query, song):
     return all(part in song['album'].lower() or part in song['title'].lower() \
                    or part in song['artist'].lower() for part in parts)
 
+# TODO: refactor the parts that directly interact with the server into a
+# separate module.
 def run(server_path):
     library_file = urllib2.urlopen(server_path + "/getlibrary")
     library_data = json.loads(library_file.read())
