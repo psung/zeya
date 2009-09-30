@@ -41,18 +41,19 @@ def run(server_path):
         if not query:
             break
         # ...then play all the songs we can find that match the query.
-        for song in library_data:
-            if song_matches(query, song):
-                print "%s - %s" % (song['title'], song['artist'])
-                song_url = "%s/getcontent?key=%d" % (server_path, song['key'])
-                p = subprocess.Popen(["/usr/bin/ogg123", "-q", song_url])
-                try:
-                    p.communicate()
-                except KeyboardInterrupt:
-                    # TODO: handle Ctrl-C here in a better way. Whenever an
-                    # interrupt is followed by a new query (raw_input above) we
-                    # seem to get a spurious EOFError.
-                    pass
+        matching_songs = \
+            [song for song in library_data if song_matches(query, song)]
+        for song in matching_songs:
+            print "%s - %s" % (song['title'], song['artist'])
+            song_url = "%s/getcontent?key=%d" % (server_path, song['key'])
+            p = subprocess.Popen(["/usr/bin/ogg123", "-q", song_url])
+            try:
+                p.communicate()
+            except KeyboardInterrupt:
+                # TODO: handle Ctrl-C here in a better way. Whenever an
+                # interrupt is followed by a new query (raw_input above) we
+                # seem to get a spurious EOFError.
+                pass
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
