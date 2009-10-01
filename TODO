@@ -8,6 +8,6 @@
 
 - Timer
 
-- Add a test suite
+- Add more tests to test suite.
 
 - Allow using a page fragment (/#xyz...) to specify a song.
