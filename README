@@ -52,7 +52,16 @@ INSTRUCTIONS
 
 CLIENT SUPPORT
 
-Zeya has been tested in the following browsers:
+Zeya works well on Firefox 3.5.2 and minimally on Chrome 3.0.198.1. See the
+section below, titled "NOTES ON SUPPORTED CLIENTS", for more details.
+
+We also provide zeyaclient.py, a rudimentary Python client (1) for use when a
+more lightweight client is needed or when no HTML5-compliant browser is
+available and (2) as a simple example of programmatic (and non browser-based)
+access to a Zeya servers.
+
+
+NOTES ON SUPPORTED CLIENTS
 
 * Firefox 3.5.2
 
