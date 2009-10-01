@@ -84,3 +84,8 @@ NOTES ON SUPPORTED CLIENTS
 
     This is due to chromium bug 16768 and is fixed in Chrome/chromium >=
     r23336. <http://code.google.com/p/chromium/issues/detail?id=16768>
+
+
+DEVELOPMENT AND TESTING
+
+You can invoke our test suite by running zeyatest.py.
