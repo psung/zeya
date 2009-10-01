@@ -1,0 +1,15 @@
+<?xml version="1.0" standalone="yes"?>
+<rhythmdb version="1.6">
+  <entry type="song">
+    <title>Help!</title>
+    <artist>The Beatles</artist>
+    <album>Help!</album>
+    <location>file:///tmp/Beatles,%20The/Help.flac</location>
+  </entry>
+  <entry type="song">
+    <title>&#x4E2D;&#x6587;</title>
+    <artist></artist>
+    <album></album>
+    <location>file:///tmp/%E4%B8%AD%E6%96%87.flac</location>
+  </entry>
+</rhythmdb>

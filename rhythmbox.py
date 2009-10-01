@@ -128,10 +128,16 @@ class RhythmboxDbHandler():
 class RhythmboxBackend(LibraryBackend):
     """
     Object that controls access to a Rhythmbox music collection.
+
+    infile is used to set the source of the library XML data. If omitted, the
+    songs are read from the current user's Rhythmbox library. If provided
+    (primarily useful for testing purposes), infile should be a file-like
+    object.
     """
-    def __init__(self):
+    def __init__(self, infile = None):
         self._files = set()
         self._contents = None
+        self._infile = infile or open(os.path.expanduser(RB_DBFILE))
     def get_library_contents(self):
         # Memoize self._contents and self._files.
         if not self._contents:
@@ -140,7 +146,7 @@ class RhythmboxBackend(LibraryBackend):
             p.StartElementHandler = handler.startElement
             p.EndElementHandler = handler.endElement
             p.CharacterDataHandler = handler.characters
-            p.ParseFile(open(os.path.expanduser(RB_DBFILE)))
+            p.ParseFile(self._infile)
             self._contents = handler.getContents()
             self._files = handler.getFiles()
             # Sort the items by filename.
