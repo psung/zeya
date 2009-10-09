@@ -11,3 +11,5 @@
 - Add a test suite
 
 - Allow using a page fragment (/#xyz...) to specify a song.
+
+- Filter out files that don't have a supported extension.
