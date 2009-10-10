@@ -43,6 +43,8 @@ try:
 except (ImportError, AttributeError):
     import simplejson as json
 
+import decoders
+
 DEFAULT_PORT = 8080
 DEFAULT_BACKEND = "rhythmbox"
 
@@ -226,6 +228,10 @@ def main(port):
     # Read the library.
     print "Loading library..."
     library_contents = backend.get_library_contents()
+    # Filter out songs that we won't be able to decode.
+    library_contents = \
+        [ s for s in library_contents \
+              if decoders.hasDecoder(backend.get_filename_from_key(s['key'])) ]
     library_repr = json.dumps(library_contents, ensure_ascii=False)
     basedir = os.path.abspath(os.path.dirname(sys.argv[0]))
     server = BaseHTTPServer.HTTPServer(
