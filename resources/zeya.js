@@ -100,8 +100,9 @@ function load_collection() {
                 tr.appendChild(td3);
                 t.appendChild(tr);
             }
-            document.getElementById('loading').style.display = 'none';
             document.getElementById('collection').appendChild(t);
+            document.getElementById('collection').style.display = 'block';
+            document.getElementById('loading').style.display = 'none';
         }
     }
 
