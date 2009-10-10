@@ -49,7 +49,14 @@ body {
 }
 
 #loading {
+    margin: 3em auto 0 auto;
+    padding: 0.25em;
+    width: 15em;
+    background-color: #f3f2aa;
     text-align: center;
+    font-weight: bold;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
 }
 
 span.control img {
