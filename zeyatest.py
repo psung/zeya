@@ -5,7 +5,27 @@
 
 import unittest
 
+import decoders
 import rhythmbox
+
+class DecodersTest(unittest.TestCase):
+    def test_extensions(self):
+        """
+        Test decoders.getExtension.
+        """
+        self.assertEqual("mp3", decoders.getExtension("/path/to/SOMETHING.MP3"))
+    def test_hasDecoder(self):
+        """
+        Test decoders.hasDecoder.
+        """
+        self.assertTrue(decoders.hasDecoder("/path/to/something.mp3"))
+        self.assertFalse(decoders.hasDecoder("/path/to/something.m4a"))
+    def test_getDecoder(self):
+        """
+        Test decoders.getDecoder
+        """
+        self.assertTrue(decoders.getDecoder("/path/to/SOMETHING.MP3")[0]
+                        .startswith("/usr/bin"))
 
 class RhythmboxTest(unittest.TestCase):
     def test_tokenization(self):
