@@ -44,7 +44,7 @@ body {
     left: 0;
     bottom: 16px;
     right: 0;
-    overflow: auto;
+    overflow-y: scroll;
     padding: 1px;
 }
 
