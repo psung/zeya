@@ -56,7 +56,24 @@ function keypress_handler(e) {
 
 // Request the collection from the server and render a table to display it.
 function load_collection() {
-    var t = document.getElementById('collection_table');
+    var t = document.createElement('table');
+
+    t.id = "collection_table";
+    var t_head = document.createElement("thead");
+    var header_td1 = document.createElement("td");
+    header_td1.style.width = "42%";
+    header_td1.appendChild(document.createTextNode("Title"));
+    var header_td2 = document.createElement("td");
+    header_td2.style.width = "29%";
+    header_td2.appendChild(document.createTextNode("Artist"));
+    var header_td3 = document.createElement("td");
+    header_td3.style.width = "29%";
+    header_td3.appendChild(document.createTextNode("Album"));
+    t_head.appendChild(header_td1);
+    t_head.appendChild(header_td2);
+    t_head.appendChild(header_td3);
+    t.appendChild(t_head);
+
     var req = new XMLHttpRequest();
     req.open('GET', '/getlibrary', true);
     req.onreadystatechange = function(e) {
@@ -84,8 +101,10 @@ function load_collection() {
                 t.appendChild(tr);
             }
             document.getElementById('loading').style.display = 'none';
+            document.getElementById('collection').appendChild(t);
         }
     }
+
     req.send(null);
 }
 
