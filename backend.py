@@ -21,9 +21,22 @@ import subprocess
 
 import decoders
 
+class StreamGenerationError(Exception):
+    """
+    Indicates an error generating a stream for the requested file.
+    """
+    def __init__(self, msg):
+        self.msg = msg
+    def __str__(self):
+        return self.msg
+
 def filename_to_stream(filename, out_stream, buffered = False):
     print "Handling request for %s" % (filename,)
-    decode_command = decoders.getDecoder(filename)
+    try:
+        decode_command = decoders.getDecoder(filename)
+    except KeyError:
+        raise StreamGenerationError(
+            "Couldn't play specified format: %r" % (filename,))
     encode_command = ["/usr/bin/oggenc", "-r", "-Q", "-b", "64", "-"]
     # Pipe the decode command into the encode command.
     p1 = subprocess.Popen(decode_command, stdout=subprocess.PIPE)
@@ -67,9 +80,13 @@ class LibraryBackend():
         """
         # This is a convenience implementation of this method.
         try:
-            filename_to_stream(self.get_filename_from_key(key), out_stream, buffered)
+            filename = self.get_filename_from_key(key)
         except KeyError:
             print "Received invalid request for key %r" % (key,)
+        try:
+            filename_to_stream(filename, out_stream, buffered)
+        except StreamGenerationError, e:
+            print "ERROR. %s" % (e,)
 
     def get_filename_from_key(self, key):
         # Retrieve the filename that 'key' is backed by. This is not part of
