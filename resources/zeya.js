@@ -131,12 +131,16 @@ function select_item(index) {
         set_ui_state('pause');
     }
     // Start streaming the new song.
+    set_spinner_visible(true);
     entry = library[index];
     // Get a buffered stream of the desired file.
     bufferParam = using_webkit ? 'buffered=true&' : '';
     audio = new Audio('/getcontent?' + bufferParam + 'key=' + escape(entry.key));
     audio.setAttribute('autoplay', 'true');
     current_index = index;
+    // Hide the spinner when the song has loaded.
+    audio.addEventListener(
+      'play', function() {set_spinner_visible(false);}, false);
     if (index == library.length - 1) {
         // When this song is finished, stop playing (if this was the last song
         // in the list).
@@ -209,6 +213,12 @@ function set_ui_state(new_state) {
         document.getElementById("previous_img").className = '';
     }
     current_state = new_state;
+}
+
+// Hide or show the spinner.
+function set_spinner_visible(visible) {
+    document.getElementById("spinner_icon").style.visibility =
+      visible ? "visible" : "hidden";
 }
 
 // Stop playback.
