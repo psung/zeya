@@ -1,15 +1,7 @@
 - Add function for repeat/repeat album/repeat 1
 
-- Show a spinner icon when songs are loading
-
-- Highlight alternating rows for easier reading
-
-- Highlight currently selected row
-
-- Timer
+- Timer and seek bar
 
 - Add more tests to test suite.
 
 - Allow using a page fragment (/#xyz...) to specify a song.
-
-- Filter out files that don't have a supported extension.
