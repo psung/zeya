@@ -55,6 +55,7 @@ function load_collection() {
         link.appendChild(document.createTextNode(item.title));
 
         var tr = document.createElement('tr');
+        tr.setAttribute('class', index % 2 == 0 ? 'evenrow' : 'oddrow');
         var td1 = document.createElement('td');
         var td2 = document.createElement('td');
         var td3 = document.createElement('td');

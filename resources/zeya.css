@@ -102,10 +102,16 @@ a:visited {
 table#collection_table {
     width: 100%;
     table-layout: fixed;
+    border-spacing: 0;
+}
+
+table#collection_table tr.oddrow {
+    background-color: #e6e4e2;
 }
 
 table#collection_table td {
-    padding: 0px;
+    margin: 0;
+    padding: 1px 3px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -115,5 +121,4 @@ table#collection_table thead td {
     background-color: #eeecea;
     border: 1px outset #eeecea;
     font-weight: bold;
-    padding: 1px;
 }
