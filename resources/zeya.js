@@ -20,40 +20,6 @@ function clearChildren(c) {
   }
 }
 
-// Initialize the application.
-function init() {
-  current_index = null;
-  library = null;
-  audio = null;
-  set_ui_state('grayed');
-  load_collection();
-}
-
-function keypress_handler(e) {
-  if(window.event) {
-    keynum = e.keyCode; // IE
-  } else if(e.which) {
-    keynum = e.which; // Other browsers
-  } else {
-    return true;
-  }
-  if (String.fromCharCode(keynum) == ' ') {
-    if (current_state == 'play') {
-      pause();
-    } else if (current_state == 'pause') {
-      play();
-    }
-    return false;
-  } else if (String.fromCharCode(keynum) == 'j') {
-    next();
-    return false;
-  } else if (String.fromCharCode(keynum) == 'k') {
-    previous();
-    return false;
-  }
-  return true;
-}
-
 // Request the collection from the server and render a table to display it.
 function load_collection() {
   var t = document.createElement('table');
@@ -83,15 +49,15 @@ function load_collection() {
       for (var index = 0; index < library.length; index++) {
         var item = library[index];
 
-        link = document.createElement('a');
+        var link = document.createElement('a');
         link.setAttribute('href', '#');
         link.setAttribute('onclick', 'select_item(' + index + '); return false;');
         link.appendChild(document.createTextNode(item.title));
 
-        tr = document.createElement('tr');
-        td1 = document.createElement('td');
-        td2 = document.createElement('td');
-        td3 = document.createElement('td');
+        var tr = document.createElement('tr');
+        var td1 = document.createElement('td');
+        var td2 = document.createElement('td');
+        var td3 = document.createElement('td');
         td1.appendChild(link);
         td2.appendChild(document.createTextNode(item.artist));
         td3.appendChild(document.createTextNode(item.album));
@@ -104,21 +70,14 @@ function load_collection() {
       document.getElementById('collection').style.display = 'block';
       document.getElementById('loading').style.display = 'none';
     }
-  }
+  };
 
   req.send(null);
 }
 
-// Skip to the next song.
-function next() {
-  if (current_index != null) {
-    select_next();
-  }
-}
-
 // Pause the currently playing song.
 function pause() {
-  if (current_index != null) {
+  if (current_index !== null) {
     audio.pause();
     set_ui_state('pause');
   }
@@ -126,35 +85,48 @@ function pause() {
 
 // Start or resume playing the current song.
 function play() {
-  if (current_index != null) {
+  if (current_index !== null) {
     audio.play();
     set_ui_state('play');
   }
 }
 
-// Skip to the beginning of the current song, or to the previous song.
-function previous() {
-  if (current_index != null) {
-    if (audio.currentTime > 5.00) {
-      audio.currentTime = 0.0;
-    } else {
-      select_previous();
-    }
+// Hide or show the spinner.
+function set_spinner_visible(visible) {
+  document.getElementById("spinner_icon").style.visibility =
+    visible ? "visible" : "hidden";
+}
+
+// Sets the title/artist fields that are displayed in the header, and the page
+// title.
+function set_title(title, artist) {
+  clearChildren(document.getElementById('title_text'));
+  clearChildren(document.getElementById('artist_text'));
+  if (title != '') {
+    document.getElementById('title_text').appendChild(document.createTextNode(title));
+  }
+  if (artist != '') {
+    document.getElementById('artist_text').appendChild(document.createTextNode(artist));
+  }
+  if (title == '' && artist == '') {
+    document.title = 'Zeya';
+  } else {
+    document.title = title + ' (' + artist + ') - Zeya';
   }
 }
 
 // Load the song with the given index.
 function select_item(index) {
   // Pause the currently playing song.
-  if (audio != null) {
+  if (audio !== null) {
     audio.pause();
     set_ui_state('pause');
   }
   // Start streaming the new song.
   set_spinner_visible(true);
-  entry = library[index];
+  var entry = library[index];
   // Get a buffered stream of the desired file.
-  bufferParam = using_webkit ? 'buffered=true&' : '';
+  var bufferParam = using_webkit ? 'buffered=true&' : '';
   audio = new Audio('/getcontent?' + bufferParam + 'key=' + escape(entry.key));
   audio.setAttribute('autoplay', 'true');
   current_index = index;
@@ -186,28 +158,28 @@ function select_next() {
 
 // Load the previous song in the list (with wraparound).
 function select_previous() {
-  if (current_index == 0) {
+  if (current_index === 0) {
     select_item(library.length - 1);
   } else {
     select_item(current_index - 1);
   }
 }
 
-// Sets the title/artist fields that are displayed in the header, and the page
-// title.
-function set_title(title, artist) {
-  clearChildren(document.getElementById('title_text'));
-  clearChildren(document.getElementById('artist_text'));
-  if (title != '') {
-    document.getElementById('title_text').appendChild(document.createTextNode(title));
+// Skip to the next song.
+function next() {
+  if (current_index !== null) {
+    select_next();
   }
-  if (artist != '') {
-    document.getElementById('artist_text').appendChild(document.createTextNode(artist));
-  }
-  if (title == '' && artist == '') {
-    document.title = 'Zeya';
-  } else {
-    document.title = title + ' (' + artist + ') - Zeya';
+}
+
+// Skip to the beginning of the current song, or to the previous song.
+function previous() {
+  if (current_index !== null) {
+    if (audio.currentTime > 5.00) {
+      audio.currentTime = 0.0;
+    } else {
+      select_previous();
+    }
   }
 }
 
@@ -235,15 +207,46 @@ function set_ui_state(new_state) {
   current_state = new_state;
 }
 
-// Hide or show the spinner.
-function set_spinner_visible(visible) {
-  document.getElementById("spinner_icon").style.visibility =
-    visible ? "visible" : "hidden";
-}
-
 // Stop playback.
 function stop() {
   audio.pause();
   set_ui_state('grayed');
   set_title('', '');
+}
+
+// EVENT HANDLERS
+
+// Initialize the application.
+function init() {
+  current_index = null;
+  library = null;
+  audio = null;
+  set_ui_state('grayed');
+  load_collection();
+}
+
+function keypress_handler(e) {
+  var keynum;
+  if(window.event) {
+    keynum = e.keyCode; // IE
+  } else if(e.which) {
+    keynum = e.which; // Other browsers
+  } else {
+    return true;
+  }
+  if (String.fromCharCode(keynum) === ' ') {
+    if (current_state == 'play') {
+      pause();
+    } else if (current_state == 'pause') {
+      play();
+    }
+    return false;
+  } else if (String.fromCharCode(keynum) == 'j') {
+    next();
+    return false;
+  } else if (String.fromCharCode(keynum) == 'k') {
+    previous();
+    return false;
+  }
+  return true;
 }
