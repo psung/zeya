@@ -40,9 +40,9 @@ body {
 
 #content {
     position: fixed;
-    top: 40px;
+    top: 41px;
     left: 0;
-    bottom: 16px;
+    bottom: 17px;
     right: 0;
     overflow-y: scroll;
     padding: 1px;
