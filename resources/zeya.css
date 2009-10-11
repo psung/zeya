@@ -109,6 +109,15 @@ table#collection_table tr.oddrow {
     background-color: #e6e4e2;
 }
 
+table#collection_table tr.selectedrow {
+    background-color: #46d;
+    color: #fff;
+}
+
+table#collection_table tr.selectedrow a {
+    color: #fff;
+}
+
 table#collection_table td {
     margin: 0;
     padding: 1px 3px;

@@ -4,7 +4,7 @@
 var library;
 // Index (into library) of the currently playing song, or null if no song is
 // playing.
-var current_index;
+var current_index = null;
 // Audio object we'll use for playing songs.
 var audio;
 // Current application state ('grayed', 'play', 'pause')
@@ -55,6 +55,7 @@ function load_collection() {
         link.appendChild(document.createTextNode(item.title));
 
         var tr = document.createElement('tr');
+        tr.id = 'row' + index;
         tr.setAttribute('class', index % 2 == 0 ? 'evenrow' : 'oddrow');
         var td1 = document.createElement('td');
         var td2 = document.createElement('td');
@@ -123,8 +124,14 @@ function select_item(index) {
     audio.pause();
     set_ui_state('pause');
   }
-  // Start streaming the new song.
+  // Update the UI.
   set_spinner_visible(true);
+  if (current_index !== null) {
+    document.getElementById('row' + current_index).className =
+      current_index % 2 == 0 ? 'evenrow' : 'oddrow';
+  }
+  document.getElementById('row' + index).className = 'selectedrow';
+  // Start streaming the new song.
   var entry = library[index];
   // Get a buffered stream of the desired file.
   var bufferParam = using_webkit ? 'buffered=true&' : '';
