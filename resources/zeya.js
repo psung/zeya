@@ -20,6 +20,18 @@ function clearChildren(c) {
   }
 }
 
+// Return the DOM id of the row (TR element) corresponding to the specified
+// index.
+function getRowIdFromIndex(index) {
+  return 'row' + index;
+}
+
+// Return the class to use for the row corresponding to the given index. This
+// determines the color of the row.
+function getRowClassFromIndex(index) {
+  return index % 2 == 0 ? 'evenrow' : 'oddrow';
+}
+
 // Request the collection from the server and render a table to display it.
 function load_collection() {
   var t = document.createElement('table');
@@ -55,8 +67,8 @@ function load_collection() {
         link.appendChild(document.createTextNode(item.title));
 
         var tr = document.createElement('tr');
-        tr.id = 'row' + index;
-        tr.setAttribute('class', index % 2 == 0 ? 'evenrow' : 'oddrow');
+        tr.id = getRowIdFromIndex(index);
+        tr.setAttribute('class', getRowClassFromIndex(index));
         var td1 = document.createElement('td');
         var td2 = document.createElement('td');
         var td3 = document.createElement('td');
@@ -127,10 +139,10 @@ function select_item(index) {
   // Update the UI.
   set_spinner_visible(true);
   if (current_index !== null) {
-    document.getElementById('row' + current_index).className =
-      current_index % 2 == 0 ? 'evenrow' : 'oddrow';
+    document.getElementById(getRowIdFromIndex(current_index)).className =
+      getRowClassFromIndex(current_index);
   }
-  document.getElementById('row' + index).className = 'selectedrow';
+  document.getElementById(getRowIdFromIndex(index)).className = 'selectedrow';
   // Start streaming the new song.
   var entry = library[index];
   // Get a buffered stream of the desired file.
