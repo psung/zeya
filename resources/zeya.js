@@ -92,6 +92,7 @@ function load_collection() {
 // Pause the currently playing song.
 function pause() {
   if (current_index !== null) {
+    set_spinner_visible(false);
     audio.pause();
     set_ui_state('pause');
   }
@@ -100,6 +101,7 @@ function pause() {
 // Start or resume playing the current song.
 function play() {
   if (current_index !== null) {
+    set_spinner_visible(true);
     audio.play();
     set_ui_state('play');
   }
