@@ -52,8 +52,8 @@ INSTRUCTIONS
 
 CLIENT SUPPORT
 
-Zeya works well on Firefox 3.5.2 and minimally on Chrome 3.0.198.1. See the
-section below, titled "NOTES ON SUPPORTED CLIENTS", for more details.
+Zeya works well in Firefox 3.5+ and well enough on Chrome 3+. See the section
+below, titled "NOTES ON SUPPORTED CLIENTS", for more details.
 
 We also provide zeyaclient.py, a rudimentary Python client (1) for use when a
 more lightweight client is needed or when no HTML5-compliant browser is
@@ -63,13 +63,21 @@ access to a Zeya servers.
 
 NOTES ON SUPPORTED CLIENTS
 
-* Firefox 3.5.2
+* Firefox
 
-  All Firefox versions >= 3.5 should work. No issues are known.
+  All Firefox versions >= 3.5 should work.
 
-* Chrome 3.0.198.1
+  Zeya is known to work in Firefox 3.5.3 on GNU/Linux and Windows.
 
-  Zeya works, with a couple of caveats, described below.
+* Chrome
+
+  At the time of writing, official 64-bit builds ("Google Chrome") on GNU/Linux
+  do not play audio (chromium bug #23152). The Chromium builds work just fine.
+  32-bit GNU/Linux and other platforms are unaffected.
+
+  Zeya is known to work in Chrome 4.0.220.1, and likely also for dev channel
+  builds since at least 3.0.198.1, on GNU/Linux and Windows, with the caveat
+  above.
 
   Known issues:
 
@@ -80,10 +88,9 @@ NOTES ON SUPPORTED CLIENTS
     so we have to finish encoding the entire file before we can send any data
     to the client. In addition, Chrome seems to request each audio file twice.
 
-  Zeya does not advance to the next song when the current one has finished.
+* Internet Explorer (with Chrome Frame plugin)
 
-    This is due to chromium bug 16768 and is fixed in Chrome/chromium >=
-    r23336. <http://code.google.com/p/chromium/issues/detail?id=16768>
+  Known Issues: see Chrome KIs above.
 
 
 DEVELOPMENT AND TESTING
