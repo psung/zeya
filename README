@@ -86,7 +86,7 @@ NOTES ON SUPPORTED CLIENTS
 
     Chrome seems to require the Content-Length header to be set on audio data,
     so we have to finish encoding the entire file before we can send any data
-    to the client. In addition, Chrome seems to request each audio file twice.
+    to the client.
 
 * Internet Explorer (with Chrome Frame plugin)
 
