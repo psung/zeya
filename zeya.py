@@ -24,7 +24,8 @@
 # Work with python2.5
 from __future__ import with_statement
 
-import BaseHTTPServer
+from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
+from SocketServer import ThreadingMixIn
 
 import getopt
 import urllib
@@ -59,7 +60,11 @@ class BadArgsError(Exception):
     def __str__(self):
         return "Error: %s" % (self.error_message,)
 
-# TODO: support a multithreaded server.
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    """
+    HTTP Server that handles requests in separate threads.
+    """
+    pass
 
 def ZeyaHandler(library_repr, resource_basedir):
     """
@@ -68,7 +73,7 @@ def ZeyaHandler(library_repr, resource_basedir):
     data and the base directory for resources.
     """
 
-    class ZeyaHandlerImpl(BaseHTTPServer.BaseHTTPRequestHandler):
+    class ZeyaHandlerImpl(BaseHTTPRequestHandler):
         """
         Web server request handler.
         """
@@ -234,7 +239,7 @@ def main(port):
               if decoders.hasDecoder(backend.get_filename_from_key(s['key'])) ]
     library_repr = json.dumps(library_contents, ensure_ascii=False)
     basedir = os.path.abspath(os.path.dirname(sys.argv[0]))
-    server = BaseHTTPServer.HTTPServer(
+    server = ThreadedHTTPServer(
         ('', port),
         ZeyaHandler(library_repr, os.path.join(basedir, 'resources')))
     print "Listening on port %d" % (port,)
