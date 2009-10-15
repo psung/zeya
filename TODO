@@ -10,3 +10,5 @@
 
 - Detect when the server is no longer available and display an appropriate
   message.
+
+- Help screen for keyboard shortcuts
