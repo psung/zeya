@@ -5,3 +5,8 @@
 - Add more tests to test suite.
 
 - Allow using a page fragment (/#xyz...) to specify a song.
+
+- Remote control of clients
+
+- Detect when the server is no longer available and display an appropriate
+  message.
