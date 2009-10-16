@@ -103,8 +103,8 @@ class DirectoryBackend(LibraryBackend):
         print "Scanning library..."
         # Iterate over all the files.
         for path, dirs, files in os.walk(self._media_path):
-            for filename in [os.path.abspath(os.path.join(path, filename)) for
-                         filename in files]:
+            for filename in sorted(files):
+                filename = os.path.abspath(os.path.join(path, filename))
                 # For each file that we encounter, see if we have cached data
                 # for it, and if we do, use it instead of calling out to tagpy.
                 # previous_db acts as a cache of mtime and metadata, keyed by
