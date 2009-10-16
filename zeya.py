@@ -47,6 +47,7 @@ except (ImportError, AttributeError):
 import decoders
 
 DEFAULT_PORT = 8080
+DEFAULT_BITRATE = 64
 DEFAULT_BACKEND = "rhythmbox"
 
 valid_backends = ['rhythmbox', 'dir']
@@ -66,7 +67,7 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """
     pass
 
-def ZeyaHandler(library_repr, resource_basedir):
+def ZeyaHandler(library_repr, resource_basedir, bitrate):
     """
     Wrapper around the actual HTTP request handler implementation class. We
     need to create a closure so that the inner class can receive the library
@@ -131,7 +132,7 @@ def ZeyaHandler(library_repr, resource_basedir):
                 # Complete the transcode and write to a temporary file.
                 # Determine its length and serve the Content-Length header.
                 output_file = tempfile.TemporaryFile()
-                backend.get_content(key, output_file, buffered=True)
+                backend.get_content(key, output_file, bitrate, buffered=True)
                 output_file.seek(0)
                 data = output_file.read()
                 self.send_header('Content-Length', str(len(data)))
@@ -141,7 +142,7 @@ def ZeyaHandler(library_repr, resource_basedir):
                 # Don't determine the Content-Length. Just stream to the client
                 # on the fly.
                 self.end_headers()
-                backend.get_content(key, self.wfile)
+                backend.get_content(key, self.wfile, bitrate)
             self.wfile.close()
         def serve_library(self):
             """
@@ -196,12 +197,14 @@ def getOptions():
     help_msg = False
     port = DEFAULT_PORT
     backend_type = DEFAULT_BACKEND
+    bitrate = DEFAULT_BITRATE
     # This is set to False if --backend is explicitly set
     is_backend_default_value = True
     path = None
     try:
-        opts, file_list = getopt.getopt(sys.argv[1:], "hp:",
-                                        ["help", "backend=", "port=", "path="])
+        opts, file_list = getopt.getopt(sys.argv[1:], "b:hp:",
+                                        ["help", "backend=", "bitrate=",
+                                         "port=", "path="])
     except getopt.GetoptError:
         raise BadArgsError("Unsupported options")
     for flag, value in opts:
@@ -212,6 +215,11 @@ def getOptions():
             backend_type = value
             if backend_type not in valid_backends:
                 raise BadArgsError("Unsupported backend type")
+        if flag in ("-b", "--bitrate"):
+            try:
+                bitrate = int(value)
+            except ValueError:
+                raise BadArgsError("Invalid bitrate setting %r" % (value,))
         if flag in ("--path",):
             path = value
         if flag in ("-p", "--port"):
@@ -224,12 +232,12 @@ def getOptions():
     # If --backend is not set explicitly, --path=... implies --backend=dir
     if path is not None and is_backend_default_value:
         backend_type = 'dir'
-    return (help_msg, backend_type, port, path)
+    return (help_msg, backend_type, bitrate, port, path)
 
 def usage():
-    print "Usage: zeya.py [-h|--help] [--backend=[rhythmbox|dir]] [--port] [--path=PATH]"
+    print "Usage: zeya.py [-h|--help] [--backend=[rhythmbox|dir]] [-b|--bitrate] [-p|--port] [--path=PATH]"
 
-def main(port):
+def main(port, bitrate):
     # Read the library.
     print "Loading library..."
     library_contents = backend.get_library_contents()
@@ -241,7 +249,8 @@ def main(port):
     basedir = os.path.abspath(os.path.dirname(sys.argv[0]))
     server = ThreadedHTTPServer(
         ('', port),
-        ZeyaHandler(library_repr, os.path.join(basedir, 'resources')))
+        ZeyaHandler(library_repr, os.path.join(basedir, 'resources'),
+                    bitrate))
     print "Listening on port %d" % (port,)
     # Start up a web server.
     print "Ready to serve!"
@@ -254,7 +263,7 @@ def main(port):
 
 if __name__ == '__main__':
     try:
-        (show_help, backend_type, port, path) = getOptions()
+        (show_help, backend_type, bitrate, port, path) = getOptions()
     except BadArgsError, e:
         print e
         usage()
@@ -271,4 +280,4 @@ if __name__ == '__main__':
     elif backend_type == 'dir':
         from directory import DirectoryBackend
         backend = DirectoryBackend(path)
-    main(port)
+    main(port, bitrate)
