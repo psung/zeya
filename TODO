@@ -1,14 +1,20 @@
-- Add function for repeat/repeat album/repeat 1
+USER INTERFACE
 
-- Timer and seek bar
+- Add functions for repeat collection, repeat album, repeat song
 
-- Add more tests to test suite.
+- Add a timer and seek bar
+
+- Help screen for keyboard shortcuts
+
+- Detect when the server is no longer available and display an appropriate
+  message.
+
+ADDITIONAL FEATURES
 
 - Allow using a page fragment (/#xyz...) to specify a song.
 
 - Remote control of clients
 
-- Detect when the server is no longer available and display an appropriate
-  message.
+OTHER
 
-- Help screen for keyboard shortcuts
+- Add more tests to test suite.
