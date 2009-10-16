@@ -43,7 +43,7 @@ class DirectoryBackend(LibraryBackend):
     Object that controls access to music in a given directory.
     """
     def __init__(self, media_path, save_db=True):
-        self._media_path = media_path
+        self._media_path = os.path.expanduser(media_path)
         self._save_db = save_db
         # Sequence of dicts containing song metadata (key, artist, title, album)
         self.db = []
