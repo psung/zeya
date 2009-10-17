@@ -218,6 +218,8 @@ def getOptions():
         if flag in ("-b", "--bitrate"):
             try:
                 bitrate = int(value)
+                if bitrate <= 0:
+                    raise ValueError()
             except ValueError:
                 raise BadArgsError("Invalid bitrate setting %r" % (value,))
         if flag in ("--path",):
