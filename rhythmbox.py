@@ -21,38 +21,16 @@
 # Rhythmbox backend.
 
 import os
-import re
 import subprocess
 import urllib
 
 from backend import LibraryBackend
+from common import tokenize_filename
 
 from xml.parsers import expat
 
 # Path to XML file containing Rhythmbox library
 RB_DBFILE = '~/.local/share/rhythmbox/rhythmdb.xml'
-
-def tokenize_filename(filename):
-    """
-    Return a list such that sorting a list of filenames by tokenize_filename(f)
-    yields some "reasonable" result.
-
-    filename: string containing a filename
-    """
-    # Sort lexicographically by components of the path, except we treat runs of
-    # digits as separate components and sort those by numeric value. That way
-    # we can, for example, sort "9.ogg" and "10.ogg" in the sensible way.
-    def maybe_convert_to_int(s):
-        """
-        Return int(s) if s represents an integer and s otherwise.
-
-        s: a string
-        """
-        try:
-            return int(s)
-        except ValueError:
-            return s
-    return [maybe_convert_to_int(s) for s in re.split(r'(/|\d+)', filename)]
 
 class RhythmboxDbHandler():
     """

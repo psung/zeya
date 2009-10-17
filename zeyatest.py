@@ -26,6 +26,18 @@ import unittest
 import decoders
 import rhythmbox
 
+class CommonTest(unittest.TestCase):
+    def test_tokenization(self):
+        """
+        Test that our tokenization method yields a correct ordering of songs.
+        """
+        # Note, filename1 > filename2
+        filename1 = "/home/phil/9 - something.ogg"
+        filename2 = "/home/phil/10 - something.ogg"
+        t1 = rhythmbox.tokenize_filename(filename1)
+        t2 = rhythmbox.tokenize_filename(filename2)
+        self.assertTrue(t1 < t2)
+
 class DecodersTest(unittest.TestCase):
     def test_extensions(self):
         """
@@ -46,16 +58,6 @@ class DecodersTest(unittest.TestCase):
                         .startswith("/usr/bin"))
 
 class RhythmboxTest(unittest.TestCase):
-    def test_tokenization(self):
-        """
-        Test that our tokenization method yields a correct ordering of songs.
-        """
-        # Note, filename1 > filename2
-        filename1 = "/home/phil/9 - something.ogg"
-        filename2 = "/home/phil/10 - something.ogg"
-        t1 = rhythmbox.tokenize_filename(filename1)
-        t2 = rhythmbox.tokenize_filename(filename2)
-        self.assertTrue(t1 < t2)
     def test_read_library(self):
         """
         Verify that the contents of the Rhythmbox XML library are read
