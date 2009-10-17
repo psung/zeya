@@ -55,7 +55,7 @@ class DirectoryBackend(LibraryBackend):
         self.setup_db()
 
     def get_db_filename(self):
-        return os.path.expanduser(os.path.join(self._media_path, 'zeya.db'))
+        return os.path.join(self._media_path, 'zeya.db')
 
     def setup_db(self):
         # Load the previous database from file, and convert it to a
