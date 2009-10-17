@@ -43,7 +43,7 @@ class DirectoryBackend(LibraryBackend):
     Object that controls access to music in a given directory.
     """
     def __init__(self, media_path, save_db=True):
-        self._media_path = media_path
+        self._media_path = os.path.expanduser(media_path)
         self._save_db = save_db
         # Sequence of dicts containing song metadata (key, artist, title, album)
         self.db = []
@@ -103,8 +103,8 @@ class DirectoryBackend(LibraryBackend):
         print "Scanning library..."
         # Iterate over all the files.
         for path, dirs, files in os.walk(self._media_path):
-            for filename in [os.path.abspath(os.path.join(path, filename)) for
-                         filename in files]:
+            for filename in sorted(files):
+                filename = os.path.abspath(os.path.join(path, filename))
                 # For each file that we encounter, see if we have cached data
                 # for it, and if we do, use it instead of calling out to tagpy.
                 # previous_db acts as a cache of mtime and metadata, keyed by

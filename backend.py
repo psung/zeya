@@ -30,14 +30,14 @@ class StreamGenerationError(Exception):
     def __str__(self):
         return self.msg
 
-def filename_to_stream(filename, out_stream, buffered = False):
+def filename_to_stream(filename, out_stream, bitrate, buffered=False):
     print "Handling request for %s" % (filename,)
     try:
         decode_command = decoders.getDecoder(filename)
     except KeyError:
         raise StreamGenerationError(
             "Couldn't play specified format: %r" % (filename,))
-    encode_command = ["/usr/bin/oggenc", "-r", "-Q", "-b", "64", "-"]
+    encode_command = ["/usr/bin/oggenc", "-r", "-Q", "-b", str(bitrate), "-"]
     # Pipe the decode command into the encode command.
     p1 = subprocess.Popen(decode_command, stdout=subprocess.PIPE)
     if buffered:
@@ -73,7 +73,7 @@ class LibraryBackend():
         """
         raise NotImplementedError()
 
-    def get_content(self, key, out_stream, buffered = False):
+    def get_content(self, key, out_stream, bitrate, buffered=False):
         """
         Retrieve the file data associated with the specified key and write an
         audio/ogg encoded version to out_stream.
@@ -84,7 +84,7 @@ class LibraryBackend():
         except KeyError:
             print "Received invalid request for key %r" % (key,)
         try:
-            filename_to_stream(filename, out_stream, buffered)
+            filename_to_stream(filename, out_stream, bitrate, buffered)
         except StreamGenerationError, e:
             print "ERROR. %s" % (e,)
 
