@@ -47,7 +47,7 @@ except (ImportError, AttributeError):
 import decoders
 
 DEFAULT_PORT = 8080
-DEFAULT_BITRATE = 64 #kbps
+DEFAULT_BITRATE = 64 #kbits/s
 DEFAULT_BACKEND = "rhythmbox"
 
 valid_backends = ['rhythmbox', 'dir']
@@ -191,7 +191,7 @@ def getOptions():
 
     show_help: whether user requested help information
     backend: string indicating backend to use
-    bitrate: bitrate for encoded streams (kbps)
+    bitrate: bitrate for encoded streams (kbits/sec)
     port: port number to listen on
     path: path from which to read music files (for "dir" backend only)
     """
@@ -254,7 +254,7 @@ Options:
       Directory in which to look for music. Use with --backend=dir.
 
   -b, --bitrate=N
-      Specify the bitrate for output streams, in kbps. (default: 64)
+      Specify the bitrate for output streams, in kbits/sec. (default: 64)
 
   -p, --port=PORT
       Listen for requests on the specified port. (default: 8080)"""
