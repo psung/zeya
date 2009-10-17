@@ -47,7 +47,7 @@ except (ImportError, AttributeError):
 import decoders
 
 DEFAULT_PORT = 8080
-DEFAULT_BITRATE = 64
+DEFAULT_BITRATE = 64 #kbps
 DEFAULT_BACKEND = "rhythmbox"
 
 valid_backends = ['rhythmbox', 'dir']
@@ -186,13 +186,14 @@ def ZeyaHandler(library_repr, resource_basedir, bitrate):
 
 def getOptions():
     """
-    Parse the arguments and return a tuple (show_help, backend, port), or raise
-    BadArgsError if the invocation was not valid.
+    Parse the arguments and return a tuple (show_help, backend, bitrate, port,
+    path), or raise BadArgsError if the invocation was not valid.
 
     show_help: whether user requested help information
-    backend: string containing backend to use (only supported value right now
-             is "rhythmbox")
+    backend: string indicating backend to use
+    bitrate: bitrate for encoded streams (kbps)
     port: port number to listen on
+    path: path from which to read music files (for "dir" backend only)
     """
     help_msg = False
     port = DEFAULT_PORT
@@ -237,7 +238,7 @@ def getOptions():
     return (help_msg, backend_type, bitrate, port, path)
 
 def usage():
-    print "Usage: zeya.py [-h|--help] [--backend=[rhythmbox|dir]] [-b|--bitrate] [-p|--port] [--path=PATH]"
+    print "Usage: zeya.py [-h|--help] [--backend=[rhythmbox|dir]] [-b|--bitrate=KBPS] [-p|--port] [--path=PATH]"
 
 def main(port, bitrate):
     # Read the library.
