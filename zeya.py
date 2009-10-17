@@ -238,7 +238,26 @@ def getOptions():
     return (help_msg, backend_type, bitrate, port, path)
 
 def usage():
-    print "Usage: zeya.py [-h|--help] [--backend=[rhythmbox|dir]] [-b|--bitrate=KBPS] [-p|--port] [--path=PATH]"
+    print """Usage: zeya.py [OPTIONS]
+
+Options:
+
+  -h, --help
+      Display this help message.
+
+  --backend=BACKEND
+      Specify the backend to use. Acceptable values:
+        rhythmbox: (default) read from current user's Rhythmbox library
+        dir: read a directory's contents, recursively; see --path
+
+  --path=PATH
+      Directory in which to look for music. Use with --backend=dir.
+
+  -b, --bitrate=N
+      Specify the bitrate for output streams, in kbps. (default: 64)
+
+  -p, --port=PORT
+      Listen for requests on the specified port. (default: 8080)"""
 
 def main(port, bitrate):
     # Read the library.
