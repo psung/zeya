@@ -184,7 +184,7 @@ def ZeyaHandler(library_repr, resource_basedir, bitrate):
 
     return ZeyaHandlerImpl
 
-def getOptions():
+def get_options():
     """
     Parse the arguments and return a tuple (show_help, backend, bitrate, port,
     path), or raise BadArgsError if the invocation was not valid.
@@ -303,7 +303,7 @@ def main(port, bitrate):
 
 if __name__ == '__main__':
     try:
-        (show_help, backend_type, bitrate, port, path) = getOptions()
+        (show_help, backend_type, bitrate, port, path) = get_options()
     except BadArgsError, e:
         print e
         usage()
