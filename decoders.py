@@ -26,9 +26,7 @@
 # To use any of the command lines, append a filename as the last argument.
 decoders = {
     'flac': ("/usr/bin/flac", "-d", "-c", "--totally-silent"),
-    # Either lame or mpg321 work for MP3s.
-    # 'mp3': ("/usr/bin/lame", "-S", "--decode", filename, "-")
-    'mp3': ("/usr/bin/mpg321", "-s", "-q"),
+    'mp3': ("/usr/bin/mpg123", "-q"),
     'ogg': ("/usr/bin/oggdec", "-Q", "-o", "-"),
     }
 

@@ -28,7 +28,7 @@ INSTRUCTIONS
    following: Ogg/Vorbis, FLAC, and MP3. On an Ubuntu system you can do this
    with:
 
-    aptitude install vorbis-tools flac mpg321
+    aptitude install vorbis-tools flac mpg123
 
    Python <=2.5 users will need to install the simplejson library:
 
