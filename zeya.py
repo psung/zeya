@@ -67,11 +67,16 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """
     pass
 
-def ZeyaHandler(library_repr, resource_basedir, bitrate):
+def ZeyaHandler(backend, library_repr, resource_basedir, bitrate):
     """
     Wrapper around the actual HTTP request handler implementation class. We
-    need to create a closure so that the inner class can receive the library
-    data and the base directory for resources.
+    need to create a closure so that the inner class can receive the following
+    data:
+
+    Backend to use.
+    Library data.
+    Base directory for resources.
+    Bitrate for encoding.
     """
 
     class ZeyaHandlerImpl(BaseHTTPRequestHandler):
@@ -277,7 +282,7 @@ def get_backend(backend_type):
     else:
         raise ValueError("Invalid backend %r" % (backend_type,))
 
-def main(port, bitrate):
+def run_server(backend, port, bitrate):
     # Read the library.
     print "Loading library..."
     library_contents = backend.get_library_contents()
@@ -289,7 +294,7 @@ def main(port, bitrate):
     basedir = os.path.abspath(os.path.dirname(sys.argv[0]))
     server = ThreadedHTTPServer(
         ('', port),
-        ZeyaHandler(library_repr, os.path.join(basedir, 'resources'),
+        ZeyaHandler(backend, library_repr, os.path.join(basedir, 'resources'),
                     bitrate))
     print "Listening on port %d" % (port,)
     # Start up a web server.
@@ -313,4 +318,4 @@ if __name__ == '__main__':
         sys.exit(0)
     backend = get_backend(backend_type)
     print "Using %r backend" % (backend_type,)
-    main(port, bitrate)
+    run_server(backend, port, bitrate)
