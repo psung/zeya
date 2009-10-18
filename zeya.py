@@ -206,8 +206,8 @@ def getOptions():
         opts, file_list = getopt.getopt(sys.argv[1:], "b:hp:",
                                         ["help", "backend=", "bitrate=",
                                          "port=", "path="])
-    except getopt.GetoptError:
-        raise BadArgsError("Unsupported options")
+    except getopt.GetoptError, e:
+        raise BadArgsError(e.msg)
     for flag, value in opts:
         if flag in ("-h", "--help"):
             help_msg = True
@@ -215,7 +215,8 @@ def getOptions():
             is_backend_default_value = False
             backend_type = value
             if backend_type not in valid_backends:
-                raise BadArgsError("Unsupported backend type")
+                raise BadArgsError("Unsupported backend type %r"
+                                   % (backend_type,))
         if flag in ("-b", "--bitrate"):
             try:
                 bitrate = int(value)
@@ -231,7 +232,7 @@ def getOptions():
             except ValueError:
                 raise BadArgsError("Invalid port setting %r" % (value,))
     if backend_type == 'dir' and path is None:
-        raise BadArgsError("Directory (dir) backend needs a path (--path)")
+        raise BadArgsError("'dir' backend requires a path (--path=...)")
     # If --backend is not set explicitly, --path=... implies --backend=dir
     if path is not None and is_backend_default_value:
         backend_type = 'dir'
