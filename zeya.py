@@ -259,6 +259,23 @@ Options:
   -p, --port=PORT
       Listen for requests on the specified port. (default: 8080)"""
 
+def get_backend(backend_type):
+    """
+    Return a backend object of the requested type.
+
+    backend_type: string giving the backend type to use.
+    """
+    if backend_type == "rhythmbox":
+        # Import the backend modules conditionally, so users don't have to
+        # install dependencies unless they are actually used.
+        from rhythmbox import RhythmboxBackend
+        return RhythmboxBackend()
+    elif backend_type == 'dir':
+        from directory import DirectoryBackend
+        return DirectoryBackend(path)
+    else:
+        raise ValueError("Invalid backend %r" % (backend_type,))
+
 def main(port, bitrate):
     # Read the library.
     print "Loading library..."
@@ -293,13 +310,6 @@ if __name__ == '__main__':
     if show_help:
         usage()
         sys.exit(0)
+    backend = get_backend(backend_type)
     print "Using %r backend" % (backend_type,)
-    if backend_type == "rhythmbox":
-        # Import the backend modules conditionally, so users don't have to
-        # install dependencies unless they are actually used.
-        from rhythmbox import RhythmboxBackend
-        backend = RhythmboxBackend()
-    elif backend_type == 'dir':
-        from directory import DirectoryBackend
-        backend = DirectoryBackend(path)
     main(port, bitrate)
