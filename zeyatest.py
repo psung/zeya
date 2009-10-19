@@ -41,20 +41,20 @@ class CommonTest(unittest.TestCase):
 class DecodersTest(unittest.TestCase):
     def test_extensions(self):
         """
-        Test decoders.getExtension.
+        Test decoders.get_extension.
         """
-        self.assertEqual("mp3", decoders.getExtension("/path/to/SOMETHING.MP3"))
-    def test_hasDecoder(self):
+        self.assertEqual("mp3", decoders.get_extension("/path/to/SOMETHING.MP3"))
+    def test_has_decoder(self):
         """
-        Test decoders.hasDecoder.
+        Test decoders.has_decoder.
         """
-        self.assertTrue(decoders.hasDecoder("/path/to/something.mp3"))
-        self.assertFalse(decoders.hasDecoder("/path/to/something.m4a"))
-    def test_getDecoder(self):
+        self.assertTrue(decoders.has_decoder("/path/to/something.mp3"))
+        self.assertFalse(decoders.has_decoder("/path/to/something.m4a"))
+    def test_get_decoder(self):
         """
-        Test decoders.getDecoder
+        Test decoders.get_decoder
         """
-        self.assertTrue(decoders.getDecoder("/path/to/SOMETHING.MP3")[0]
+        self.assertTrue(decoders.get_decoder("/path/to/SOMETHING.MP3")[0]
                         .startswith("/usr/bin"))
 
 class RhythmboxTest(unittest.TestCase):

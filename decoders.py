@@ -30,27 +30,27 @@ decoders = {
     'ogg': ("/usr/bin/oggdec", "-Q", "-o", "-"),
     }
 
-def getExtension(filename):
+def get_extension(filename):
     # Returns the lowercased extension of the filename (e.g. 'ogg').
     # Raises ValueError if the filename is malformed.
     return filename[filename.rfind('.')+1:].lower()
 
-def hasDecoder(filename):
+def has_decoder(filename):
     """
     Returns True if there is a decoder available for the given filename.
     """
     try:
-        extension = getExtension(filename)
+        extension = get_extension(filename)
     except ValueError:
         return False
     return decoders.has_key(extension)
 
-def getDecoder(filename):
+def get_decoder(filename):
     """
     Returns a command line for decoding the given filename.
 
     This command line can be passed to subprocess.Popen, and writes all data to
     stdout.
     """
-    extension = getExtension(filename)
+    extension = get_extension(filename)
     return list(decoders[extension] + (filename,))

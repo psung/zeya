@@ -33,7 +33,7 @@ class StreamGenerationError(Exception):
 def filename_to_stream(filename, out_stream, bitrate, buffered=False):
     print "Handling request for %s" % (filename,)
     try:
-        decode_command = decoders.getDecoder(filename)
+        decode_command = decoders.get_decoder(filename)
     except KeyError:
         raise StreamGenerationError(
             "Couldn't play specified format: %r" % (filename,))

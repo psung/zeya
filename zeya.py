@@ -289,7 +289,7 @@ def run_server(backend, port, bitrate):
     # Filter out songs that we won't be able to decode.
     library_contents = \
         [ s for s in library_contents \
-              if decoders.hasDecoder(backend.get_filename_from_key(s['key'])) ]
+              if decoders.has_decoder(backend.get_filename_from_key(s['key'])) ]
     library_repr = json.dumps(library_contents, ensure_ascii=False)
     basedir = os.path.abspath(os.path.dirname(sys.argv[0]))
     server = ThreadedHTTPServer(
