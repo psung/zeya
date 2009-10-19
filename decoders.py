@@ -26,7 +26,7 @@
 # To use any of the command lines, append a filename as the last argument.
 decoders = {
     'flac': ("/usr/bin/flac", "-d", "-c", "--totally-silent"),
-    'mp3': ("/usr/bin/mpg123", "-q"),
+    'mp3': ("/usr/bin/mpg123", "-s", "-q"),
     'ogg': ("/usr/bin/oggdec", "-Q", "-o", "-"),
     }
 
