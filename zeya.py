@@ -291,7 +291,7 @@ def run_server(backend, port, bitrate):
         [ s for s in library_contents \
               if decoders.has_decoder(backend.get_filename_from_key(s['key'])) ]
     library_repr = json.dumps(library_contents, ensure_ascii=False)
-    basedir = os.path.abspath(os.path.dirname(sys.argv[0]))
+    basedir = os.path.abspath(os.path.dirname(os.path.realpath(sys.argv[0])))
     server = ThreadedHTTPServer(
         ('', port),
         ZeyaHandler(backend, library_repr, os.path.join(basedir, 'resources'),
