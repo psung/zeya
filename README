@@ -88,6 +88,10 @@ NOTES ON SUPPORTED CLIENTS
     so we have to finish encoding the entire file before we can send any data
     to the client.
 
+  The Previous button (and the "k" key) doesn't work in Chrome.
+
+    This is apparently related to Chrome not implementing audio.currentTime.
+
 * Internet Explorer (with Chrome Frame plugin)
 
   Known Issues: see Chrome KIs above.
