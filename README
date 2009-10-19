@@ -28,15 +28,20 @@ INSTRUCTIONS
    following: Ogg/Vorbis, FLAC, and MP3. On an Ubuntu system you can do this
    with:
 
-    aptitude install vorbis-tools flac mpg123
+     aptitude install vorbis-tools    # Vorbis encoder and decoder
+     aptitude install flac mpg123     # Flac and MP3 decoders
 
-   Python <=2.5 users will need to install the simplejson library:
+   Make sure you have Python 2.5 or 2.6 installed:
 
-    aptitude install python-simplejson
+     aptitude install python2.6
+
+   Python 2.5 users will need to install the simplejson library:
+
+     aptitude install python-simplejson
 
    If you're using the 'dir' (directory) backend, also install tagpy:
 
-    aptitude install python-tagpy
+     aptitude install python-tagpy
 
 3. Run zeya.py. The --help flag shows the available options. We support two
    backends:
