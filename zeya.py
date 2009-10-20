@@ -33,6 +33,7 @@ import os
 import sys
 import tempfile
 import traceback
+import zlib
 try:
     from urlparse import parse_qs
 except: # (ImportError, AttributeError):
@@ -151,18 +152,36 @@ def ZeyaHandler(backend, library_repr, resource_basedir, bitrate):
                 self.end_headers()
                 backend.get_content(key, self.wfile, bitrate)
             self.wfile.close()
+
+        def send_data(self, ctype, data):
+            """
+            Send data to the client.
+
+            Use deflate compression if client headers indicate that the
+            other end supports it and if it's appropriate for this
+            content-type.
+            """
+            compress_data = \
+                (ctype.startswith('text/')
+                 and 'Accept-Encoding' in self.headers
+                 and 'deflate' in self.headers['Accept-Encoding'].split(','))
+            self.send_response(200)
+            if compress_data:
+                data = zlib.compress(data)
+                self.send_header('Content-Encoding', 'deflate')
+                self.send_header('Vary', 'Accept-Encoding')
+            self.send_header('Content-Length', str(len(data)))
+            self.send_header('Content-Type', ctype)
+            self.end_headers()
+            self.wfile.write(data)
+            self.wfile.close()
+
         def serve_library(self):
             """
             Serve a representation of the library.
-
-            We take the output of backend.get_library_contents(), dump it as JSON,
-            and give that to the client.
             """
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write(library_repr.encode('utf-8'))
-            self.wfile.close()
+            self.send_data('text/html', library_repr.encode('utf-8'))
+
         def serve_static_content(self, path):
             """
             Serve static content from the resources/ directory.
@@ -179,12 +198,7 @@ def ZeyaHandler(backend, library_repr, resource_basedir, bitrate):
                     self.send_error(404, 'File not found: %s' % (path,))
                     return
                 with open(full_path) as f:
-                    self.send_response(200)
-                    self.send_header('Content-type', self.get_content_type(path))
-                    data = f.read()
-                    self.send_header('Content-Length', str(len(data)))
-                    self.end_headers()
-                    self.wfile.write(data)
+                    self.send_data(self.get_content_type(path), f.read())
             except IOError:
                 traceback.print_exc()
                 self.send_error(404, 'File not found: %s' % (path,))
