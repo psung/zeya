@@ -113,6 +113,8 @@ def ZeyaHandler(backend, library_repr, resource_basedir, bitrate):
                 return 'image/png'
             elif path.endswith('.css'):
                 return 'text/css'
+            elif path.endswith('.js'):
+                return 'text/javascript'
             elif path.endswith('.ogg'):
                 return 'audio/ogg'
             else:
