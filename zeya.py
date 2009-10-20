@@ -121,6 +121,8 @@ def ZeyaHandler(backend, library_repr, resource_basedir, bitrate):
             elif path.endswith('.ogg'):
                 return 'audio/ogg'
             else:
+                print ("Warning: couldn't identify content-type for %r, "
+                       + "serving as application/octet-stream") % (path,)
                 return 'application/octet-stream'
         def serve_content(self, query):
             """
