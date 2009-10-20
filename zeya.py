@@ -112,6 +112,8 @@ def ZeyaHandler(backend, library_repr, resource_basedir, bitrate):
                 return 'text/html'
             elif path.endswith('.png'):
                 return 'image/png'
+            elif path.endswith('.gif'):
+                return 'image/gif'
             elif path.endswith('.css'):
                 return 'text/css'
             elif path.endswith('.js'):
