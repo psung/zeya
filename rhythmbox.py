@@ -21,7 +21,9 @@
 # Rhythmbox backend.
 
 import os
+import os.path
 import subprocess
+import sys
 import urllib
 
 from backend import LibraryBackend
@@ -115,7 +117,24 @@ class RhythmboxBackend(LibraryBackend):
     def __init__(self, infile = None):
         self._files = set()
         self._contents = None
-        self._infile = infile or open(os.path.expanduser(RB_DBFILE))
+        if infile:
+            self._infile = infile
+            return
+        rhythmbox_db_path = os.path.expanduser(RB_DBFILE)
+        # Handle file-not-found before general IOErrors. If the Rhythmbox
+        # DB is missing the user probably doesn't want to use the Rhythmbox
+        # backend at all. But if it exists, something else is probably
+        # wrong.
+        if not os.path.exists(rhythmbox_db_path):
+            print "No Rhythmbox DB was found at %r." % (rhythmbox_db_path,)
+            print "Consider using --path to read from a directory instead."
+            sys.exit(1)
+        try:
+            self._infile = open(rhythmbox_db_path)
+        except IOError:
+            print "Couldn't read from Rhythmbox DB (%r)." \
+                % (rhythmbox_db_path,)
+            sys.exit(1)
     def get_library_contents(self):
         # Memoize self._contents and self._files.
         if not self._contents:
