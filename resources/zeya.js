@@ -101,7 +101,11 @@ function render_collection() {
 
     var tr = document.createElement('tr');
     tr.id = getRowIdFromIndex(index);
-    tr.setAttribute('class', getRowClassFromIndex(current_line));
+    if (current_index == index) {
+      tr.className = 'selectedrow';
+    } else {
+      tr.className = getRowClassFromIndex(current_line);
+    }
     var td1 = document.createElement('td');
     var td2 = document.createElement('td');
     var td3 = document.createElement('td');
