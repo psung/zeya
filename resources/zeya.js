@@ -356,6 +356,10 @@ function init() {
   library = null;
   audio = null;
   set_ui_state('grayed');
+  // The browser may have filled in the search box with the user's previously
+  // entered value. Load that into search_string here so that the search filter
+  // is applied to the collection when it's first displayed to the user again.
+  search_string = window.document.getElementById('search_box').value;
   load_collection();
 }
 
