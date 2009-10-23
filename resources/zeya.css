@@ -16,14 +16,42 @@ body {
     left: 0;
     width: 100%;
     height: 40px;
-    overflow: auto;
+    overflow: hidden;
     background-color: #f6f5f4;
     border-bottom: 1px solid #999;
 }
 
-#header .search {
+#header-left {
+    float: left;
+    height: 40px;
+}
+
+#header-right {
+    height: 100%;
     float: right;
-    padding: 5px 5px 0px 0px;
+    width: 12em;
+}
+
+#header-right form {
+    height: 100%;
+    position: relative;
+}
+
+#header-right form input {
+    position: absolute;
+    top: 50%;
+    width: 12em;
+    height: 1.2em;
+    margin-top: -0.90em;
+    right: 0.8em;
+}
+
+#header-main {
+    margin-top: 20px;
+}
+
+#header-main-inner {
+    margin-top: -0.70em;
 }
 
 #footer {
