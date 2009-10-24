@@ -404,13 +404,12 @@ function keydown_handler(e) {
 
 function keypress_handler(e) {
   var keynum;
-  if(window.event) {
-    keynum = e.keyCode; // IE
-  } else if(e.which) {
-    keynum = e.which; // Other browsers
+  if(e.which) {
+    keynum = e.which;
   } else {
     return true;
   }
+
   // If editing the search box, don't intercept keypresses.
   // Note, document.activeElement is an HTML5 feature.
   if (window.document.activeElement
