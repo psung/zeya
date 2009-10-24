@@ -27,9 +27,12 @@
 # The user is prompted for a query, and all songs matching it are played. The
 # query may be matched against the title, artist, or album of the song.
 
+import os
 import readline # Modifies the behavior of raw_input.
+import signal
 import subprocess
 import sys
+import time
 import urllib2
 
 try:
@@ -61,23 +64,32 @@ def run(server_path):
     print 'You can issue queries like: "Beatles" or "help, the beatles"'
     while True:
         # Prompt user for a query...
-        query = raw_input("Query? ")
+        try:
+            query = raw_input("\rQuery? ")
+        except:
+            # User pressed C-d or C-c.
+            print
+            break
         if not query:
             break
         # ...then play all the songs we can find that match the query.
         matching_songs = \
             [song for song in library_data if song_matches(query, song)]
         for song in matching_songs:
-            print "%s - %s" % (song['title'], song['artist'])
+            print "\r%s - %s" % (song['title'], song['artist'])
             song_url = "%s/getcontent?key=%d" % (server_path, song['key'])
             p = subprocess.Popen(["/usr/bin/ogg123", "-q", song_url])
             try:
                 p.communicate()
             except KeyboardInterrupt:
-                # TODO: handle Ctrl-C here in a better way. Whenever an
-                # interrupt is followed by a new query (raw_input above) we
-                # seem to get a spurious EOFError.
-                pass
+                # After a single ^C, skip to the next song.
+                os.kill(p.pid, signal.SIGTERM)
+                try:
+                    time.sleep(0.5)
+                except KeyboardInterrupt:
+                    # If ^C^C is typed (within 0.5 sec) then break out back to
+                    # the prompt.
+                    break
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
