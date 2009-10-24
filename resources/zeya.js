@@ -382,6 +382,26 @@ function init() {
   load_collection();
 }
 
+function keydown_handler(e) {
+  var keynum;
+  if (e.which) {
+    keynum = e.which;
+  } else {
+    return true;
+  }
+
+  if (keynum == 27) { // ESC
+    // Blur the search box.
+    if (window.document.activeElement
+        == window.document.getElementById('search_box')) {
+      window.document.getElementById('search_box').blur();
+    }
+    return false;
+  } else {
+    return true;
+  }
+}
+
 function keypress_handler(e) {
   var keynum;
   if(window.event) {

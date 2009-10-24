@@ -9,7 +9,8 @@
   // --></script>
   <title>Zeya</title>
 </head>
-<body onload="init()" onkeypress="return keypress_handler(event);">
+<body onload="init()" onkeydown="return keydown_handler(event);"
+      onkeypress="return keypress_handler(event);">
   <div id="header">
     <div id="header-left">
       <span id="previous_button" class="control">
