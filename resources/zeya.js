@@ -32,7 +32,7 @@ function can_play_native_audio() {
 }
 
 // Clear all the children of c.
-function clearChildren(c) {
+function clear_children(c) {
   while (c.childNodes.length >= 1) {
     c.removeChild(c.firstChild);
   }
@@ -40,18 +40,18 @@ function clearChildren(c) {
 
 // Return the DOM id of the row (TR element) corresponding to the specified
 // index.
-function getRowIdFromIndex(index) {
+function get_row_id_from_index(index) {
   return 'row' + index;
 }
 
 // Return the library index corresponding to a given row id.
-function getIndexFromRowId(id) {
+function get_index_from_row_id(id) {
   return id.substring(3);
 }
 
 // Return the class to use for the row corresponding to the given index. This
 // determines the color of the row.
-function getRowClassFromIndex(index) {
+function get_row_class_from_index(index) {
   return index % 2 == 0 ? 'evenrow' : 'oddrow';
 }
 
@@ -116,11 +116,11 @@ function render_collection() {
     link.appendChild(document.createTextNode(item.title));
 
     var tr = document.createElement('tr');
-    tr.id = getRowIdFromIndex(index);
+    tr.id = get_row_id_from_index(index);
     if (current_index == index) {
       tr.className = 'selectedrow';
     } else {
-      tr.className = getRowClassFromIndex(current_line);
+      tr.className = get_row_class_from_index(current_line);
     }
     var td1 = document.createElement('td');
     var td2 = document.createElement('td');
@@ -143,7 +143,7 @@ function render_collection() {
 
 // Clear displayed collection.
 function clear_collection() {
-  clearChildren(document.getElementById('collection'));
+  clear_children(document.getElementById('collection'));
   document.getElementById('collection').style.display = 'none';
   document.getElementById('loading').style.display = 'block';
 }
@@ -196,8 +196,8 @@ function set_spinner_visible(visible) {
 // Sets the title/artist fields that are displayed in the header, and the page
 // title.
 function set_title(title, artist) {
-  clearChildren(document.getElementById('title_text'));
-  clearChildren(document.getElementById('artist_text'));
+  clear_children(document.getElementById('title_text'));
+  clear_children(document.getElementById('artist_text'));
   if (title != '') {
     document.getElementById('title_text').appendChild(document.createTextNode(title));
   }
@@ -224,7 +224,7 @@ function update_status_area() {
     status_text += ' (' + status_info.total_tracks + ' total)';
   }
 
-  clearChildren(status_area);
+  clear_children(status_area);
   status_area.appendChild(document.createTextNode(status_text));
 }
 
@@ -252,13 +252,13 @@ function select_item(index) {
   // Update the UI.
   set_spinner_visible(true);
   if (current_index !== null) {
-    current_row = document.getElementById(getRowIdFromIndex(current_index));
+    current_row = document.getElementById(get_row_id_from_index(current_index));
     if (current_row) {
       current_row.className =
-        getRowClassFromIndex(get_line_number(current_row));
+        get_row_class_from_index(get_line_number(current_row));
     }
   }
-  document.getElementById(getRowIdFromIndex(index)).className = 'selectedrow';
+  document.getElementById(get_row_id_from_index(index)).className = 'selectedrow';
   // Start streaming the new song.
   var entry = library[index];
   // Get a buffered stream of the desired file.
@@ -286,14 +286,14 @@ function select_item(index) {
 // Check if the song with the given index is the last in the list.
 function is_last_track(index) {
   var collection = document.getElementById('collection_table');
-  var index_row = document.getElementById(getRowIdFromIndex(index));
+  var index_row = document.getElementById(get_row_id_from_index(index));
   return index_row == collection.lastChild
 }
 
 // Load the next song in the list (with wraparound).
 function select_next() {
   var collection = document.getElementById('collection_table');
-  var current_row = document.getElementById(getRowIdFromIndex(current_index));
+  var current_row = document.getElementById(get_row_id_from_index(current_index));
 
   if (!current_row) {
     // Display changed since we began playing and the displayed
@@ -304,11 +304,11 @@ function select_next() {
   // If on the last row, go back to the first.
   if (current_row == collection.lastChild) {
     // The table's firstChild is the heading.
-    select_item(getIndexFromRowId(collection.firstChild.nextSibling.id));
+    select_item(get_index_from_row_id(collection.firstChild.nextSibling.id));
   } else {
     var next_row = current_row.nextSibling;
     if (next_row) {
-      select_item(getIndexFromRowId(next_row.id));
+      select_item(get_index_from_row_id(next_row.id));
     }
   }
 }
@@ -316,7 +316,7 @@ function select_next() {
 // Load the previous song in the list (with wraparound).
 function select_previous() {
   var collection = document.getElementById('collection_table');
-  var current_row = document.getElementById(getRowIdFromIndex(current_index));
+  var current_row = document.getElementById(get_row_id_from_index(current_index));
 
   if (!current_row) {
     // Display changed since we began playing and the displayed
@@ -326,11 +326,11 @@ function select_previous() {
 
   // If on the first row, go to the last.
   if (current_row == collection.firstChild.nextSibling) {
-    select_item(getIndexFromRowId(collection.lastChild.id));
+    select_item(get_index_from_row_id(collection.lastChild.id));
   } else {
     var previous_row = current_row.previousSibling;
     if (previous_row) {
-      select_item(getIndexFromRowId(previous_row.id));
+      select_item(get_index_from_row_id(previous_row.id));
     }
   }
 }
