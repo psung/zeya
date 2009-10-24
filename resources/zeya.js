@@ -382,6 +382,16 @@ function init() {
   load_collection();
 }
 
+// Clean up after ourselves when the page is unloaded.
+function cleanup() {
+  // Firefox seems to maintain a huge audio buffer and playback doesn't always
+  // stop immediately when the page is closed or refreshed. So pause the stream
+  // manually here.
+  if (audio !== null) {
+    audio.pause();
+  }
+}
+
 function keydown_handler(e) {
   var keynum;
   if (e.which) {
