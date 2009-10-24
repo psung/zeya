@@ -1,0 +1,34 @@
+'\" -*- coding: us-ascii -*-
+.if \n(.g .ds T< \\FC
+.if \n(.g .ds T> \\F[\n[.fam]]
+.de URL
+\\$2 \(la\\$1\(ra\\$3
+..
+.if \n(.g .mso www.tmac
+.TH zeyaclient 1 2009-10-19 "" ""
+.SH NAME
+zeyaclient \- command-line client for Zeya
+.SH SYNOPSIS
+'nh
+.fi
+.ad l
+\fBzeyaclient\fR \kx
+.if (\nx>(\n(.l/2)) .nr x (\n(.l/5)
+'in \n(.iu+\nxu
+{server-url}
+'in \n(.iu-\nxu
+.ad b
+'hy
+.SH DESCRIPTION
+\fBzeyaclient\fR is a minimal command-line client for
+Zeya. The user is prompted for a query, and all songs matching it
+are played. The query may be matched against the title, artist, or
+album of the song.
+.SH COPYRIGHT
+\fBzeyaclient\fR was written by Phil Sung and is
+licensed under the terms of the GNU Affero GPL license, version 3
+or later.
+.SH "SEE ALSO"
+\*(T<\fI/usr/share/doc/zeya/README\fR\*(T>
+.PP
+\*(T<\fI/usr/share/doc/zeya/TODO\fR\*(T>

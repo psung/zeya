@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook V4.1//EN"
+ "file:///usr/share/xml/docbook/schema/dtd/4.4/docbookx.dtd"
+[]>
+
+<refentry>
+  <refentryinfo>
+    <author>
+      <firstname>Romain</firstname>
+      <surname>Francoise</surname>
+    </author>
+    <address>
+      <email>rfrancoise@debian.org</email>
+    </address>
+    <date>2009-10-19</date>
+  </refentryinfo>
+
+  <refmeta>
+    <refentrytitle>zeya</refentrytitle>
+    <manvolnum>1</manvolnum>
+  </refmeta>
+
+  <refnamediv>
+    <refname>zeya</refname>
+    <refpurpose>a web music server</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>zeya</command>
+      <group>
+	<arg>-h</arg>
+	<arg>--help</arg>
+      </group>
+      <arg>--backend=<replaceable>backend</replaceable></arg>
+      <arg>--path=<replaceable>path</replaceable></arg>
+      <group>
+	<arg>-b</arg>
+	<arg>--bitrate=<replaceable>bitrate</replaceable></arg>
+      </group>
+      <group>
+	<arg>-p</arg>
+	<arg>--port=<replaceable>port</replaceable></arg>
+      </group>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+  <refsect1>
+    <title>DESCRIPTION</title>
+    <para>
+      Zeya is a streaming music server that brings your music to any
+      computer with a web browser. It reads your music library, lets you
+      browse your files, and streams them on demand.
+    </para>
+    <para>
+      The client runs entirely in the browser using the HTML5 draft
+      standard technologies--no Flash needed, no Silverlight, no
+      applets, no plugins, no external players.
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>OPTIONS</title>
+    <variablelist>
+      <varlistentry>
+        <term><option>-h</option></term>
+        <term><option>--help</option></term>
+        <listitem>
+          <para>
+	    Display help.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--backend</option></term>
+        <listitem>
+          <para>
+	    Specify the backend to use.
+	    <variablelist>
+	      <varlistentry>
+		<term>rhythmbox</term>
+		<listitem>
+		  <para>
+		    Read from current user's Rhythmbox library (default).
+		  </para>
+		</listitem>
+	      </varlistentry>
+	      <varlistentry>
+		<term>dir</term>
+		<listitem>
+		  <para>
+		    Read a directory's contents, recursively; see
+		    <option>--path</option>.
+		  </para>
+		</listitem>
+	      </varlistentry>
+	    </variablelist>
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--path</option></term>
+        <listitem>
+          <para>
+	    Directory in which to look for music. Use with
+	    <option>--backend</option>=dir.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>-b</option></term>
+        <term><option>--bitrate</option></term>
+        <listitem>
+          <para>
+	    Specify the bitrate for output streams, in kbps. (default:
+	    64)
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>-p</option></term>
+        <term><option>--port</option></term>
+        <listitem>
+          <para>
+	    Listen for requests on the specified port. (default: 8080)
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1>
+    <title>COPYRIGHT</title>
+    <para>
+      Zeya was written by Phil Sung and Samson Yeung and is licensed
+      under the terms of the GNU Affero GPL license, version 3 or later.
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>SEE ALSO</title>
+    <para><filename>/usr/share/doc/zeya/README</filename></para>
+    <para><filename>/usr/share/doc/zeya/TODO</filename></para>
+  </refsect1>
+</refentry>
