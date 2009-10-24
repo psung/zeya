@@ -17,9 +17,23 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Zeya. If not, see <http://www.gnu.org/licenses/>.
 
+import fcntl
+import os
+import socket
 import subprocess
+import time
 
 import decoders
+
+# Serve data to the client at a rate of no higher than RATE_MULTIPLIER * (the
+# bitrate of the encoded data).
+RATE_MULTIPLIER = 2.0
+
+# Attempt to write STREAM_CHUNK_SIZE bytes up to (but possibly less than)
+# STREAM_WRITE_FREQUENCY times per second. The maximum possible write rate with
+# these parameters is 8192 bytes * 128 Hz = 1MB/sec.
+STREAM_CHUNK_SIZE = 8192 #bytes
+STREAM_WRITE_FREQUENCY = 128.0 #Hz
 
 class StreamGenerationError(Exception):
     """
@@ -45,8 +59,49 @@ def filename_to_stream(filename, out_stream, bitrate, buffered=False):
         p2 = subprocess.Popen(encode_command, stdin=p1.stdout, stdout=subprocess.PIPE)
         out_stream.write(p2.stdout.read())
     else:
-        # Stream the encoder output directly.
-        p2 = subprocess.Popen(encode_command, stdin=p1.stdout, stdout=out_stream)
+        # Stream the encoder output while limiting the total bandwidth used. We
+        # do this by writing the encoder output to a pipe and reading from the
+        # pipe at a limited rate.
+        (read_fd, write_fd) = os.pipe()
+        p2 = subprocess.Popen(encode_command, stdin=p1.stdout,
+                              stdout=os.fdopen(write_fd, 'wb'))
+        bytes_written = 0
+        start_time = time.time()
+        # Compute the output rate, converting kilobits/sec to bytes/sec.
+        max_bytes_per_sec = RATE_MULTIPLIER * bitrate * 1024 / 8
+        # Don't let reads block when we've read to the end of the encoded song
+        # data.
+        fcntl.fcntl(read_fd, fcntl.F_SETFL, os.O_NONBLOCK)
+        encoder_finished = False
+        while True:
+            time.sleep(1/STREAM_WRITE_FREQUENCY)
+            # If the average transfer rate exceeds the threshold, sleep for a
+            # while longer.
+            if bytes_written >= (time.time() - start_time) * max_bytes_per_sec:
+                continue
+            # Detect when the encoder process has finished. We assume that data
+            # written by the encoder is immediately available via os.read.
+            # Therefore, if the encoder has finished, and we subsequently
+            # cannot read data from the input stream, we can conclude that we
+            # have read all the data.
+            if p2.poll() != None:
+                encoder_finished = True
+            try:
+                data = os.read(read_fd, STREAM_CHUNK_SIZE)
+            except OSError:
+                # OSError will be thrown if we read before the pipe has had any
+                # data written to it.
+                data = ""
+            if encoder_finished and len(data) == 0:
+                break
+            try:
+                out_stream.write(data)
+            except socket.error:
+                # The client likely terminated the connection. Abort.
+                p1.terminate()
+                p2.terminate()
+                return
+            bytes_written = bytes_written + len(data)
 
 # This interface is implemented by all library backends.
 
