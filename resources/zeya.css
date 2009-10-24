@@ -92,6 +92,22 @@ body {
     -moz-border-radius: 5px;
 }
 
+#unsupported {
+    display: none;
+    margin: 3em auto 0 auto;
+    padding: 0.25em;
+    width: 26em;
+    background-color: #ffc6bb;
+    color: #500;
+    text-align: center;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
+
+#unsupported a {
+    color: #400;
+}
+
 span.control img {
     border: 1px solid transparent;
     padding: 4px;

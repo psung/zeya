@@ -15,6 +15,17 @@ var search_string = null;
 // We need to buffer streams for Chrome.
 var using_webkit = navigator.userAgent.indexOf("AppleWebKit") > -1;
 
+// Return true if the client supports the <audio> tag.
+function can_play_native_audio() {
+  if (!document.createElement('audio').canPlayType) {
+    return false;
+  }
+  // Supported browsers will return 'probably' or 'maybe' here
+  var can_play = document.createElement('audio').canPlayType(
+    'audio/ogg; codecs="vorbis"');
+  return can_play != '';
+}
+
 // Clear all the children of c.
 function clearChildren(c) {
   while (c.childNodes.length >= 1) {
@@ -356,6 +367,14 @@ function init() {
   library = null;
   audio = null;
   set_ui_state('grayed');
+  // If the client doesn't support HTML5 audio, just disable everything and
+  // display an error.
+  if (!can_play_native_audio()) {
+    window.document.getElementById('loading').style.display = 'none';
+    window.document.getElementById('unsupported').style.display = 'block';
+    window.document.getElementById('search_box').disabled = true;
+    return;
+  }
   // The browser may have filled in the search box with the user's previously
   // entered value. Load that into search_string here so that the search filter
   // is applied to the collection when it's first displayed to the user again.
