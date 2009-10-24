@@ -65,8 +65,17 @@ body {
     border-top: 1px solid #999;
 }
 
-#footer-content {
+#footer-left {
     padding: 1px;
+    width: 50%;
+    float: left;
+    font-size: 72%;
+}
+
+#footer-right {
+    padding: 1px;
+    width: 30%;
+    float: right;
     text-align: right;
     font-size: 72%;
 }

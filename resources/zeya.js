@@ -11,6 +11,11 @@ var audio;
 var current_state = 'grayed';
 // Value of the search box, or null if no search has been performed
 var search_string = null;
+// Information to display in the status area.
+var status_info = {
+  total_tracks: 0,
+  displayed_tracks: 0,
+};
 
 // We need to buffer streams for Chrome.
 var using_webkit = navigator.userAgent.indexOf("AppleWebKit") > -1;
@@ -61,13 +66,13 @@ function item_match(item, match_string) {
 }
 
 // Request the collection from the server then render it.
-function load_collection()
-{
+function load_collection() {
   var req = new XMLHttpRequest();
   req.open('GET', '/getlibrary', true);
   req.onreadystatechange = function(e) {
     if (req.readyState == 4 && req.status == 200) {
       library = JSON.parse(req.responseText);
+      status_info.total_tracks = library.length;
       render_collection();
     }
   };
@@ -131,6 +136,9 @@ function render_collection() {
   document.getElementById('collection').appendChild(t);
   document.getElementById('collection').style.display = 'block';
   document.getElementById('loading').style.display = 'none';
+
+  status_info.displayed_tracks = current_line;
+  update_status_area();
 }
 
 // Clear displayed collection.
@@ -201,6 +209,23 @@ function set_title(title, artist) {
   } else {
     document.title = title + ' (' + artist + ') - Zeya';
   }
+}
+
+function plural(number) {
+  return number > 1 ? 's' : '';
+}
+
+function update_status_area() {
+  var status_area = document.getElementById('status_area');
+  var status_text = status_info.displayed_tracks + ' track'
+       + plural(status_info.displayed_tracks);
+
+  if (status_info.displayed_tracks < status_info.total_tracks) {
+    status_text += ' (' + status_info.total_tracks + ' total)';
+  }
+
+  clearChildren(status_area);
+  status_area.appendChild(document.createTextNode(status_text));
 }
 
 // Return the line number corresponding to this row.
