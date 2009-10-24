@@ -27,6 +27,7 @@
 # The user is prompted for a query, and all songs matching it are played. The
 # query may be matched against the title, artist, or album of the song.
 
+import readline # Modifies the behavior of raw_input.
 import subprocess
 import sys
 import urllib2
