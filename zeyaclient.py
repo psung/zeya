@@ -93,6 +93,6 @@ def run(server_path):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print "Usage: zeyaclient.py http://server:8080"
+        print "Usage: %s http://server:8080" % (os.path.basename(sys.argv[0]),)
         sys.exit(1)
     run(sys.argv[1])

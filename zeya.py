@@ -264,8 +264,8 @@ def get_options():
     return (help_msg, backend_type, bitrate, port, path)
 
 def usage():
-    print """Usage: zeya.py [OPTIONS]
-
+    print "Usage: %s [OPTIONS]" % (os.path.basename(sys.argv[0]),)
+    print """
 Options:
 
   -h, --help
