@@ -9,11 +9,15 @@ USER INTERFACE
 - Detect when the server is no longer available and display an appropriate
   message.
 
+- zeyaclient.py should support --help
+
 ADDITIONAL FEATURES
 
 - Allow using a page fragment (/#xyz...) to specify a song.
 
 - Remote control of clients
+
+- Investigate feasibility of gapless playback
 
 OTHER
 
