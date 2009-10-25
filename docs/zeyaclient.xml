@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook V4.1//EN"
+ "file:///usr/share/xml/docbook/schema/dtd/4.4/docbookx.dtd"
+[]>
+
+<refentry>
+  <refentryinfo>
+    <author>
+      <firstname>Romain</firstname>
+      <surname>Francoise</surname>
+    </author>
+    <address>
+      <email>rfrancoise@debian.org</email>
+    </address>
+    <date>2009-10-19</date>
+  </refentryinfo>
+
+  <refmeta>
+    <refentrytitle>zeyaclient</refentrytitle>
+    <manvolnum>1</manvolnum>
+  </refmeta>
+
+  <refnamediv>
+    <refname>zeyaclient</refname>
+    <refpurpose>command-line client for Zeya</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>zeyaclient</command>
+      <arg choice="req">server-url</arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+  <refsect1>
+    <title>DESCRIPTION</title>
+    <para>
+      <command>zeyaclient</command> is a minimal command-line client for
+      Zeya.  The user is prompted for a query, and all songs matching it
+      are played. The query may be matched against the title, artist, or
+      album of the song.
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>COPYRIGHT</title>
+    <para>
+      <command>zeyaclient</command> was written by Phil Sung and is
+      licensed under the terms of the GNU Affero GPL license, version 3
+      or later.
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>SEE ALSO</title>
+    <para><filename>/usr/share/doc/zeya/README</filename></para>
+    <para><filename>/usr/share/doc/zeya/TODO</filename></para>
+  </refsect1>
+</refentry>

@@ -1,0 +1,63 @@
+'\" -*- coding: us-ascii -*-
+.if \n(.g .ds T< \\FC
+.if \n(.g .ds T> \\F[\n[.fam]]
+.de URL
+\\$2 \(la\\$1\(ra\\$3
+..
+.if \n(.g .mso www.tmac
+.TH zeya 1 2009-10-19 "" ""
+.SH NAME
+zeya \- a web music server
+.SH SYNOPSIS
+'nh
+.fi
+.ad l
+\fBzeya\fR \kx
+.if (\nx>(\n(.l/2)) .nr x (\n(.l/5)
+'in \n(.iu+\nxu
+[-h | --help] [--backend=\fIbackend\fR] [--path=\fIpath\fR] [-b | --bitrate=\fIbitrate\fR] [-p | --port=\fIport\fR]
+'in \n(.iu-\nxu
+.ad b
+'hy
+.SH DESCRIPTION
+Zeya is a streaming music server that brings your music to any
+computer with a web browser. It reads your music library, lets you
+browse your files, and streams them on demand.
+.PP
+The client runs entirely in the browser using the HTML5 draft
+standard technologies--no Flash needed, no Silverlight, no
+applets, no plugins, no external players.
+.SH OPTIONS
+.TP 
+\*(T<\fB\-h\fR\*(T>, \*(T<\fB\-\-help\fR\*(T>
+Display help.
+.TP 
+\*(T<\fB\-\-backend\fR\*(T>
+Specify the backend to use.
+.RS 
+.TP 
+rhythmbox
+Read from current user's Rhythmbox library (default).
+.TP 
+dir
+Read a directory's contents, recursively; see
+\*(T<\fB\-\-path\fR\*(T>.
+.RE
+.TP 
+\*(T<\fB\-\-path\fR\*(T>
+Directory in which to look for music. Use with
+\*(T<\fB\-\-backend\fR\*(T>=dir.
+.TP 
+\*(T<\fB\-b\fR\*(T>, \*(T<\fB\-\-bitrate\fR\*(T>
+Specify the bitrate for output streams, in kbps. (default:
+64)
+.TP 
+\*(T<\fB\-p\fR\*(T>, \*(T<\fB\-\-port\fR\*(T>
+Listen for requests on the specified port. (default: 8080)
+.SH COPYRIGHT
+Zeya was written by Phil Sung and Samson Yeung and is licensed
+under the terms of the GNU Affero GPL license, version 3 or later.
+.SH "SEE ALSO"
+\*(T<\fI/usr/share/doc/zeya/README\fR\*(T>
+.PP
+\*(T<\fI/usr/share/doc/zeya/TODO\fR\*(T>
