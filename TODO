@@ -4,8 +4,6 @@ USER INTERFACE
 
 - Add a timer and seek bar
 
-- Help screen for keyboard shortcuts
-
 - Detect when the server is no longer available and display an appropriate
   message.
 

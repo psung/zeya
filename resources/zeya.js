@@ -384,6 +384,14 @@ function stop() {
   set_title('', '');
 }
 
+function show_help() {
+  document.getElementById('helpcontainer').style.display = 'block';
+}
+
+function hide_help() {
+  document.getElementById('helpcontainer').style.display = 'none';
+}
+
 // EVENT HANDLERS
 
 // Initialize the application.
@@ -430,6 +438,8 @@ function keydown_handler(e) {
     if (window.document.activeElement
         == window.document.getElementById('search_box')) {
       window.document.getElementById('search_box').blur();
+    } else {
+      hide_help();
     }
     return false;
   } else {
@@ -466,6 +476,9 @@ function keypress_handler(e) {
     return false;
   } else if (String.fromCharCode(keynum) == '/') {
     focus_search_box();
+    return false;
+  } else if (String.fromCharCode(keynum) == '?') {
+    show_help();
     return false;
   }
   return true;
