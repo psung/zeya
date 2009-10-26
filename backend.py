@@ -19,6 +19,7 @@
 
 import fcntl
 import os
+import signal
 import socket
 import subprocess
 import time
@@ -43,6 +44,17 @@ class StreamGenerationError(Exception):
         self.msg = msg
     def __str__(self):
         return self.msg
+
+def terminate_process(popen_obj):
+    """
+    Kill the process represented by POPEN_OBJ.
+    """
+    try:
+        # Supported in Python 2.6
+        popen_obj.terminate()
+    except AttributeError:
+        # Fallback for Python 2.5 and earlier
+        os.kill(popen_obj.pid, signal.SIGTERM)
 
 def filename_to_stream(filename, out_stream, bitrate, buffered=False):
     print "Handling request for %s" % (filename,)
@@ -98,8 +110,8 @@ def filename_to_stream(filename, out_stream, bitrate, buffered=False):
                 out_stream.write(data)
             except socket.error:
                 # The client likely terminated the connection. Abort.
-                p1.terminate()
-                p2.terminate()
+                terminate_process(p1)
+                terminate_process(p2)
                 return
             bytes_written = bytes_written + len(data)
 
