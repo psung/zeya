@@ -24,6 +24,17 @@ import socket
 import subprocess
 import time
 
+# For Python2.5 compatibility, we create an equivalent to
+# subprocess.Popen.terminate (new in Python2.6) and patch it in.
+try:
+    subprocess.Popen.terminate
+except AttributeError:
+    def sub_popen_terminate(self):
+        # This will only work on Unix-like systems, but it's better than
+        # nothing.
+        os.kill(self.pid, signal.SIGTERM)
+    subprocess.Popen.terminate = sub_popen_terminate
+
 import decoders
 
 # Serve data to the client at a rate of no higher than RATE_MULTIPLIER * (the
@@ -44,17 +55,6 @@ class StreamGenerationError(Exception):
         self.msg = msg
     def __str__(self):
         return self.msg
-
-def terminate_process(popen_obj):
-    """
-    Kill the process represented by POPEN_OBJ.
-    """
-    try:
-        # Supported in Python 2.6
-        popen_obj.terminate()
-    except AttributeError:
-        # Fallback for Python 2.5 and earlier
-        os.kill(popen_obj.pid, signal.SIGTERM)
 
 def filename_to_stream(filename, out_stream, bitrate, buffered=False):
     print "Handling request for %s" % (filename,)
@@ -110,8 +110,8 @@ def filename_to_stream(filename, out_stream, bitrate, buffered=False):
                 out_stream.write(data)
             except socket.error:
                 # The client likely terminated the connection. Abort.
-                terminate_process(p1)
-                terminate_process(p2)
+                p1.terminate()
+                p2.terminate()
                 return
             bytes_written = bytes_written + len(data)
 
