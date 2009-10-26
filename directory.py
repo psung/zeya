@@ -128,14 +128,12 @@ class DirectoryBackend(LibraryBackend):
                         # non-audio but we want to not abort from this.
                         continue
                     # Set the artist, title, and album now, and the key below.
-                    metadata = { ARTIST: tag.artist,
-                                 TITLE: tag.title,
-                                 ALBUM: tag.album,
+                    metadata = { ARTIST: tag.artist if tag is not None else '',
+                                 TITLE: \
+                                    tag.title if tag is not None and tag.title else \
+                                    os.path.basename(filename),
+                                 ALBUM: tag.album if tag is not None else '',
                                }
-
-                # Ensure that the title is not empty, because the user has to
-                # click on it.
-                metadata[TITLE] = metadata[TITLE] or os.path.basename(filename)
 
                 # Number the keys consecutively starting from 0.
                 next_key = len(self.key_filename)
