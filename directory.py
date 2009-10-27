@@ -135,7 +135,9 @@ class DirectoryBackend(LibraryBackend):
 
                 # Ensure that the title is not empty, because the user has to
                 # click on it.
-                metadata[TITLE] = metadata[TITLE] or os.path.basename(filename)
+                metadata[TITLE] = \
+                    (metadata[TITLE]
+                     or os.path.basename(filename).decode("UTF-8"))
 
                 # Number the keys consecutively starting from 0.
                 next_key = len(self.key_filename)
