@@ -139,8 +139,7 @@ body {
     color: #fff;
 }
 
-#help p:first-child {
-    margin-top: 0;
+#help .heading {
     text-align: center;
     font-size: 120%;
 }
