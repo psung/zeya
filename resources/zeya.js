@@ -57,12 +57,17 @@ function get_row_class_from_index(index) {
 
 function item_match(item, match_string) {
   var s = match_string.toLowerCase();
-  if (item.title.toLowerCase().indexOf(s) == -1
-      && item.artist.toLowerCase().indexOf(s) == -1
-      && item.album.toLowerCase().indexOf(s) == -1) {
-      return false;
+  if (s.match('^artist:')) {
+    return item.artist.toLowerCase().indexOf(s.substring(7)) != -1
+  } else if (s.match('^title:')) {
+    return item.title.toLowerCase().indexOf(s.substring(6)) != -1
+  } else if (s.match('^album:')) {
+    return item.album.toLowerCase().indexOf(s.substring(6)) != -1
+  } else {
+    return !(item.title.toLowerCase().indexOf(s) == -1
+             && item.artist.toLowerCase().indexOf(s) == -1
+             && item.album.toLowerCase().indexOf(s) == -1)
   }
-  return true;
 }
 
 // Request the collection from the server then render it.
