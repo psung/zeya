@@ -30,6 +30,7 @@ from SocketServer import ThreadingMixIn
 import getopt
 import urllib
 import os
+import socket
 import sys
 import tempfile
 import traceback
@@ -66,7 +67,9 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """
     HTTP Server that handles requests in separate threads.
     """
-    pass
+    # Allow IPv6 connections if possible.
+    if socket.has_ipv6:
+        address_family = socket.AF_INET6
 
 def ZeyaHandler(backend, library_repr, resource_basedir, bitrate):
     """
