@@ -27,14 +27,17 @@ from __future__ import with_statement
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ThreadingMixIn
 
+import base64
+import crypt
 import getopt
-import urllib
 import os
 import socket
 import sys
 import tempfile
 import traceback
+import urllib
 import zlib
+
 try:
     from urlparse import parse_qs
 except: # (ImportError, AttributeError):
@@ -54,6 +57,20 @@ DEFAULT_BACKEND = "rhythmbox"
 
 valid_backends = ['rhythmbox', 'dir']
 
+auth = 'Authorization'
+bas = 'Basic '
+no_auth_rval = \
+"""
+<!DOCTYPE html>
+    <HTML>
+        <HEAD>
+            <TITLE>Error</TITLE>
+            <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+        </HEAD>
+        <BODY><H1>401 Unauthorized.</H1></BODY>
+    </HTML>
+"""
+
 class BadArgsError(Exception):
     """
     Error due to incorrect command-line invocation of this program.
@@ -71,7 +88,14 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     if socket.has_ipv6:
         address_family = socket.AF_INET6
 
-def ZeyaHandler(backend, library_repr, resource_basedir, bitrate):
+def split_user_pass(data):
+    """
+    """
+    idx = data.find(':')
+    return data[:idx], data[idx+1:]
+
+def ZeyaHandler(backend, library_repr, resource_basedir, bitrate,
+                auth_type=None, auth_data=None):
     """
     Wrapper around the actual HTTP request handler implementation class. We
     need to create a closure so that the inner class can receive the following
@@ -81,6 +105,10 @@ def ZeyaHandler(backend, library_repr, resource_basedir, bitrate):
     Library data.
     Base directory for resources.
     Bitrate for encoding.
+
+    For the ZeyaBasicAuthHandlerImpl
+    auth_type for 'Basic'
+    auth_data dict holding user/pass-crypt
     """
 
     class ZeyaHandlerImpl(BaseHTTPRequestHandler):
@@ -210,6 +238,46 @@ def ZeyaHandler(backend, library_repr, resource_basedir, bitrate):
                 traceback.print_exc()
                 self.send_error(404, 'File not found: %s' % (path,))
 
+    class ZeyaBasicAuthHandlerImpl(ZeyaHandlerImpl):
+        def send_no_auth(self):
+            """
+            Send an unauthorized required page.
+            """
+            self.send_response(401)
+            self.send_header('Content-type', 'text/html')
+            self.send_header('Content-Length', str(len(no_auth_rval)))
+            self.send_header('WWW-Authenticate', 'Basic realm="Zeya Secure"')
+            self.end_headers()
+            self.wfile.write(no_auth_rval)
+
+        def authorized(self):
+            """
+            Return true if self.headers has valid authentication information.
+            """
+            if auth in self.headers and self.headers[auth]:
+                if self.headers[auth][:len(bas)] == bas:
+                    auth_header = self.headers[auth][len(bas):]
+                    decode_thing = base64.b64decode(auth_header)
+                    client_user, client_pass = split_user_pass(decode_thing)
+                    if client_user in auth_data:
+                        client_crypt_pass = crypt.crypt(\
+                                client_pass, auth_data[client_user][:2])
+                        return client_crypt_pass == auth_data[client_user]
+            return False
+
+        def do_GET(self):
+            """
+            Handle a GET request, sending an authentication required header if
+            not authenticated.
+            """
+            if self.authorized():
+                ZeyaHandlerImpl.do_GET(self)
+            else:
+                self.send_no_auth()
+
+    if auth_type is 'basic':
+        print 'Using Basic Auth Handler...'
+        return ZeyaBasicAuthHandlerImpl
     return ZeyaHandlerImpl
 
 def get_options():
@@ -222,6 +290,7 @@ def get_options():
     bitrate: bitrate for encoded streams (kbits/sec)
     port: port number to listen on
     path: path from which to read music files (for "dir" backend only)
+    basic_auth_file: file handle to read basic auth from
     """
     help_msg = False
     port = DEFAULT_PORT
@@ -230,10 +299,11 @@ def get_options():
     # This is set to False if --backend is explicitly set
     is_backend_default_value = True
     path = None
+    basic_auth_file = None
     try:
         opts, file_list = getopt.getopt(sys.argv[1:], "b:hp:",
                                         ["help", "backend=", "bitrate=",
-                                         "port=", "path="])
+                                         "port=", "path=", "basic_auth_file="])
     except getopt.GetoptError, e:
         raise BadArgsError(e.msg)
     for flag, value in opts:
@@ -259,12 +329,17 @@ def get_options():
                 port = int(value)
             except ValueError:
                 raise BadArgsError("Invalid port setting %r" % (value,))
+        if flag in ("--basic_auth_file"):
+            try:
+                basic_auth_file = open(value, 'r')
+            except:
+                raise BadArgsError("Could not read auth file %s" % (value,))
     if backend_type == 'dir' and path is None:
         raise BadArgsError("'dir' backend requires a path (--path=...)")
     # If --backend is not set explicitly, --path=... implies --backend=dir
     if path is not None and is_backend_default_value:
         backend_type = 'dir'
-    return (help_msg, backend_type, bitrate, port, path)
+    return (help_msg, backend_type, bitrate, port, path, basic_auth_file)
 
 def usage():
     print "Usage: %s [OPTIONS]" % (os.path.basename(sys.argv[0]),)
@@ -286,7 +361,11 @@ Options:
       Specify the bitrate for output streams, in kbits/sec. (default: 64)
 
   -p, --port=PORT
-      Listen for requests on the specified port. (default: 8080)"""
+      Listen for requests on the specified port. (default: 8080)
+
+  --basic_auth_file=FILENAME
+      Use htpasswd-generated auth file for basic authentication.
+      """
 
 def get_backend(backend_type):
     """
@@ -305,7 +384,7 @@ def get_backend(backend_type):
     else:
         raise ValueError("Invalid backend %r" % (backend_type,))
 
-def run_server(backend, port, bitrate):
+def run_server(backend, port, bitrate, basic_auth_file=None):
     # Read the library.
     print "Loading library..."
     library_contents = backend.get_library_contents()
@@ -315,10 +394,23 @@ def run_server(backend, port, bitrate):
               if decoders.has_decoder(backend.get_filename_from_key(s['key'])) ]
     library_repr = json.dumps(library_contents, ensure_ascii=False)
     basedir = os.path.abspath(os.path.dirname(os.path.realpath(sys.argv[0])))
+
+    auth_data = None
+    if basic_auth_file is not None:
+        auth_data = {}
+        for line in basic_auth_file:
+            s_user, s_pass = split_user_pass(line.rstrip())
+            auth_data[s_user] = s_pass
     server = ThreadedHTTPServer(
         ('', port),
-        ZeyaHandler(backend, library_repr, os.path.join(basedir, 'resources'),
-                    bitrate))
+        ZeyaHandler(backend,
+                    library_repr,
+                    os.path.join(basedir,
+                                 'resources'),
+                    bitrate,
+                    auth_type=None if basic_auth_file is None else 'basic',
+                    auth_data=auth_data,
+                   ))
     print "Listening on port %d" % (port,)
     # Start up a web server.
     print "Ready to serve!"
@@ -331,7 +423,7 @@ def run_server(backend, port, bitrate):
 
 if __name__ == '__main__':
     try:
-        (show_help, backend_type, bitrate, port, path) = get_options()
+        (show_help, backend_type, bitrate, port, path, basic_auth_file) = get_options()
     except BadArgsError, e:
         print e
         usage()
@@ -341,4 +433,4 @@ if __name__ == '__main__':
         sys.exit(0)
     backend = get_backend(backend_type)
     print "Using %r backend" % (backend_type,)
-    run_server(backend, port, bitrate)
+    run_server(backend, port, bitrate, basic_auth_file)
