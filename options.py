@@ -39,7 +39,7 @@ class BadArgsError(Exception):
     def __str__(self):
         return "Error: %s" % (self.error_message,)
 
-def get_options():
+def get_options(remaining_args):
     """
     Parse the arguments and return a tuple (show_help, backend, bitrate, port,
     path), or raise BadArgsError if the invocation was not valid.
@@ -56,9 +56,9 @@ def get_options():
     bitrate = DEFAULT_BITRATE
     path = None
     try:
-        opts, file_list = getopt.getopt(sys.argv[1:], "b:hp:",
-                                        ["help", "backend=", "bitrate=",
-                                         "port=", "path="])
+        opts, file_list = getopt.getopt(
+            remaining_args, "b:hp:",
+            ["help", "backend=", "bitrate=", "port=", "path="])
     except getopt.GetoptError, e:
         raise BadArgsError(e.msg)
     for flag, value in opts:

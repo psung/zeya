@@ -240,7 +240,8 @@ def run_server(backend, port, bitrate):
 
 if __name__ == '__main__':
     try:
-        (show_help, backend_type, bitrate, port, path) = options.get_options()
+        (show_help, backend_type, bitrate, port, path) = \
+            options.get_options(sys.argv[1:])
     except options.BadArgsError, e:
         print e
         options.print_usage()
