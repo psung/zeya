@@ -36,17 +36,17 @@ Display help.
 Specify the backend to use.
 .RS 
 .TP 
-rhythmbox
-Read from current user's Rhythmbox library (default).
-.TP 
 dir
-Read a directory's contents, recursively; see
+Read a directory's contents recursively (default). See
 \*(T<\fB\-\-path\fR\*(T>.
+.TP 
+rhythmbox
+Read from current user's Rhythmbox library.
 .RE
 .TP 
 \*(T<\fB\-\-path\fR\*(T>
 Directory in which to look for music. Use with
-\*(T<\fB\-\-backend\fR\*(T>=dir.
+\*(T<\fB\-\-backend\fR\*(T>=dir. (default: ./)
 .TP 
 \*(T<\fB\-b\fR\*(T>, \*(T<\fB\-\-bitrate\fR\*(T>
 Specify the bitrate for output streams, in kbps. (default:
