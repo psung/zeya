@@ -319,9 +319,8 @@ def run_server(backend, port, bitrate):
         ('', port),
         ZeyaHandler(backend, library_repr, os.path.join(basedir, 'resources'),
                     bitrate))
-    print "Listening on port %d" % (port,)
     # Start up a web server.
-    print "Ready to serve!"
+    print "Listening on port %d." % (port,)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
