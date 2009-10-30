@@ -139,7 +139,7 @@ class DirectoryBackend(LibraryBackend):
                     # in particular, is not empty since the user has to click
                     # on it in the web UI.)
                     metadata = {
-                        TITLE: os.path.basename(filename),
+                        TITLE: os.path.basename(filename).decode("UTF-8"),
                         ARTIST: '',
                         ALBUM: '',
                         }
