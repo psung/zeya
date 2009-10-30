@@ -24,6 +24,7 @@
 import unittest
 
 import decoders
+import options
 import rhythmbox
 
 class CommonTest(unittest.TestCase):
@@ -56,6 +57,46 @@ class DecodersTest(unittest.TestCase):
         """
         self.assertTrue(decoders.get_decoder("/path/to/SOMETHING.MP3")[0]
                         .startswith("/usr/bin"))
+
+class OptionsTest(unittest.TestCase):
+    def test_default(self):
+        params = options.get_options([])
+        self.assertFalse(params[0])
+        self.assertEqual('dir', params[1])
+        self.assertEqual('.', params[4])
+    def test_get_help(self):
+        params = options.get_options(["--help"])
+        self.assertTrue(params[0])
+    def test_path(self):
+        params = options.get_options(["--path=/foo/bar"])
+        self.assertEqual('/foo/bar', params[4])
+    def test_backend(self):
+        params = options.get_options(["--backend=rhythmbox"])
+        self.assertEqual('rhythmbox', params[1])
+    def test_bad_backend(self):
+        try:
+            params = options.get_options(["--backend=invalid"])
+            self.fail("get_options should have raised BadArgsError")
+        except options.BadArgsError:
+            pass
+    def test_bitrate(self):
+        params = options.get_options(["-b128"])
+        self.assertEqual(128, params[2])
+    def test_bad_bitrate(self):
+        try:
+            params = options.get_options(["--bitrate=0"])
+            self.fail("get_options should have raised BadArgsError")
+        except options.BadArgsError:
+            pass
+    def test_port(self):
+        params = options.get_options(["-p9999"])
+        self.assertEqual(9999, params[3])
+    def test_bad_port(self):
+        try:
+            params = options.get_options(["--port=p"])
+            self.fail("get_options should have raised BadArgsError")
+        except options.BadArgsError:
+            pass
 
 class RhythmboxTest(unittest.TestCase):
     def test_read_library(self):
