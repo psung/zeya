@@ -28,12 +28,12 @@ from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ThreadingMixIn
 
 import getopt
-import urllib
 import os
 import socket
 import sys
 import tempfile
 import traceback
+import urllib
 import zlib
 try:
     from urlparse import parse_qs
