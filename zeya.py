@@ -50,7 +50,7 @@ import decoders
 
 DEFAULT_PORT = 8080
 DEFAULT_BITRATE = 64 #kbits/s
-DEFAULT_BACKEND = "rhythmbox"
+DEFAULT_BACKEND = 'dir'
 
 valid_backends = ['rhythmbox', 'dir']
 
@@ -227,8 +227,6 @@ def get_options():
     port = DEFAULT_PORT
     backend_type = DEFAULT_BACKEND
     bitrate = DEFAULT_BITRATE
-    # This is set to False if --backend is explicitly set
-    is_backend_default_value = True
     path = None
     try:
         opts, file_list = getopt.getopt(sys.argv[1:], "b:hp:",
@@ -240,7 +238,6 @@ def get_options():
         if flag in ("-h", "--help"):
             help_msg = True
         if flag in ("--backend",):
-            is_backend_default_value = False
             backend_type = value
             if backend_type not in valid_backends:
                 raise BadArgsError("Unsupported backend type %r"
@@ -259,11 +256,11 @@ def get_options():
                 port = int(value)
             except ValueError:
                 raise BadArgsError("Invalid port setting %r" % (value,))
+    if backend_type != 'dir' and path is not None:
+        print "Warning: --path was set but is ignored for --backend=%s" \
+            % (backend_type,)
     if backend_type == 'dir' and path is None:
-        raise BadArgsError("'dir' backend requires a path (--path=...)")
-    # If --backend is not set explicitly, --path=... implies --backend=dir
-    if path is not None and is_backend_default_value:
-        backend_type = 'dir'
+        path = "."
     return (help_msg, backend_type, bitrate, port, path)
 
 def usage():
@@ -276,11 +273,11 @@ Options:
 
   --backend=BACKEND
       Specify the backend to use. Acceptable values:
-        rhythmbox: (default) read from current user's Rhythmbox library
-        dir: read a directory's contents, recursively; see --path
+        dir: (default) read a directory's contents recursively; see --path
+        rhythmbox: read from current user's Rhythmbox library
 
   --path=PATH
-      Directory in which to look for music. Use with --backend=dir.
+      Directory in which to look for music, under --backend=dir. (Default: ./)
 
   -b, --bitrate=N
       Specify the bitrate for output streams, in kbits/sec. (default: 64)
