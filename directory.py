@@ -101,7 +101,7 @@ class DirectoryBackend(LibraryBackend):
         """
         Populate the database, given the output of load_previous_db.
         """
-        print "Scanning library..."
+        print "Scanning for music in %r..." % (os.path.abspath(self._media_path),)
         # Iterate over all the files.
         for path, dirs, files in os.walk(self._media_path):
             for filename in sorted(files, key=tokenize_filename):
