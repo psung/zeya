@@ -339,6 +339,6 @@ if __name__ == '__main__':
     if show_help:
         usage()
         sys.exit(0)
+    print "Using %r backend." % (backend_type,)
     backend = get_backend(backend_type)
-    print "Using %r backend" % (backend_type,)
     run_server(backend, port, bitrate)
