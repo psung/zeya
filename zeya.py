@@ -47,21 +47,7 @@ except (ImportError, AttributeError):
     import simplejson as json
 
 import decoders
-
-DEFAULT_PORT = 8080
-DEFAULT_BITRATE = 64 #kbits/s
-DEFAULT_BACKEND = 'dir'
-
-valid_backends = ['rhythmbox', 'dir']
-
-class BadArgsError(Exception):
-    """
-    Error due to incorrect command-line invocation of this program.
-    """
-    def __init__(self, message):
-        self.error_message = message
-    def __str__(self):
-        return "Error: %s" % (self.error_message,)
+import options
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """
@@ -212,79 +198,6 @@ def ZeyaHandler(backend, library_repr, resource_basedir, bitrate):
 
     return ZeyaHandlerImpl
 
-def get_options():
-    """
-    Parse the arguments and return a tuple (show_help, backend, bitrate, port,
-    path), or raise BadArgsError if the invocation was not valid.
-
-    show_help: whether user requested help information
-    backend: string indicating backend to use
-    bitrate: bitrate for encoded streams (kbits/sec)
-    port: port number to listen on
-    path: path from which to read music files (for "dir" backend only)
-    """
-    help_msg = False
-    port = DEFAULT_PORT
-    backend_type = DEFAULT_BACKEND
-    bitrate = DEFAULT_BITRATE
-    path = None
-    try:
-        opts, file_list = getopt.getopt(sys.argv[1:], "b:hp:",
-                                        ["help", "backend=", "bitrate=",
-                                         "port=", "path="])
-    except getopt.GetoptError, e:
-        raise BadArgsError(e.msg)
-    for flag, value in opts:
-        if flag in ("-h", "--help"):
-            help_msg = True
-        if flag in ("--backend",):
-            backend_type = value
-            if backend_type not in valid_backends:
-                raise BadArgsError("Unsupported backend type %r"
-                                   % (backend_type,))
-        if flag in ("-b", "--bitrate"):
-            try:
-                bitrate = int(value)
-                if bitrate <= 0:
-                    raise ValueError()
-            except ValueError:
-                raise BadArgsError("Invalid bitrate setting %r" % (value,))
-        if flag in ("--path",):
-            path = value
-        if flag in ("-p", "--port"):
-            try:
-                port = int(value)
-            except ValueError:
-                raise BadArgsError("Invalid port setting %r" % (value,))
-    if backend_type != 'dir' and path is not None:
-        print "Warning: --path was set but is ignored for --backend=%s" \
-            % (backend_type,)
-    if backend_type == 'dir' and path is None:
-        path = "."
-    return (help_msg, backend_type, bitrate, port, path)
-
-def usage():
-    print "Usage: %s [OPTIONS]" % (os.path.basename(sys.argv[0]),)
-    print """
-Options:
-
-  -h, --help
-      Display this help message.
-
-  --backend=BACKEND
-      Specify the backend to use. Acceptable values:
-        dir: (default) read a directory's contents recursively; see --path
-        rhythmbox: read from current user's Rhythmbox library
-
-  --path=PATH
-      Directory in which to look for music, under --backend=dir. (Default: ./)
-
-  -b, --bitrate=N
-      Specify the bitrate for output streams, in kbits/sec. (default: 64)
-
-  -p, --port=PORT
-      Listen for requests on the specified port. (default: 8080)"""
-
 def get_backend(backend_type):
     """
     Return a backend object of the requested type.
@@ -327,13 +240,14 @@ def run_server(backend, port, bitrate):
 
 if __name__ == '__main__':
     try:
-        (show_help, backend_type, bitrate, port, path) = get_options()
-    except BadArgsError, e:
+        (show_help, backend_type, bitrate, port, path) = \
+            options.get_options(sys.argv[1:])
+    except options.BadArgsError, e:
         print e
-        usage()
+        options.print_usage()
         sys.exit(1)
     if show_help:
-        usage()
+        options.print_usage()
         sys.exit(0)
     print "Using %r backend." % (backend_type,)
     backend = get_backend(backend_type)
