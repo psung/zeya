@@ -119,6 +119,8 @@ class DirectoryBackend(LibraryBackend):
                 rec_mtime, old_metadata = previous_db.get(filename, (None, None))
                 file_mtime = os.stat(filename).st_mtime
 
+                # Set the artist, title, and album in this block, and the key
+                # below.
                 if rec_mtime is not None and rec_mtime >= file_mtime:
                     # Use cached data. However, we potentially renumber the
                     # keys every time, so the old KEY is no good. We'll update
@@ -126,35 +128,13 @@ class DirectoryBackend(LibraryBackend):
                     metadata = old_metadata
                 else:
                     # In this branch, we actually need to read the file and
-                    # extract its metadata. tagpy can do one of three things:
-                    #
-                    # * Return legitimate data. We'll load that data.
-                    # * Return None. We'll assume this is a music file but that
-                    #   it doesn't have metadata. Create an entry for it.
-                    # * Throw ValueError. We'll assume this is not something we
-                    #   could play. Don't create an enty for it.
+                    # extract its metadata.
                     try:
-                        tag = tagpy.FileRef(filename).tag()
-                    except:
+                        metadata = extract_metadata(filename)
+                    except ValueError:
                         # If there was any exception, then ignore the file and
                         # continue.
                         continue
-                    # Set the artist, title, and album now, and the key below.
-                    # If no metadata is available, set the title to be the
-                    # basename of the file. (We have to ensure that the title,
-                    # in particular, is not empty since the user has to click
-                    # on it in the web UI.)
-                    metadata = {
-                        TITLE: os.path.basename(filename).decode("UTF-8"),
-                        ARTIST: '',
-                        ALBUM: '',
-                        }
-                    if tag is not None:
-                        metadata[ARTIST] = tag.artist
-                        # Again, do not allow metadata[TITLE] to be an empty
-                        # string, even if tag.title is an empty string.
-                        metadata[TITLE] = tag.title or metadata[TITLE]
-                        metadata[ALBUM] = tag.album
 
                 # Number the keys consecutively starting from 0.
                 next_key = len(self.key_filename)
@@ -168,3 +148,39 @@ class DirectoryBackend(LibraryBackend):
 
     def get_filename_from_key(self, key):
         return self.key_filename[int(key)]
+
+def extract_metadata(filename, tagpy_module = tagpy):
+    """
+    Returns a metadata dictionary (a dictionary {ARTIST: ..., ...}) containing
+    metadata (artist, title, and album) for the song in question.
+
+    filename: a string supplying a filename.
+    tagpy_module: a reference to the tagpy module. This can be faked out for
+    unit testing.
+    """
+    # tagpy can do one of three things:
+    #
+    # * Return legitimate data. We'll load that data.
+    # * Return None. We'll assume this is a music file but that it doesn't have
+    #   metadata. Create an entry for it.
+    # * Throw ValueError. We'll assume this is not something we could play.
+    #   Don't create an enty for it.
+    try:
+        tag = tagpy_module.FileRef(filename).tag()
+    except:
+        raise ValueError("Error reading metadata from %r" % (filename,))
+    # If no metadata is available, set the title to be the basename of the
+    # file. (We have to ensure that the title, in particular, is not empty
+    # since the user has to click on it in the web UI.)
+    metadata = {
+        TITLE: os.path.basename(filename).decode("UTF-8"),
+        ARTIST: '',
+        ALBUM: '',
+        }
+    if tag is not None:
+        metadata[ARTIST] = tag.artist
+        # Again, do not allow metadata[TITLE] to be an empty string, even if
+        # tag.title is an empty string.
+        metadata[TITLE] = tag.title or metadata[TITLE]
+        metadata[ALBUM] = tag.album
+    return metadata
