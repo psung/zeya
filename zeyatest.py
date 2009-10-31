@@ -24,8 +24,33 @@
 import unittest
 
 import decoders
+import directory
 import options
 import rhythmbox
+
+class FakeTagpy():
+    """
+    Fake object that can be a stand-in for the tagpy module, but which returns
+    a fixed tag object.
+    """
+    def __init__(self, retval):
+        self.retval = retval
+    def FileRef(self, filename):
+        class FakeTag():
+            # Avoid shadowing the outer instance of 'self', so we can read from
+            # it.
+            def tag(inner_self):
+                return self.retval
+        return FakeTag()
+
+class TagData():
+    """
+    Tag object that holds metadata for a single song.
+    """
+    def __init__(self, artist, title, album):
+        self.artist = artist
+        self.title = title
+        self.album = album
 
 class CommonTest(unittest.TestCase):
     def test_tokenization(self):
@@ -57,6 +82,25 @@ class DecodersTest(unittest.TestCase):
         """
         self.assertTrue(decoders.get_decoder("/path/to/SOMETHING.MP3")[0]
                         .startswith("/usr/bin"))
+
+class DirectoryBackendTest(unittest.TestCase):
+    def test_with_metadata(self):
+        tagpy = FakeTagpy(TagData(artist="Beatles", title="Ticket to Ride",
+                                  album="Help!"))
+        metadata = directory.extract_metadata("/dev/null", tagpy)
+        self.assertEqual("Ticket to Ride", metadata[directory.TITLE])
+        self.assertEqual("Beatles", metadata[directory.ARTIST])
+        self.assertEqual("Help!", metadata[directory.ALBUM])
+    def test_without_metadata(self):
+        tagpy = FakeTagpy(None)
+        metadata = directory.extract_metadata("/path/to/Song.flac", tagpy)
+        self.assertEqual("Song.flac", metadata[directory.TITLE])
+        self.assertEqual("", metadata[directory.ARTIST])
+        self.assertEqual("", metadata[directory.ALBUM])
+    def test_decode_filename(self):
+        tagpy = FakeTagpy(None)
+        metadata = directory.extract_metadata("/path/to/\xe4\xb8\xad.flac", tagpy)
+        self.assertEqual(u"\u4e2d.flac", metadata[directory.TITLE])
 
 class OptionsTest(unittest.TestCase):
     def test_default(self):
