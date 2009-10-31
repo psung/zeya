@@ -110,6 +110,9 @@ class DirectoryBackend(LibraryBackend):
         print "Scanning for music in %r..." % (os.path.abspath(self._media_path),)
         # Iterate over all the files.
         for path, dirs, files in os.walk(self._media_path):
+            # Sort dirs so that subdirectories will subsequently be visited
+            # alphabetically (see os.walk).
+            dirs.sort(key=tokenize_filename)
             for filename in sorted(files, key=tokenize_filename):
                 filename = os.path.abspath(os.path.join(path, filename))
                 # For each file that we encounter, see if we have cached data
