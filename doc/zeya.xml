@@ -79,19 +79,19 @@
 	    Specify the backend to use.
 	    <variablelist>
 	      <varlistentry>
-		<term>rhythmbox</term>
+		<term>dir</term>
 		<listitem>
 		  <para>
-		    Read from current user's Rhythmbox library (default).
+		    Read a directory's contents recursively (default). See
+		    <option>--path</option>.
 		  </para>
 		</listitem>
 	      </varlistentry>
 	      <varlistentry>
-		<term>dir</term>
+		<term>rhythmbox</term>
 		<listitem>
 		  <para>
-		    Read a directory's contents, recursively; see
-		    <option>--path</option>.
+		    Read from current user's Rhythmbox library.
 		  </para>
 		</listitem>
 	      </varlistentry>
@@ -104,7 +104,7 @@
         <listitem>
           <para>
 	    Directory in which to look for music. Use with
-	    <option>--backend</option>=dir.
+	    <option>--backend</option>=dir. (default: ./)
           </para>
         </listitem>
       </varlistentry>
