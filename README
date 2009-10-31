@@ -46,13 +46,14 @@ INSTRUCTIONS
 3. Run zeya.py. The --help flag shows the available options. We support two
    backends:
 
-   'rhythmbox' (default): read files from the current user's Rhythmbox library
+   'dir': read all music in a directory and its subdirectories. This is the
+          default.
 
-     $ zeya.py
+     $ zeya.py --path=/path/to/music   # If omitted, --path defaults to ./
 
-   'dir': read files from a directory and its subdirectories (recursively)
+   'rhythmbox': read files from the current user's Rhythmbox library.
 
-     $ zeya.py --path=/path/to/music
+     $ zeya.py --backend=rhythmbox
 
 
 CLIENT SUPPORT
