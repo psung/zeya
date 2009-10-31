@@ -52,36 +52,76 @@ function get_index_from_row_id(id) {
 // Return the class to use for the row corresponding to the given index. This
 // determines the color of the row.
 function get_row_class_from_index(index) {
-  return index % 2 == 0 ? 'evenrow' : 'oddrow';
+  return index % 2 === 0 ? 'evenrow' : 'oddrow';
+}
+
+// Hide or show the spinner.
+function set_spinner_visible(visible) {
+  document.getElementById("spinner_icon").style.visibility =
+    visible ? "visible" : "hidden";
+}
+
+// Check if the song with the given index is the last in the list.
+function is_last_track(index) {
+  var collection = document.getElementById('collection_table');
+  var index_row = document.getElementById(get_row_id_from_index(index));
+  return index_row == collection.lastChild;
+}
+
+function plural(number) {
+  return number > 1 ? 's' : '';
+}
+
+function update_status_area() {
+  var status_area = document.getElementById('status_area');
+  var status_text = status_info.displayed_tracks + ' track'
+       + plural(status_info.displayed_tracks);
+
+  if (status_info.displayed_tracks < status_info.total_tracks) {
+    status_text += ' (' + status_info.total_tracks + ' total)';
+  }
+
+  clear_children(status_area);
+  status_area.appendChild(document.createTextNode(status_text));
 }
 
 function item_match(item, match_string) {
   var s = match_string.toLowerCase();
   if (s.match('^artist:')) {
-    return item.artist.toLowerCase().indexOf(s.substring(7)) != -1
+    return item.artist.toLowerCase().indexOf(s.substring(7)) != -1;
   } else if (s.match('^title:')) {
-    return item.title.toLowerCase().indexOf(s.substring(6)) != -1
+    return item.title.toLowerCase().indexOf(s.substring(6)) != -1;
   } else if (s.match('^album:')) {
-    return item.album.toLowerCase().indexOf(s.substring(6)) != -1
+    return item.album.toLowerCase().indexOf(s.substring(6)) != -1;
   } else {
     return !(item.title.toLowerCase().indexOf(s) == -1
              && item.artist.toLowerCase().indexOf(s) == -1
-             && item.album.toLowerCase().indexOf(s) == -1)
+             && item.album.toLowerCase().indexOf(s) == -1);
   }
 }
 
-// Request the collection from the server then render it.
-function load_collection() {
-  var req = new XMLHttpRequest();
-  req.open('GET', '/getlibrary', true);
-  req.onreadystatechange = function(e) {
-    if (req.readyState == 4 && req.status == 200) {
-      library = JSON.parse(req.responseText);
-      status_info.total_tracks = library.length;
-      render_collection();
-    }
-  };
-  req.send(null);
+// Set the state of the UI.
+function set_ui_state(new_state) {
+  if (new_state == 'grayed') {
+    // All buttons grayed.
+    document.getElementById("previous_img").className = 'grayed';
+    document.getElementById("play_img").className = 'grayed';
+    document.getElementById("pause_img").className = 'grayed';
+    document.getElementById("next_img").className = 'grayed';
+  } else if (new_state == 'play') {
+    // 'Play' depressed
+    document.getElementById("previous_img").className = '';
+    document.getElementById("play_img").className = 'activated';
+    document.getElementById("pause_img").className = '';
+    document.getElementById("next_img").className = '';
+  } else {
+    // 'Pause' depressed
+    document.getElementById("previous_img").className = '';
+    document.getElementById("pause_img").className = 'activated';
+    document.getElementById("play_img").className = '';
+    document.getElementById("previous_img").className = '';
+  }
+  current_state = new_state;
 }
 
 // Render a table to display it the collection.
@@ -146,6 +186,20 @@ function render_collection() {
   update_status_area();
 }
 
+// Request the collection from the server then render it.
+function load_collection() {
+  var req = new XMLHttpRequest();
+  req.open('GET', '/getlibrary', true);
+  req.onreadystatechange = function(e) {
+    if (req.readyState == 4 && req.status == 200) {
+      library = JSON.parse(req.responseText);
+      status_info.total_tracks = library.length;
+      render_collection();
+    }
+  };
+  req.send(null);
+}
+
 // Clear displayed collection.
 function clear_collection() {
   clear_children(document.getElementById('collection'));
@@ -192,12 +246,6 @@ function play() {
   }
 }
 
-// Hide or show the spinner.
-function set_spinner_visible(visible) {
-  document.getElementById("spinner_icon").style.visibility =
-    visible ? "visible" : "hidden";
-}
-
 // Sets the title/artist fields that are displayed in the header, and the page
 // title.
 function set_title(title, artist) {
@@ -214,23 +262,6 @@ function set_title(title, artist) {
   } else {
     document.title = title + ' (' + artist + ') - Zeya';
   }
-}
-
-function plural(number) {
-  return number > 1 ? 's' : '';
-}
-
-function update_status_area() {
-  var status_area = document.getElementById('status_area');
-  var status_text = status_info.displayed_tracks + ' track'
-       + plural(status_info.displayed_tracks);
-
-  if (status_info.displayed_tracks < status_info.total_tracks) {
-    status_text += ' (' + status_info.total_tracks + ' total)';
-  }
-
-  clear_children(status_area);
-  status_area.appendChild(document.createTextNode(status_text));
 }
 
 // Return the line number corresponding to this row.
@@ -257,7 +288,7 @@ function select_item(index) {
   // Update the UI.
   set_spinner_visible(true);
   if (current_index !== null) {
-    current_row = document.getElementById(get_row_id_from_index(current_index));
+    var current_row = document.getElementById(get_row_id_from_index(current_index));
     if (current_row) {
       current_row.className =
         get_row_class_from_index(get_line_number(current_row));
@@ -286,13 +317,6 @@ function select_item(index) {
   // Update the UI.
   set_title(entry.title, entry.artist);
   set_ui_state('play');
-}
-
-// Check if the song with the given index is the last in the list.
-function is_last_track(index) {
-  var collection = document.getElementById('collection_table');
-  var index_row = document.getElementById(get_row_id_from_index(index));
-  return index_row == collection.lastChild
 }
 
 // Load the next song in the list (with wraparound).
@@ -356,30 +380,6 @@ function previous() {
       select_previous();
     }
   }
-}
-
-// Set the state of the UI.
-function set_ui_state(new_state) {
-  if (new_state == 'grayed') {
-    // All buttons grayed.
-    document.getElementById("previous_img").className = 'grayed';
-    document.getElementById("play_img").className = 'grayed';
-    document.getElementById("pause_img").className = 'grayed';
-    document.getElementById("next_img").className = 'grayed';
-  } else if (new_state == 'play') {
-    // 'Play' depressed
-    document.getElementById("previous_img").className = '';
-    document.getElementById("play_img").className = 'activated';
-    document.getElementById("pause_img").className = '';
-    document.getElementById("next_img").className = '';
-  } else {
-    // 'Pause' depressed
-    document.getElementById("previous_img").className = '';
-    document.getElementById("pause_img").className = 'activated';
-    document.getElementById("play_img").className = '';
-    document.getElementById("previous_img").className = '';
-  }
-  current_state = new_state;
 }
 
 // Stop playback.
