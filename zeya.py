@@ -223,6 +223,9 @@ def run_server(backend, port, bitrate):
     library_contents = \
         [ s for s in library_contents \
               if decoders.has_decoder(backend.get_filename_from_key(s['key'])) ]
+    if not library_contents:
+        print "WARNING: no tracks were found. Check that you've specified " \
+            + "the right backend/path."
     library_repr = json.dumps(library_contents, ensure_ascii=False)
     basedir = os.path.abspath(os.path.dirname(os.path.realpath(sys.argv[0])))
     server = ThreadedHTTPServer(
