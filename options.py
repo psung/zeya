@@ -42,23 +42,27 @@ class BadArgsError(Exception):
 def get_options(remaining_args):
     """
     Parse the arguments and return a tuple (show_help, backend, bitrate, port,
-    path), or raise BadArgsError if the invocation was not valid.
+    path, basic_auth_file), or raise BadArgsError if the invocation was not
+    valid.
 
     show_help: whether user requested help information
     backend: string indicating backend to use
     bitrate: bitrate for encoded streams (kbits/sec)
     port: port number to listen on
     path: path from which to read music files (for "dir" backend only)
+    basic_auth_file: file handle from which to read basic auth config, or None.
     """
     help_msg = False
     port = DEFAULT_PORT
     backend_type = DEFAULT_BACKEND
     bitrate = DEFAULT_BITRATE
     path = None
+    basic_auth_file = None
     try:
         opts, file_list = getopt.getopt(
             remaining_args, "b:hp:",
-            ["help", "backend=", "bitrate=", "port=", "path="])
+            ["help", "backend=", "bitrate=", "port=", "path=",
+             "basic_auth_file="])
     except getopt.GetoptError, e:
         raise BadArgsError(e.msg)
     for flag, value in opts:
@@ -69,6 +73,11 @@ def get_options(remaining_args):
             if backend_type not in valid_backends:
                 raise BadArgsError("Unsupported backend type %r"
                                    % (backend_type,))
+        if flag in ("--basic_auth_file"):
+            try:
+                basic_auth_file = open(value, 'r')
+            except:
+                raise BadArgsError("Could not read auth file %s" % (value,))
         if flag in ("-b", "--bitrate"):
             try:
                 bitrate = int(value)
@@ -88,7 +97,7 @@ def get_options(remaining_args):
             % (backend_type,)
     if backend_type == 'dir' and path is None:
         path = "."
-    return (help_msg, backend_type, bitrate, port, path)
+    return (help_msg, backend_type, bitrate, port, path, basic_auth_file)
 
 def print_usage():
     print "Usage: %s [OPTIONS]" % (os.path.basename(sys.argv[0]),)
@@ -110,4 +119,7 @@ Options:
       Specify the bitrate for output streams, in kbits/sec. (default: 64)
 
   -p, --port=PORT
-      Listen for requests on the specified port. (default: 8080)"""
+      Listen for requests on the specified port. (default: 8080)
+
+  --basic_auth_file=FILENAME
+      Use htpasswd-generated auth file for basic authentication."""
