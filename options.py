@@ -73,7 +73,7 @@ def get_options(remaining_args):
             if backend_type not in valid_backends:
                 raise BadArgsError("Unsupported backend type %r"
                                    % (backend_type,))
-        if flag in ("--basic_auth_file"):
+        if flag in ("--basic_auth_file",):
             try:
                 basic_auth_file = open(value, 'r')
             except:
