@@ -31,6 +31,7 @@ import base64
 import crypt
 import getopt
 import os
+import re
 import socket
 import sys
 import tempfile
@@ -52,8 +53,8 @@ except (ImportError, AttributeError):
 import decoders
 import options
 
+b64dict = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 auth = 'Authorization'
-bas = 'Basic '
 no_auth_rval = \
 """
 <!DOCTYPE html>
@@ -65,6 +66,10 @@ no_auth_rval = \
         <BODY><H1>401 Unauthorized.</H1></BODY>
     </HTML>
 """
+
+# Auth types
+NO_AUTH = None
+BASIC_AUTH = 'basic'
 
 class BadArgsError(Exception):
     """
@@ -83,9 +88,10 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     if socket.has_ipv6:
         address_family = socket.AF_INET6
 
+user_pass_regexp = re.compile('([^:]):(.*)$')
 def split_user_pass(data):
-    idx = data.find(':')
-    return data[:idx], data[idx+1:]
+    """ Split the given data into user and password. """
+    return user_pass_regexp.search(data).groups()
 
 def ZeyaHandler(backend, library_repr, resource_basedir, bitrate,
                 auth_type=None, auth_data=None):
@@ -101,7 +107,7 @@ def ZeyaHandler(backend, library_repr, resource_basedir, bitrate,
     Authentication data.
     """
 
-    class ZeyaHandlerImpl(BaseHTTPRequestHandler):
+    class ZeyaHandlerImpl(BaseHTTPRequestHandler, object):
         """
         Web server request handler.
         """
@@ -229,6 +235,10 @@ def ZeyaHandler(backend, library_repr, resource_basedir, bitrate,
                 self.send_error(404, 'File not found: %s' % (path,))
 
     class ZeyaBasicAuthHandlerImpl(ZeyaHandlerImpl):
+        def __init__(self, *args, **kwargs):
+            self.auth_regexp = re.compile('Basic ([%s[]*)' % b64dict)
+            super(ZeyaBasicAuthHandlerImpl, self).__init__(*args, **kwargs)
+
         def send_no_auth(self):
             """
             Send an unauthorized required page.
@@ -244,15 +254,14 @@ def ZeyaHandler(backend, library_repr, resource_basedir, bitrate,
             """
             Return true if self.headers has valid authentication information.
             """
-            if auth in self.headers and self.headers[auth]:
-                if self.headers[auth][:len(bas)] == bas:
-                    auth_header = self.headers[auth][len(bas):]
-                    decode_thing = base64.b64decode(auth_header)
-                    client_user, client_pass = split_user_pass(decode_thing)
-                    if client_user in auth_data:
-                        client_crypt_pass = crypt.crypt(\
-                                client_pass, auth_data[client_user][:2])
-                        return client_crypt_pass == auth_data[client_user]
+            if auth in self.headers and self.auth_regexp.match(self.headers[auth]):
+                encoded_auth = self.auth_regexp.sub('\\1', self.headers[auth])
+                decoded_auth = base64.b64decode(encoded_auth)
+                client_user, client_pass = split_user_pass(decoded_auth)
+                if client_user in auth_data:
+                    client_crypt_pass = crypt.crypt(\
+                            client_pass, auth_data[client_user][:2])
+                    return client_crypt_pass == auth_data[client_user]
             return False
 
         def do_GET(self):
@@ -265,7 +274,7 @@ def ZeyaHandler(backend, library_repr, resource_basedir, bitrate,
             else:
                 self.send_no_auth()
 
-    if auth_type is 'basic':
+    if auth_type == BASIC_AUTH:
         print 'Using Basic Auth Handler...'
         return ZeyaBasicAuthHandlerImpl
     return ZeyaHandlerImpl
@@ -313,7 +322,7 @@ def run_server(backend, port, bitrate, basic_auth_file=None):
                     library_repr,
                     os.path.join(basedir, 'resources'),
                     bitrate,
-                    auth_type=None if basic_auth_file is None else 'basic',
+                    auth_type=NO_AUTH if basic_auth_file is None else BASIC_AUTH,
                     auth_data=auth_data,
                    ))
     print "Listening on port %d" % (port,)
