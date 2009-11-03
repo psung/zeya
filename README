@@ -70,13 +70,7 @@ NOTES ON SUPPORTED CLIENTS
 
 * Chrome
 
-  At the time of writing, official 64-bit builds ("Google Chrome") on GNU/Linux
-  do not play audio (chromium bug #23152). The Chromium builds work just fine.
-  32-bit GNU/Linux and other platforms are unaffected.
-
-  Zeya is known to work in Chrome 4.0.220.1, and likely also for dev channel
-  builds since at least 3.0.198.1, on GNU/Linux and Windows, with the caveat
-  above.
+  Zeya is known to work in Chrome 4.0.223.*, on GNU/Linux, Windows, and Mac OS.
 
   Known issues:
 
