@@ -212,6 +212,7 @@ function search() {
   var search_box = document.getElementById('search_box');
   search_string = search_box.value;
   search_box.blur();
+  window.document.getElementById('content').focus();
   // Redisplay collection, filtering on the search string.
   clear_collection();
   // The setTimeout trick is to force the browser to display the loading
@@ -418,6 +419,9 @@ function init() {
   // is applied to the collection when it's first displayed to the user again.
   search_string = window.document.getElementById('search_box').value;
   load_collection();
+  // Focus the scrollable area so that PgUp and PgDn keypresses are interpreted
+  // properly.
+  window.document.getElementById('content').focus();
 }
 
 // Clean up after ourselves when the page is unloaded.
@@ -443,6 +447,7 @@ function keydown_handler(e) {
     if (window.document.activeElement
         == window.document.getElementById('search_box')) {
       window.document.getElementById('search_box').blur();
+      window.document.getElementById('content').focus();
     } else {
       hide_help();
     }
