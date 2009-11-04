@@ -1,0 +1,8 @@
+The man pages (*.1) in this directory are automatically generated from the
+Docbook XML files. Please regenerate the man pages using
+
+  $ docbook2x-man zeya.xml
+  $ docbook2x-man zeyaclient.xml
+
+whenever you update the XML documentation. (docbook2x-man can be found in the
+'docbook2x' package.)
