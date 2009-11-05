@@ -39,6 +39,21 @@ DB = 'db'
 KEY_FILENAME = 'key_filename'
 MTIMES = 'mtimes'
 
+def album_name_from_path(tag, filename):
+    """
+    Returns an appropriate string to use for the album name if the tag is
+    empty.
+    """
+    if tag is not None and (tag.artist or tag.album):
+        return ''
+    # Use the trailing components of the path.
+    path_components = [x for x in os.path.dirname(filename).split(os.sep) if x]
+    if len(path_components) >= 2:
+        return os.sep.join(path_components[-2:])
+    elif len(path_components) == 1:
+        return path_components[0]
+    return ''
+
 class DirectoryBackend(LibraryBackend):
     """
     Object that controls access to music in a given directory.
@@ -178,12 +193,12 @@ def extract_metadata(filename, tagpy_module = tagpy):
     metadata = {
         TITLE: os.path.basename(filename).decode("UTF-8"),
         ARTIST: '',
-        ALBUM: '',
+        ALBUM: album_name_from_path(tag, filename),
         }
     if tag is not None:
         metadata[ARTIST] = tag.artist
         # Again, do not allow metadata[TITLE] to be an empty string, even if
         # tag.title is an empty string.
         metadata[TITLE] = tag.title or metadata[TITLE]
-        metadata[ALBUM] = tag.album
+        metadata[ALBUM] = tag.album or metadata[ALBUM]
     return metadata
