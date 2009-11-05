@@ -127,6 +127,14 @@
           </para>
         </listitem>
       </varlistentry>
+      <varlistentry>
+        <term><option>--basic_auth_file</option></term>
+        <listitem>
+          <para>
+	    Use htpasswd-generated auth file for basic authentication.
+          </para>
+        </listitem>
+      </varlistentry>
     </variablelist>
   </refsect1>
 
