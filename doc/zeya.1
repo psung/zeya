@@ -15,7 +15,7 @@ zeya \- a web music server
 \fBzeya\fR \kx
 .if (\nx>(\n(.l/2)) .nr x (\n(.l/5)
 'in \n(.iu+\nxu
-[-h | --help] [--backend=\fIbackend\fR] [--path=\fIpath\fR] [-b | --bitrate=\fIbitrate\fR] [-p | --port=\fIport\fR]
+[-h | --help] [--backend=\fIbackend\fR] [--path=\fIpath\fR] [-b | --bitrate=\fIbitrate\fR] [-p | --port=\fIport\fR] [--basic_auth_file=\fIfile\fR]
 'in \n(.iu-\nxu
 .ad b
 'hy
@@ -56,7 +56,9 @@ Specify the bitrate for output streams, in kbps. (default:
 Listen for requests on the specified port. (default: 8080)
 .TP 
 \*(T<\fB\-\-basic_auth_file\fR\*(T>
-Use htpasswd-generated auth file for basic authentication.
+Require basic HTTP authentication and only allow users named in the
+specified file. The file should be in \fBhtpasswd\fR
+format.
 .SH COPYRIGHT
 Zeya was written by Phil Sung and Samson Yeung and is licensed
 under the terms of the GNU Affero GPL license, version 3 or later.

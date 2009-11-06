@@ -43,6 +43,7 @@
 	<arg>-p</arg>
 	<arg>--port=<replaceable>port</replaceable></arg>
       </group>
+      <arg>--basic_auth_file=<replaceable>file</replaceable></arg>
     </cmdsynopsis>
   </refsynopsisdiv>
 
@@ -131,7 +132,9 @@
         <term><option>--basic_auth_file</option></term>
         <listitem>
           <para>
-	    Use htpasswd-generated auth file for basic authentication.
+	    Require basic HTTP authentication and only allow users named in the
+	    specified file. The file should be in <command>htpasswd</command>
+	    format.
           </para>
         </listitem>
       </varlistentry>

@@ -122,4 +122,5 @@ Options:
       Listen for requests on the specified port. (default: 8080)
 
   --basic_auth_file=FILENAME
-      Use htpasswd-generated auth file for basic authentication."""
+      Require basic HTTP authentication and only allow users named in the
+      specified file. The file should be in 'htpasswd' format."""
