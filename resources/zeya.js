@@ -85,6 +85,7 @@ function update_status_area() {
   status_area.appendChild(document.createTextNode(status_text));
 }
 
+// Return true if the item matches the given query string.
 function item_match(item, match_string) {
   var s = match_string.toLowerCase();
   if (s.match('^artist:')) {
