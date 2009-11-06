@@ -93,9 +93,17 @@ class DirectoryBackendTest(unittest.TestCase):
         self.assertEqual("Help!", metadata[directory.ALBUM])
     def test_without_metadata(self):
         tagpy = FakeTagpy(None)
-        metadata = directory.extract_metadata("/path/to/Song.flac", tagpy)
+        metadata = directory.extract_metadata("/the/path/to/Song.flac", tagpy)
         self.assertEqual("Song.flac", metadata[directory.TITLE])
         self.assertEqual("", metadata[directory.ARTIST])
+        self.assertEqual("path/to", metadata[directory.ALBUM])
+    def test_short_path(self):
+        tagpy = FakeTagpy(None)
+        metadata = directory.extract_metadata("/music/Song.flac", tagpy)
+        self.assertEqual("music", metadata[directory.ALBUM])
+    def test_noalbum_path(self):
+        tagpy = FakeTagpy(TagData(artist="Beatles", title=None, album=None))
+        metadata = directory.extract_metadata("/music/Song.flac", tagpy)
         self.assertEqual("", metadata[directory.ALBUM])
     def test_decode_filename(self):
         tagpy = FakeTagpy(None)
