@@ -55,9 +55,8 @@
       browse your files, and streams them on demand.
     </para>
     <para>
-      The client runs entirely in the browser using the HTML5 draft
-      standard technologies--no Flash needed, no Silverlight, no
-      applets, no plugins, no external players.
+      The client runs entirely in the browser using the HTML5 draft standard
+      technologies (no plugins or external players are needed).
     </para>
   </refsect1>
 
