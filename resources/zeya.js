@@ -280,6 +280,53 @@ function get_line_number(element) {
   return ret;
 }
 
+// Return the index of the next song, with wraparound.
+function next_index() {
+  var current_row = document.getElementById(get_row_id_from_index(current_index));
+
+  if (!current_row) {
+    // Display changed since we began playing and the displayed
+    // collection is empty.
+    return null;
+  }
+
+  var collection = document.getElementById('collection_table');
+
+  // If on the last row, go back to the first.
+  if (current_row == collection.lastChild) {
+    // The table's firstChild is the heading.
+    return get_index_from_row_id(collection.firstChild.nextSibling.id);
+  }
+  var next_row = current_row.nextSibling;
+  if (next_row) {
+    return get_index_from_row_id(next_row.id);
+  }
+  return null;
+}
+
+// Return the index of the next song, with wraparound.
+function previous_index() {
+  var current_row = document.getElementById(get_row_id_from_index(current_index));
+
+  if (!current_row) {
+    // Display changed since we began playing and the displayed
+    // collection is empty.
+    return null;
+  }
+
+  var collection = document.getElementById('collection_table');
+
+  // If on the first row, go to the last.
+  if (current_row == collection.firstChild.nextSibling) {
+    return get_index_from_row_id(collection.lastChild.id);
+  }
+  var previous_row = current_row.previousSibling;
+  if (previous_row) {
+    return get_index_from_row_id(previous_row.id);
+  }
+  return null;
+}
+
 // Load the song with the given index.
 function select_item(index) {
   // Pause the currently playing song.
@@ -323,46 +370,17 @@ function select_item(index) {
 
 // Load the next song in the list (with wraparound).
 function select_next() {
-  var collection = document.getElementById('collection_table');
-  var current_row = document.getElementById(get_row_id_from_index(current_index));
-
-  if (!current_row) {
-    // Display changed since we began playing and the displayed
-    // collection is empty.
-    return;
-  }
-
-  // If on the last row, go back to the first.
-  if (current_row == collection.lastChild) {
-    // The table's firstChild is the heading.
-    select_item(get_index_from_row_id(collection.firstChild.nextSibling.id));
-  } else {
-    var next_row = current_row.nextSibling;
-    if (next_row) {
-      select_item(get_index_from_row_id(next_row.id));
-    }
+  next_song_index = next_index();
+  if (next_song_index !== null) {
+    select_item(next_song_index);
   }
 }
 
 // Load the previous song in the list (with wraparound).
 function select_previous() {
-  var collection = document.getElementById('collection_table');
-  var current_row = document.getElementById(get_row_id_from_index(current_index));
-
-  if (!current_row) {
-    // Display changed since we began playing and the displayed
-    // collection is empty.
-    return;
-  }
-
-  // If on the first row, go to the last.
-  if (current_row == collection.firstChild.nextSibling) {
-    select_item(get_index_from_row_id(collection.lastChild.id));
-  } else {
-    var previous_row = current_row.previousSibling;
-    if (previous_row) {
-      select_item(get_index_from_row_id(previous_row.id));
-    }
+  previous_song_index = previous_index();
+  if (previous_song_index !== null) {
+    select_item(previous_song_index);
   }
 }
 
