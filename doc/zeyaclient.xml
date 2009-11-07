@@ -41,6 +41,20 @@
       are played. The query may be matched against the title, artist, or
       album of the song.
     </para>
+    <para>
+      While a song is playing, the user can
+      press <keycombo><keycap>Ctrl+</keycap><keycap>c</keycap></keycombo>
+      to skip to the next song matching the query, or
+      <keycombo action="simul">
+	<keycap function="control">Ctrl+</keycap>
+	<keycap>c</keycap>
+      </keycombo>
+      <keycombo action="simul">
+	<keycap function="control">Ctrl+</keycap>
+	<keycap>c</keycap>
+      </keycombo>
+      to return to the prompt.
+    </para>
   </refsect1>
 
   <refsect1>
