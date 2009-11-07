@@ -72,6 +72,12 @@ function plural(number) {
   return number > 1 ? 's' : '';
 }
 
+// Returns an Audio object corresponding to the track with the given key.
+function get_stream(key) {
+  var buffer_param = using_webkit ? 'buffered=true&' : '';
+  return new Audio('/getcontent?' + buffer_param + 'key=' + escape(key));
+}
+
 function update_status_area() {
   var status_area = document.getElementById('status_area');
   var status_text = status_info.displayed_tracks + ' track'
@@ -346,9 +352,7 @@ function select_item(index) {
   document.getElementById(get_row_id_from_index(index)).className = 'selectedrow';
   // Start streaming the new song.
   var entry = library[index];
-  // Get a buffered stream of the desired file.
-  var bufferParam = using_webkit ? 'buffered=true&' : '';
-  audio = new Audio('/getcontent?' + bufferParam + 'key=' + escape(entry.key));
+  audio = get_stream(entry.key);
   audio.setAttribute('autoplay', 'true');
   current_index = index;
   // Hide the spinner when the song has loaded.
