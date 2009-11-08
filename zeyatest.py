@@ -109,6 +109,16 @@ class DirectoryBackendTest(unittest.TestCase):
         tagpy = FakeTagpy(None)
         metadata = directory.extract_metadata("/path/to/\xe4\xb8\xad.flac", tagpy)
         self.assertEqual(u"\u4e2d.flac", metadata[directory.TITLE])
+    def test_album_name_from_path_unicode(self):
+        value1 = directory.album_name_from_path(
+            TagData(artist="Beatles", title=None, album=None),
+            "/path/to/music")
+        self.assertTrue(type(value1) == unicode)
+        self.assertEqual(u'', value1)
+        value2 = directory.album_name_from_path(None, "/path/\xc3\x84/music")
+        self.assertEqual(u'path/\u00c4', value2)
+        value3 = directory.album_name_from_path(None, "/\xc3\x84/music")
+        self.assertEqual(u'\u00c4', value3)
 
 class OptionsTest(unittest.TestCase):
     def test_default(self):

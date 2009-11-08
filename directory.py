@@ -41,18 +41,18 @@ MTIMES = 'mtimes'
 
 def album_name_from_path(tag, filename):
     """
-    Returns an appropriate string to use for the album name if the tag is
-    empty.
+    Returns an appropriate Unicode string to use for the album name if the tag
+    is empty.
     """
     if tag is not None and (tag.artist or tag.album):
-        return ''
+        return u''
     # Use the trailing components of the path.
     path_components = [x for x in os.path.dirname(filename).split(os.sep) if x]
     if len(path_components) >= 2:
-        return os.sep.join(path_components[-2:])
+        return os.sep.join(path_components[-2:]).decode("UTF-8")
     elif len(path_components) == 1:
-        return path_components[0]
-    return ''
+        return path_components[0].decode("UTF-8")
+    return u''
 
 class DirectoryBackend(LibraryBackend):
     """
