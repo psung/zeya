@@ -135,7 +135,10 @@ class DirectoryBackend(LibraryBackend):
                 # previous_db acts as a cache of mtime and metadata, keyed by
                 # filename.
                 rec_mtime, old_metadata = previous_db.get(filename, (None, None))
-                file_mtime = os.stat(filename).st_mtime
+                try:
+                    file_mtime = os.stat(filename).st_mtime
+                except OSError:
+                    continue
 
                 # Set the artist, title, and album in this block, and the key
                 # below.
