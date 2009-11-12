@@ -303,7 +303,7 @@ def run_server(backend, port, bitrate, basic_auth_file=None):
     # Filter out songs that we won't be able to decode.
     library_contents = \
         [ s for s in library_contents \
-              if decoders.has_decoder(backend.get_filename_from_key(s['key'])) ]
+              if decoders.is_decoder_registered(backend.get_filename_from_key(s['key'])) ]
     if not library_contents:
         print "WARNING: no tracks were found. Check that you've specified " \
             + "the right backend/path."

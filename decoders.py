@@ -35,9 +35,9 @@ def get_extension(filename):
     # Raises ValueError if the filename is malformed.
     return filename[filename.rfind('.')+1:].lower()
 
-def has_decoder(filename):
+def is_decoder_registered(filename):
     """
-    Returns True if there is a decoder available for the given filename.
+    Returns True if a decoder is registered for the given filename.
     """
     try:
         extension = get_extension(filename)
