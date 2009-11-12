@@ -164,7 +164,7 @@ function render_collection() {
     current_line++;
     var link = document.createElement('a');
     link.setAttribute('href', '#');
-    link.setAttribute('onclick', 'select_item(' + index + '); return false;');
+    link.setAttribute('onclick', 'select_item(' + index + ', true); return false;');
     link.appendChild(document.createTextNode(item.title));
 
     var tr = document.createElement('tr');
@@ -333,15 +333,20 @@ function previous_index() {
   return null;
 }
 
-// Load the song with the given index.
-function select_item(index) {
+// Select the song with the given index. If play_track is true, then the song
+// will be loaded for playing too. (If play_track is false, the song is not
+// loaded and the UI is set to a "pause" state.)
+function select_item(index, play_track) {
   // Pause the currently playing song.
   if (audio !== null) {
     audio.pause();
     set_ui_state('pause');
   }
-  // Update the UI.
-  set_spinner_visible(true);
+  // Show the spinner if applicable.
+  if (play_track) {
+    set_spinner_visible(true);
+  }
+  // Highlight the selected row.
   if (current_index !== null) {
     var current_row = document.getElementById(get_row_id_from_index(current_index));
     if (current_row) {
@@ -353,7 +358,9 @@ function select_item(index) {
   // Start streaming the new song.
   var entry = library[index];
   audio = get_stream(entry.key);
-  audio.setAttribute('autoplay', 'true');
+  if (play_track) {
+    audio.setAttribute('autoplay', 'true');
+  }
   current_index = index;
   // Hide the spinner when the song has loaded.
   audio.addEventListener(
@@ -368,14 +375,19 @@ function select_item(index) {
   audio.load();
   // Update the metadata in the UI.
   set_title(entry.title, entry.artist);
-  set_ui_state('play');
+  // Set the state of the play controls.
+  if (play_track) {
+    set_ui_state('play');
+  } else {
+    set_ui_state('pause');
+  }
 }
 
 // Load the next song in the list (with wraparound).
 function select_next() {
   next_song_index = next_index();
   if (next_song_index !== null) {
-    select_item(next_song_index);
+    select_item(next_song_index, true);
   }
 }
 
@@ -383,7 +395,7 @@ function select_next() {
 function select_previous() {
   previous_song_index = previous_index();
   if (previous_song_index !== null) {
-    select_item(previous_song_index);
+    select_item(previous_song_index, true);
   }
 }
 
