@@ -126,7 +126,7 @@ function set_ui_state(new_state) {
     document.getElementById("previous_img").className = '';
     document.getElementById("pause_img").className = 'activated';
     document.getElementById("play_img").className = '';
-    document.getElementById("previous_img").className = '';
+    document.getElementById("next_img").className = '';
   }
   current_state = new_state;
 }
