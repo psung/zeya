@@ -6,7 +6,7 @@ var library;
 // playing.
 var current_index = null;
 // Audio object we'll use for playing songs.
-var audio;
+var current_audio;
 // Current application state ('grayed', 'play', 'pause')
 var current_state = 'grayed';
 // Value of the search box, or null if no search has been performed
@@ -240,7 +240,7 @@ function focus_search_box() {
 function pause() {
   if (current_index !== null) {
     set_spinner_visible(false);
-    audio.pause();
+    current_audio.pause();
     set_ui_state('pause');
   }
 }
@@ -249,7 +249,7 @@ function pause() {
 function play() {
   if (current_index !== null) {
     set_spinner_visible(true);
-    audio.play();
+    current_audio.play();
     set_ui_state('play');
   }
 }
@@ -338,8 +338,8 @@ function previous_index() {
 // loaded and the UI is set to a "pause" state.)
 function select_item(index, play_track) {
   // Pause the currently playing song.
-  if (audio !== null) {
-    audio.pause();
+  if (current_audio !== null) {
+    current_audio.pause();
     set_ui_state('pause');
   }
   // Show the spinner if applicable.
@@ -357,22 +357,22 @@ function select_item(index, play_track) {
   document.getElementById(get_row_id_from_index(index)).className = 'selectedrow';
   // Start streaming the new song.
   var entry = library[index];
-  audio = get_stream(entry.key);
+  current_audio = get_stream(entry.key);
   if (play_track) {
-    audio.setAttribute('autoplay', 'true');
+    current_audio.setAttribute('autoplay', 'true');
   }
   current_index = index;
   // Hide the spinner when the song has loaded.
-  audio.addEventListener(
+  current_audio.addEventListener(
     'play', function() {set_spinner_visible(false);}, false);
   // When this song is finished, advance to the next song (or stop playing if
   // this was the last song in the list).
   if (is_last_track(index)) {
-    audio.addEventListener('ended', stop, false);
+    current_audio.addEventListener('ended', stop, false);
   } else {
-    audio.addEventListener('ended', select_next, false);
+    current_audio.addEventListener('ended', select_next, false);
   }
-  audio.load();
+  current_audio.load();
   // Update the metadata in the UI.
   set_title(entry.title, entry.artist);
   // Set the state of the play controls.
@@ -409,8 +409,8 @@ function next() {
 // Skip to the beginning of the current song, or to the previous song.
 function previous() {
   if (current_index !== null) {
-    if (audio.currentTime > 5.00) {
-      audio.currentTime = 0.0;
+    if (current_audio.currentTime > 5.00) {
+      current_audio.currentTime = 0.0;
     } else {
       select_previous();
     }
@@ -419,7 +419,7 @@ function previous() {
 
 // Stop playback.
 function stop() {
-  audio.pause();
+  current_audio.pause();
   set_ui_state('grayed');
   set_title('', '');
 }
@@ -438,7 +438,7 @@ function hide_help() {
 function init() {
   current_index = null;
   library = null;
-  audio = null;
+  current_audio = null;
   set_ui_state('grayed');
   // If the client doesn't support HTML5 audio, just disable everything and
   // display an error.
@@ -463,8 +463,8 @@ function cleanup() {
   // Firefox seems to maintain a huge audio buffer and playback doesn't always
   // stop immediately when the page is closed or refreshed. So pause the stream
   // manually here.
-  if (audio !== null) {
-    audio.pause();
+  if (current_audio !== null) {
+    current_audio.pause();
   }
 }
 
