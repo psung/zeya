@@ -165,6 +165,9 @@ def ZeyaHandler(backend, library_repr, resource_basedir, bitrate,
             # accompany audio data.
             buffered = args['buffered'][0] if args.has_key('buffered') else ''
 
+            # TODO: send error 500 when we encounter an error during the
+            # decoding phase. This is needed for reliable client-side error
+            # dialogs.
             self.send_response(200)
             self.send_header('Content-type', 'audio/ogg')
             if buffered:
