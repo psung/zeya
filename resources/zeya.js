@@ -126,7 +126,7 @@ function set_ui_state(new_state) {
     document.getElementById("previous_img").className = '';
     document.getElementById("pause_img").className = 'activated';
     document.getElementById("play_img").className = '';
-    document.getElementById("previous_img").className = '';
+    document.getElementById("next_img").className = '';
   }
   current_state = new_state;
 }
@@ -358,16 +358,15 @@ function select_item(index) {
   // Hide the spinner when the song has loaded.
   audio.addEventListener(
     'play', function() {set_spinner_visible(false);}, false);
+  // When this song is finished, advance to the next song (or stop playing if
+  // this was the last song in the list).
   if (is_last_track(index)) {
-    // When this song is finished, stop playing (if this was the last song
-    // in the list).
     audio.addEventListener('ended', stop, false);
   } else {
-    // Otherwise, advance to the next song.
     audio.addEventListener('ended', select_next, false);
   }
   audio.load();
-  // Update the UI.
+  // Update the metadata in the UI.
   set_title(entry.title, entry.artist);
   set_ui_state('play');
 }
