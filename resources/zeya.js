@@ -7,6 +7,9 @@ var library;
 var current_index = null;
 // Audio object we'll use for playing songs.
 var current_audio;
+var preload_audio;
+var preload_index;
+var preload_finished = false;
 // Current application state ('grayed', 'play', 'pause')
 var current_state = 'grayed';
 // Value of the search box, or null if no search has been performed
@@ -333,6 +336,18 @@ function previous_index() {
   return null;
 }
 
+// Start loading the next song in the list, but don't play it.
+function preload_song() {
+  preload_index = next_index();
+
+  if (preload_index !== null) {
+    preload_finished = false;
+    preload_audio = get_stream(library[preload_index].key);
+    preload_audio.addEventListener('suspend', function() { preload_finished = true; }, false);
+    preload_audio.load();
+  }
+}
+
 // Select the song with the given index. If play_track is true, then the song
 // will be loaded for playing too. (If play_track is false, the song is not
 // loaded and the UI is set to a "pause" state.)
@@ -355,9 +370,13 @@ function select_item(index, play_track) {
     }
   }
   document.getElementById(get_row_id_from_index(index)).className = 'selectedrow';
-  // Start streaming the new song.
   var entry = library[index];
-  current_audio = get_stream(entry.key);
+  var preloaded = index == preload_index;
+  if (preloaded) {
+    current_audio = preload_audio;
+  } else {
+    current_audio = get_stream(entry.key);
+  }
   if (play_track) {
     current_audio.setAttribute('autoplay', 'true');
   }
@@ -365,6 +384,14 @@ function select_item(index, play_track) {
   // Hide the spinner when the song has loaded.
   current_audio.addEventListener(
     'play', function() {set_spinner_visible(false);}, false);
+  // If the song we're about to play has already finished, loading, kick off
+  // the next preload. Otherwise, start it when the current song has finished
+  // loading.
+  if (preload_finished) {
+    preload_song();
+  } else {
+    current_audio.addEventListener('suspend', preload_song, false);
+  }
   // When this song is finished, advance to the next song (or stop playing if
   // this was the last song in the list).
   if (is_last_track(index)) {
@@ -372,7 +399,9 @@ function select_item(index, play_track) {
   } else {
     current_audio.addEventListener('ended', select_next, false);
   }
-  current_audio.load();
+  if (!preloaded) {
+    current_audio.load();
+  }
   // Update the metadata in the UI.
   set_title(entry.title, entry.artist);
   // Set the state of the play controls.
