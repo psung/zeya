@@ -70,12 +70,12 @@ class DecodersTest(unittest.TestCase):
         Test decoders.get_extension.
         """
         self.assertEqual("mp3", decoders.get_extension("/path/to/SOMETHING.MP3"))
-    def test_has_decoder(self):
+    def test_is_decoder_registered(self):
         """
-        Test decoders.has_decoder.
+        Test decoders.is_decoder_registered.
         """
-        self.assertTrue(decoders.has_decoder("/path/to/something.mp3"))
-        self.assertFalse(decoders.has_decoder("/path/to/something.m4a"))
+        self.assertTrue(decoders.is_decoder_registered("/path/to/something.mp3"))
+        self.assertFalse(decoders.is_decoder_registered("/path/to/something.m4a"))
     def test_get_decoder(self):
         """
         Test decoders.get_decoder
