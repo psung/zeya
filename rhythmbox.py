@@ -26,7 +26,7 @@ import subprocess
 import sys
 import urllib
 
-from backend import LibraryBackend
+from backends import LibraryBackend
 from common import tokenize_filename
 
 from xml.parsers import expat
@@ -39,8 +39,8 @@ class RhythmboxDbHandler():
     Parser for Rhythmbox XML files.
     """
     def __init__(self):
-        # List containing library metadata (see backend.LibraryBackend for full
-        # description).
+        # List containing library metadata (see backends.LibraryBackend for
+        # full description).
         self.contents = []
         # Map the keys (ints) to the original file paths.
         self.filelist = []

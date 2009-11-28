@@ -27,7 +27,7 @@ import os
 import tagpy
 import pickle
 
-from backend import LibraryBackend
+from backends import LibraryBackend
 from common import tokenize_filename
 
 KEY = 'key'
