@@ -50,6 +50,7 @@ try:
 except (ImportError, AttributeError):
     import simplejson as json
 
+import backends
 import decoders
 import options
 
@@ -179,7 +180,13 @@ def ZeyaHandler(backend, library_repr, resource_basedir, bitrate,
                 data = output_file.read()
                 self.send_header('Content-Length', str(len(data)))
                 self.end_headers()
-                self.wfile.write(data)
+                output_file.seek(0)
+                try:
+                    backends.copy_output_with_shaping(
+                        output_file.fileno(), self.wfile, bitrate)
+                except socket.error:
+                    pass
+                output_file.close()
             else:
                 # Don't determine the Content-Length. Just stream to the client
                 # on the fly.
