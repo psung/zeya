@@ -401,7 +401,14 @@ function select_item(index, play_track) {
     current_audio = get_stream(entry.key);
   }
   if (play_track) {
-    current_audio.setAttribute('autoplay', 'true');
+    // Chrome doesn't seem to play the media if we set autoplay=true after the
+    // media has finished loading. So we have to check for that case and play
+    // manually ourselves.
+    if (current_audio.networkState == 1) {
+      current_audio.play();
+    } else {
+      current_audio.setAttribute('autoplay', 'true');
+    }
   }
   current_index = index;
   // Hide the spinner when the song has loaded.
