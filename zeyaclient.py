@@ -24,8 +24,9 @@
 # Usage:
 #   zeyaclient.py http://server.local:8080
 #
-# The user is prompted for a query, and all songs matching it are played. The
-# query may be matched against the title, artist, or album of the song.
+# zeyaclient prompts the user for a query, and all songs matching the query are
+# played. The query may be matched against the title, artist, or album of the
+# song.
 
 import getopt
 import os
