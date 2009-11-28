@@ -11,18 +11,20 @@ Zeya uses public-domain icons from tango-icon-theme.
   More information: <http://tango.freedesktop.org/>
 
 
-INSTRUCTIONS
+INSTALLATION INSTRUCTIONS
 
 1. (Optional) Add the directory containing zeya.py to your PATH.
 
 2. Install dependencies:
 
    Install the Ogg/Vorbis encoder and the decoders for one or more of the
-   following: Ogg/Vorbis, FLAC, and MP3. On an Ubuntu system you can do this
-   with:
+   following: Ogg/Vorbis, FLAC, and MP3. On a Debian/Ubuntu system you can do
+   this with:
 
-     aptitude install vorbis-tools    # Vorbis encoder and decoder
-     aptitude install flac mpg123     # Flac and MP3 decoders
+     # Vorbis encoder and decoder (required)
+     aptitude install vorbis-tools
+     # Flac/MP3 decoders (optional; needed for playing music in those formats)
+     aptitude install flac mpg123
 
    Make sure you have Python 2.5 or 2.6 installed:
 
