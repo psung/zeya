@@ -77,43 +77,53 @@ def filename_to_stream(filename, out_stream, bitrate, buffered=False):
         (read_fd, write_fd) = os.pipe()
         p2 = subprocess.Popen(encode_command, stdin=p1.stdout,
                               stdout=os.fdopen(write_fd, 'wb'))
-        bytes_written = 0
-        start_time = time.time()
-        # Compute the output rate, converting kilobits/sec to bytes/sec.
-        max_bytes_per_sec = RATE_MULTIPLIER * bitrate * 1024 / 8
         # Don't let reads block when we've read to the end of the encoded song
         # data.
         fcntl.fcntl(read_fd, fcntl.F_SETFL, os.O_NONBLOCK)
-        encoder_finished = False
-        while True:
-            time.sleep(1/STREAM_WRITE_FREQUENCY)
-            # If the average transfer rate exceeds the threshold, sleep for a
-            # while longer.
-            if bytes_written >= (time.time() - start_time) * max_bytes_per_sec:
-                continue
-            # Detect when the encoder process has finished. We assume that data
-            # written by the encoder is immediately available via os.read.
-            # Therefore, if the encoder has finished, and we subsequently
-            # cannot read data from the input stream, we can conclude that we
-            # have read all the data.
-            if p2.poll() != None:
-                encoder_finished = True
-            try:
-                data = os.read(read_fd, STREAM_CHUNK_SIZE)
-            except OSError:
-                # OSError will be thrown if we read before the pipe has had any
-                # data written to it.
-                data = ""
-            if encoder_finished and len(data) == 0:
-                break
-            try:
-                out_stream.write(data)
-            except socket.error:
-                # The client likely terminated the connection. Abort.
-                p1.terminate()
-                p2.terminate()
-                return
-            bytes_written = bytes_written + len(data)
+        try:
+            copy_output_with_shaping(read_fd, out_stream, bitrate,
+                                     lambda : p2.poll() != None)
+        except socket.error:
+            p1.terminate()
+            p2.terminate()
+
+def copy_output_with_shaping(read_fd, out_stream, bitrate,
+                             encoder_finished_callback = lambda : True):
+    """
+    Copies data from the input stream with the specified FD to the given output
+    stream. Do not copy data faster than BITRATE * RATE_MULTIPLIER bits/second.
+
+    Ceases copying data when the input stream is empty AND
+    encoder_finished_callback() evaluates to True in a boolean context.
+    """
+    bytes_written = 0
+    start_time = time.time()
+    # Compute the output rate, converting kilobits/sec to bytes/sec.
+    max_bytes_per_sec = RATE_MULTIPLIER * bitrate * 1024 / 8
+    encoder_finished = False
+    while True:
+        time.sleep(1/STREAM_WRITE_FREQUENCY)
+        # If the average transfer rate exceeds the threshold, sleep for a
+        # while longer.
+        if bytes_written >= (time.time() - start_time) * max_bytes_per_sec:
+            continue
+        # Detect when the source (encoder) process has finished. We assume that
+        # data written by the encoder is immediately available via os.read.
+        # Therefore, if the encoder has finished, and we subsequently cannot
+        # read data from the input stream, we can conclude that we have read
+        # all the data.
+        if encoder_finished_callback():
+            encoder_finished = True
+        try:
+            data = os.read(read_fd, STREAM_CHUNK_SIZE)
+        except OSError:
+            # OSError will be thrown if we read before the pipe has had any
+            # data written to it.
+            data = ""
+        if encoder_finished and len(data) == 0:
+            break
+        out_stream.write(data)
+        bytes_written = bytes_written + len(data)
 
 # This interface is implemented by all library backends.
 
