@@ -69,7 +69,17 @@ def song_matches(query, song):
 # TODO: refactor the parts that directly interact with the server into a
 # separate module.
 def run(server_path):
-    library_file = urllib2.urlopen(server_path + "/getlibrary")
+    try:
+        library_file = urllib2.urlopen(server_path + "/getlibrary")
+    except ValueError, e:
+        print "Error: %r is not a valid server name." % (server_path,)
+        if not server_path.lower().startswith("http://"):
+            print "Don't forget to precede the server name with 'http://'."
+        print "(The full error text was: '%s')" % (e,)
+        sys.exit(1)
+    except urllib2.URLError, e:
+        print "Error: %s" % (e.reason,)
+        sys.exit(1)
     library_data = json.loads(library_file.read())
     print "Loaded %d songs from library." % (len(library_data),)
     print 'You can issue queries like: "Beatles" or "help, the beatles"'
