@@ -22,6 +22,10 @@ var status_info = {
 
 // We need to buffer streams for Chrome.
 var using_webkit = navigator.userAgent.indexOf("AppleWebKit") > -1;
+// Firefox 3.5 doesn't issue the 'suspend' event, so we need to use a fallback
+// implementation.
+var using_gecko_1_9_1 = navigator.userAgent.indexOf("Gecko/") > -1
+  && navigator.userAgent.indexOf("rv:1.9.1.") > -1;
 
 // Return true if the client supports the <audio> tag.
 function can_play_native_audio() {
@@ -336,6 +340,25 @@ function previous_index() {
   return null;
 }
 
+// Invokes callback after audio_elt has finished loading.
+function add_load_finished_listener(audio_elt, callback) {
+  // Firefox 3.6 (Gecko 1.9.2) and Chrome 4 support the 'suspend' event, which
+  // makes this trivial.
+  if (!using_gecko_1_9_1) {
+    audio_elt.addEventListener('suspend', callback, false);
+  } else {
+    // This is a fallback implementation for Gecko 1.9.1.
+    timer_callback = function() {
+      if (audio_elt.networkState != 2) { // NETWORK_LOADING
+        callback();
+      } else {
+        add_load_finished_listener(audio_elt, callback);
+      }
+    };
+    setTimeout(timer_callback, 2000);
+  }
+}
+
 // Start loading the next song in the list, but don't play it.
 function preload_song() {
   preload_index = next_index();
@@ -343,7 +366,7 @@ function preload_song() {
   if (preload_index !== null) {
     preload_finished = false;
     preload_audio = get_stream(library[preload_index].key);
-    preload_audio.addEventListener('suspend', function() { preload_finished = true; }, false);
+    add_load_finished_listener(preload_audio, function() { preload_finished = true; });
     preload_audio.load();
   }
 }
@@ -390,7 +413,7 @@ function select_item(index, play_track) {
   if (preload_finished) {
     preload_song();
   } else {
-    current_audio.addEventListener('suspend', preload_song, false);
+    add_load_finished_listener(current_audio, preload_song);
   }
   // When this song is finished, advance to the next song (or stop playing if
   // this was the last song in the list).
