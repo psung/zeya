@@ -38,6 +38,11 @@ INSTALLATION INSTRUCTIONS
 
      aptitude install python-tagpy
 
+   If you're using Fedora, you can install the requisite packages (excluding
+   MP3 support) with:
+
+     yum install vorbis-tools flac python-simplejson python-tag
+
 3. Run zeya.py. The --help flag shows the available options. We support two
    backends:
 
