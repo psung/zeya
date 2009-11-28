@@ -27,6 +27,7 @@
 # The user is prompted for a query, and all songs matching it are played. The
 # query may be matched against the title, artist, or album of the song.
 
+import getopt
 import os
 import readline # Modifies the behavior of raw_input.
 import signal
@@ -40,6 +41,15 @@ try:
     json.dumps
 except (ImportError, AttributeError):
     import simplejson as json
+
+class BadArgsError(Exception):
+    """
+    Error due to incorrect command-line invocation of this program.
+    """
+    def __init__(self, message):
+        self.error_message = message
+    def __str__(self):
+        return "Error: %s" % (self.error_message,)
 
 def song_matches(query, song):
     """
@@ -91,8 +101,43 @@ def run(server_path):
                     # the prompt.
                     break
 
+def get_options(remaining_args):
+    """
+    Parse the arguments and return a tuple (show_help, server), or raise
+    BadArgsError if the invocation was not valid.
+
+    show_help: whether user requested help information
+    server: Zeya server to connect to
+    """
+    help_msg = False
+    try:
+        opts, file_list = getopt.getopt(remaining_args, "h", ["help"])
+    except getopt.GetoptError, e:
+        raise BadArgsError(e.msg)
+    for flag, value in opts:
+        if flag in ("-h", "--help"):
+            help_msg = True
+    if help_msg:
+        # With --help, it's ok if the user enters no server path.
+        return (help_msg, None)
+    # file_list should contain be a singleton list with the remote server.
+    if len(file_list) == 0:
+        raise BadArgsError("Expected server path")
+    if len(file_list) > 1:
+        raise BadArgsError("Unexpected argument after server")
+    return (help_msg, file_list[0])
+
+def print_usage():
+    print "Usage: %s http://server:8080" % (os.path.basename(sys.argv[0]),)
+
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print "Usage: %s http://server:8080" % (os.path.basename(sys.argv[0]),)
+    try:
+        show_help, server = get_options(sys.argv[1:])
+    except BadArgsError, e:
+        print e
+        print_usage()
         sys.exit(1)
-    run(sys.argv[1])
+    if show_help:
+        print_usage()
+        sys.exit(0)
+    run(server)
