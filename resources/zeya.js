@@ -363,6 +363,16 @@ function add_load_finished_listener(audio_elt, callback) {
 
 // Start loading the next song in the list, but don't play it.
 function preload_song() {
+  // Disable preloading for Gecko 1.9.1. It doesn't seem to deal correctly with
+  // preloading streams and then asking to start playing them at some later
+  // time. Instead, all songs are loaded on demand.
+  if (using_gecko_1_9_1) {
+    // It's fine to return early here, because this just means preload_index
+    // never gets set. When the next song is supposed to start, a real request
+    // will get issued, as if there were no preloading mechanism.
+    return;
+  }
+
   preload_index = next_index();
 
   if (preload_index !== null) {
