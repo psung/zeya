@@ -7,6 +7,9 @@ var library;
 var current_index = null;
 // Audio object we'll use for playing songs.
 var current_audio;
+var preload_audio;
+var preload_index;
+var preload_finished = false;
 // Current application state ('grayed', 'play', 'pause')
 var current_state = 'grayed';
 // Value of the search box, or null if no search has been performed
@@ -19,6 +22,10 @@ var status_info = {
 
 // We need to buffer streams for Chrome.
 var using_webkit = navigator.userAgent.indexOf("AppleWebKit") > -1;
+// Firefox 3.5 doesn't issue the 'suspend' event, so we need to use a fallback
+// implementation.
+var using_gecko_1_9_1 = navigator.userAgent.indexOf("Gecko/") > -1
+  && navigator.userAgent.indexOf("rv:1.9.1.") > -1;
 
 // Return true if the client supports the <audio> tag.
 function can_play_native_audio() {
@@ -333,6 +340,37 @@ function previous_index() {
   return null;
 }
 
+// Invokes callback after audio_elt has finished loading.
+function add_load_finished_listener(audio_elt, callback) {
+  // Firefox 3.6 (Gecko 1.9.2) and Chrome 4 support the 'suspend' event, which
+  // makes this trivial.
+  if (!using_gecko_1_9_1) {
+    audio_elt.addEventListener('suspend', callback, false);
+  } else {
+    // This is a fallback implementation for Gecko 1.9.1.
+    timer_callback = function() {
+      if (audio_elt.networkState != 2) { // NETWORK_LOADING
+        callback();
+      } else {
+        add_load_finished_listener(audio_elt, callback);
+      }
+    };
+    setTimeout(timer_callback, 2000);
+  }
+}
+
+// Start loading the next song in the list, but don't play it.
+function preload_song() {
+  preload_index = next_index();
+
+  if (preload_index !== null) {
+    preload_finished = false;
+    preload_audio = get_stream(library[preload_index].key);
+    add_load_finished_listener(preload_audio, function() { preload_finished = true; });
+    preload_audio.load();
+  }
+}
+
 // Select the song with the given index. If play_track is true, then the song
 // will be loaded for playing too. (If play_track is false, the song is not
 // loaded and the UI is set to a "pause" state.)
@@ -355,16 +393,35 @@ function select_item(index, play_track) {
     }
   }
   document.getElementById(get_row_id_from_index(index)).className = 'selectedrow';
-  // Start streaming the new song.
   var entry = library[index];
-  current_audio = get_stream(entry.key);
+  var preloaded = index == preload_index;
+  if (preloaded) {
+    current_audio = preload_audio;
+  } else {
+    current_audio = get_stream(entry.key);
+  }
   if (play_track) {
-    current_audio.setAttribute('autoplay', 'true');
+    // Chrome doesn't seem to play the media if we set autoplay=true after the
+    // media has finished loading. So we have to check for that case and play
+    // manually ourselves.
+    if (current_audio.networkState == 1) {
+      current_audio.play();
+    } else {
+      current_audio.setAttribute('autoplay', 'true');
+    }
   }
   current_index = index;
   // Hide the spinner when the song has loaded.
   current_audio.addEventListener(
     'play', function() {set_spinner_visible(false);}, false);
+  // If the song we're about to play has already finished, loading, kick off
+  // the next preload. Otherwise, start it when the current song has finished
+  // loading.
+  if (preload_finished) {
+    preload_song();
+  } else {
+    add_load_finished_listener(current_audio, preload_song);
+  }
   // When this song is finished, advance to the next song (or stop playing if
   // this was the last song in the list).
   if (is_last_track(index)) {
@@ -372,7 +429,9 @@ function select_item(index, play_track) {
   } else {
     current_audio.addEventListener('ended', select_next, false);
   }
-  current_audio.load();
+  if (!preloaded) {
+    current_audio.load();
+  }
   // Update the metadata in the UI.
   set_title(entry.title, entry.artist);
   // Set the state of the play controls.
