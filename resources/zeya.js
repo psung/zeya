@@ -406,7 +406,7 @@ function select_item(index, play_track) {
     // Chrome doesn't seem to play the media if we set autoplay=true after the
     // media has finished loading. So we have to check for that case and play
     // manually ourselves.
-    if (current_audio.networkState == 1) {
+    if (current_audio.readyState >= 3) { // HAVE_FUTURE_DATA or HAVE_ENOUGH_DATA
       current_audio.play();
     } else {
       current_audio.setAttribute('autoplay', 'true');
