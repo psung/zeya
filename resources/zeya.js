@@ -347,7 +347,9 @@ function add_load_finished_listener(audio_elt, callback) {
   if (!using_gecko_1_9_1) {
     audio_elt.addEventListener('suspend', callback, false);
   } else {
-    // This is a fallback implementation for Gecko 1.9.1.
+    // This is a fallback implementation for Gecko 1.9.1. Just keep polling the
+    // audio's networkState attribute periodically to determine when it's
+    // finished loading.
     timer_callback = function() {
       if (audio_elt.networkState != 2) { // NETWORK_LOADING
         callback();
