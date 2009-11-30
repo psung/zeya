@@ -156,11 +156,22 @@ body {
 }
 
 span.control img {
+    width: 22px;
+    height: 22px;
     border: 1px solid transparent;
     padding: 4px;
     margin: 4px 1px;
     cursor: hand;
     cursor: pointer;
+    vertical-align: middle;
+}
+
+span#spinner img {
+    width: 16px;
+    height: 16px;
+    border: 1px solid transparent;
+    padding: 4px;
+    margin: 7px 0 7px 7px;
     vertical-align: middle;
 }
 
