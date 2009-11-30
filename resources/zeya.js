@@ -439,7 +439,7 @@ function select_item(index, play_track) {
   if (is_last_track(index)) {
     current_audio.addEventListener('ended', stop, false);
   } else {
-    current_audio.addEventListener('ended', select_next, false);
+    current_audio.addEventListener('ended', wait_and_select_next, false);
   }
   if (!preloaded) {
     current_audio.load();
@@ -460,6 +460,10 @@ function select_next() {
   if (next_song_index !== null) {
     select_item(next_song_index, true);
   }
+}
+
+function wait_and_select_next() {
+  setTimeout(select_next, 700);
 }
 
 // Load the previous song in the list (with wraparound).
