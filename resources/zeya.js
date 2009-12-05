@@ -439,7 +439,7 @@ function select_item(index, play_track) {
   if (is_last_track(index)) {
     current_audio.addEventListener('ended', stop, false);
   } else {
-    current_audio.addEventListener('ended', select_next, false);
+    current_audio.addEventListener('ended', maybe_wait_and_select_next, false);
   }
   if (!preloaded) {
     current_audio.load();
@@ -459,6 +459,18 @@ function select_next() {
   next_song_index = next_index();
   if (next_song_index !== null) {
     select_item(next_song_index, true);
+  }
+}
+
+// Wait for a short interval if we're using Chrome, then select the next song.
+function maybe_wait_and_select_next() {
+  if (using_webkit) {
+    // Chrome seems to fire the 'ended' event early. Wait for a short time so
+    // the next song doesn't get started early. This is kind of hacky, as I
+    // have no idea what the exact amount of the offset is, nor its true cause.
+    setTimeout(select_next, 700);
+  } else {
+    select_next();
   }
 }
 
