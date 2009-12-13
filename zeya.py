@@ -89,6 +89,11 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     if socket.has_ipv6:
         address_family = socket.AF_INET6
 
+    def server_bind(self):
+        if socket.has_ipv6:
+            self.socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
+        HTTPServer.server_bind(self)
+
 user_pass_regexp = re.compile('([^:]):(.*)$')
 def split_user_pass(data):
     """ Split the given data into user and password. """
