@@ -243,6 +243,24 @@ function focus_search_box() {
   search_box.select();
 }
 
+// Peform the library shuffle via Durstenfeld's shuffle
+function shuffle_collection()
+{
+  for (var temp, j, i = library.length; i;) {
+    j = parseInt (Math.random () * i);
+    temp = library[--i];
+    library[i] = library[j];
+    library[j] = temp;
+  }
+}
+
+// Shuffle the play list
+function shuffle() {
+  clear_collection();
+  shuffle_collection();
+  window.setTimeout("render_collection()", 1);
+}
+
 // Pause the currently playing song.
 function pause() {
   if (current_index !== null) {
