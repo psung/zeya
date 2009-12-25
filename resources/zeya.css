@@ -29,21 +29,19 @@ body {
 #header-right {
     height: 100%;
     float: right;
-    width: 12em;
+    width: 215px;
+    padding-right: 6px;
 }
 
 #header-right form {
-    height: 100%;
-    position: relative;
+    text-align: right;
 }
 
 #header-right form input {
-    position: absolute;
     top: 50%;
-    width: 12em;
+    width: 160px;
     height: 1.2em;
     margin-top: -0.90em;
-    right: 0.8em;
 }
 
 #header-main {

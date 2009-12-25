@@ -27,15 +27,15 @@
       <span id="next_button" class="control">
 	<img id="next_img" src="next.png" alt="Next" onclick="next()" title="Next">
       </span>
-      <span id="shuffle" class="control">
-	<img id="shuffle_img" src="shuffle.png" onclick="shuffle()" title="Shuffle">
-      </span>
       <span id="spinner">
 	<img id="spinner_icon" src="spinner.gif" style="visibility: hidden;">
       </span>
     </div>
     <div id="header-right">
       <form name="search_form" onsubmit="return search(this)">
+	<span id="shuffle" class="control">
+	  <img id="shuffle_img" src="shuffle.png" onclick="shuffle()" title="Shuffle">
+	</span>
 	<input type="text" name="search_box" size="16" id="search_box"
 	       placeholder="Search" spellcheck="false"/>
       </form>
