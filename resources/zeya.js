@@ -1,19 +1,24 @@
 // Javascript implementation for Zeya client.
 
-// Representation of library.
+// Representation of entire library.
 var library;
-// Index (into library) of the currently playing song, or null if no song is
-// playing.
+// Representation of the sequence of songs displayed in the UI (after filtering
+// and shuffling).
+var displayed_content;
+// Index (into displayed_content) of the currently playing song, or null if no
+// song is playing.
 var current_index = null;
 // Audio object we'll use for playing songs.
 var current_audio;
 var preload_audio;
-var preload_index;
+var preload_key;
 var preload_finished = false;
 // Current application state ('grayed', 'play', 'pause')
 var current_state = 'grayed';
 // Value of the search box, or null if no search has been performed
 var search_string = null;
+// Whether or not the shuffle feature is activated.
+var is_shuffled = false;
 // Information to display in the status area.
 var status_info = {
   total_tracks: 0,
@@ -138,6 +143,45 @@ function set_ui_state(new_state) {
   current_state = new_state;
 }
 
+// Evaluates the search query and shuffle mode (if selected) and set the
+function compute_displayed_content(search_query, shuffle) {
+  var content = [];
+
+  var currently_playing_song_key = null;
+  if (current_index !== null) {
+    currently_playing_song_key = library[displayed_content[current_index]].key;
+  }
+  current_index = null;
+
+  // Apply the search filter.
+  for (var index = 0; index < library.length; index++) {
+    var item = library[index];
+    if (search_query !== null) {
+      if (!item_match(item, search_query)) {
+        continue;
+      }
+    }
+    content.push(index);
+    if (item.key == currently_playing_song_key) {
+      // Fix current_index so it points to the currently playing song in the
+      // new collection.
+      current_index = content.length - 1;
+    }
+  }
+
+  // Peform the library shuffle via Durstenfeld's shuffle.
+  if (shuffle) {
+    for (var temp, j, i = content.length; i > 0;) {
+      j = parseInt(Math.random() * i);
+      temp = content[--i];
+      content[i] = content[j];
+      content[j] = temp;
+    }
+  }
+
+  displayed_content = content;
+}
+
 // Render a table to display it the collection.
 function render_collection() {
   var t = document.createElement('table');
@@ -159,16 +203,9 @@ function render_collection() {
   t.appendChild(t_head);
 
   // Each item will have one row in the table.
-  for (var index = 0, current_line = 0; index < library.length; index++) {
-    var item = library[index];
+  for (var index = 0; index < displayed_content.length; index++) {
+    var item = library[displayed_content[index]];
 
-    if (search_string !== null) {
-      if (!item_match(item, search_string)) {
-        continue;
-      }
-    }
-
-    current_line++;
     var link = document.createElement('a');
     link.setAttribute('href', '#');
     link.setAttribute('onclick', 'select_item(' + index + ', true); return false;');
@@ -179,7 +216,7 @@ function render_collection() {
     if (current_index == index) {
       tr.className = 'selectedrow';
     } else {
-      tr.className = get_row_class_from_index(current_line);
+      tr.className = get_row_class_from_index(index);
     }
     var td1 = document.createElement('td');
     var td2 = document.createElement('td');
@@ -196,7 +233,7 @@ function render_collection() {
   document.getElementById('collection').style.display = 'block';
   document.getElementById('loading').style.display = 'none';
 
-  status_info.displayed_tracks = current_line;
+  status_info.displayed_tracks = index;
   update_status_area();
 }
 
@@ -208,6 +245,7 @@ function load_collection() {
     if (req.readyState == 4 && req.status == 200) {
       library = JSON.parse(req.responseText);
       status_info.total_tracks = library.length;
+      compute_displayed_content(search_string, is_shuffled);
       render_collection();
     }
   };
@@ -231,6 +269,7 @@ function search() {
   clear_collection();
   // The setTimeout trick is to force the browser to display the loading
   // message before rendering the collection.
+  compute_displayed_content(search_string, is_shuffled);
   window.setTimeout("render_collection()", 1);
   // Return false to prevent an actual form submit.
   return false;
@@ -243,21 +282,16 @@ function focus_search_box() {
   search_box.select();
 }
 
-// Peform the library shuffle via Durstenfeld's shuffle
-function shuffle_collection()
-{
-  for (var temp, j, i = library.length; i;) {
-    j = parseInt (Math.random () * i);
-    temp = library[--i];
-    library[i] = library[j];
-    library[j] = temp;
-  }
-}
-
 // Shuffle the play list
 function shuffle() {
   clear_collection();
-  shuffle_collection();
+  is_shuffled = !is_shuffled;
+  if (is_shuffled) {
+    document.getElementById("shuffle_img").className = 'activated';
+  } else {
+    document.getElementById("shuffle_img").className = '';
+  }
+  compute_displayed_content(search_string, is_shuffled);
   window.setTimeout("render_collection()", 1);
 }
 
@@ -297,65 +331,36 @@ function set_title(title, artist) {
   }
 }
 
-// Return the line number corresponding to this row.
-// Note that this is not the same as the index if a search filter has
-// been applied.
-function get_line_number(element) {
-  var collection = document.getElementById('collection_table');
-  var ret = 0;
-  var e = collection.firstChild;
-  while (e != element) {
-    e = e.nextSibling;
-    ret++;
-  }
-  return ret;
-}
-
 // Return the index of the next song, with wraparound.
 function next_index() {
-  var current_row = document.getElementById(get_row_id_from_index(current_index));
-
-  if (!current_row) {
+  if (current_index === null) {
     // Display changed since we began playing and the displayed
     // collection is empty.
     return null;
   }
 
-  var collection = document.getElementById('collection_table');
-
   // If on the last row, go back to the first.
-  if (current_row == collection.lastChild) {
-    // The table's firstChild is the heading.
-    return get_index_from_row_id(collection.firstChild.nextSibling.id);
+  if (current_index == displayed_content.length - 1) {
+    return 0;
+  } else {
+    return current_index + 1;
   }
-  var next_row = current_row.nextSibling;
-  if (next_row) {
-    return get_index_from_row_id(next_row.id);
-  }
-  return null;
 }
 
 // Return the index of the next song, with wraparound.
 function previous_index() {
-  var current_row = document.getElementById(get_row_id_from_index(current_index));
-
-  if (!current_row) {
+  if (current_index === null) {
     // Display changed since we began playing and the displayed
     // collection is empty.
     return null;
   }
 
-  var collection = document.getElementById('collection_table');
-
-  // If on the first row, go to the last.
-  if (current_row == collection.firstChild.nextSibling) {
-    return get_index_from_row_id(collection.lastChild.id);
+  // If on the last row, go back to the first.
+  if (current_index == 0) {
+    return displayed_content.length - 1;
+  } else {
+    return current_index - 1;
   }
-  var previous_row = current_row.previousSibling;
-  if (previous_row) {
-    return get_index_from_row_id(previous_row.id);
-  }
-  return null;
 }
 
 // Invokes callback after audio_elt has finished loading.
@@ -385,17 +390,17 @@ function preload_song() {
   // preloading streams and then asking to start playing them at some later
   // time. Instead, all songs are loaded on demand.
   if (using_gecko_1_9_1) {
-    // It's fine to return early here, because this just means preload_index
+    // It's fine to return early here, because this just means preload_key
     // never gets set. When the next song is supposed to start, a real request
     // will get issued, as if there were no preloading mechanism.
     return;
   }
 
-  preload_index = next_index();
+  preload_key = library[displayed_content[next_index()]].key;
 
-  if (preload_index !== null) {
+  if (preload_key !== null) {
     preload_finished = false;
-    preload_audio = get_stream(library[preload_index].key);
+    preload_audio = get_stream(preload_key);
     add_load_finished_listener(preload_audio, function() { preload_finished = true; });
     preload_audio.load();
   }
@@ -405,7 +410,7 @@ function preload_song() {
 // will be loaded for playing too. (If play_track is false, the song is not
 // loaded and the UI is set to a "pause" state.)
 function select_item(index, play_track) {
-  // Pause the currently playing song.
+  // Stop playing the current song.
   if (current_audio !== null) {
     current_audio.pause();
     set_ui_state('pause');
@@ -418,13 +423,12 @@ function select_item(index, play_track) {
   if (current_index !== null) {
     var current_row = document.getElementById(get_row_id_from_index(current_index));
     if (current_row) {
-      current_row.className =
-        get_row_class_from_index(get_line_number(current_row));
+      current_row.className = get_row_class_from_index(current_index);
     }
   }
   document.getElementById(get_row_id_from_index(index)).className = 'selectedrow';
-  var entry = library[index];
-  var preloaded = index == preload_index;
+  var entry = library[displayed_content[index]];
+  var preloaded = entry.key == preload_key;
   if (preloaded) {
     current_audio = preload_audio;
   } else {
