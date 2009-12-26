@@ -64,7 +64,7 @@ NOTES ON SUPPORTED CLIENTS
 
 * Chrome
 
-  Zeya is known to work in Chrome 4.0.223.*, on GNU/Linux, Windows, and Mac OS.
+  Zeya should work in Chrome 4.0.223+, on GNU/Linux, Windows, and Mac OS.
 
   Known issues:
 
@@ -74,10 +74,6 @@ NOTES ON SUPPORTED CLIENTS
     Chrome seems to require the Content-Length header to be set on audio data,
     so we have to finish encoding the entire file before we can send any data
     to the client.
-
-  The Previous button (and the "k" key) doesn't work in Chrome.
-
-    This is apparently related to Chrome not implementing audio.currentTime.
 
 * Internet Explorer (with Chrome Frame plugin)
 
