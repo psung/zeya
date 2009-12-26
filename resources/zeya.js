@@ -1,9 +1,11 @@
 // Javascript implementation for Zeya client.
 
-// Representation of entire library.
+// Representation of entire library. This is a sequence of objects, each with
+// attributes .title, .artist, .album, and .key (a unique identifier for that
+// song).
 var library;
-// Representation of the sequence of songs displayed in the UI (after filtering
-// and shuffling).
+// The sequence of songs displayed in the playlist (after filtering and
+// shuffling). This is represented as a list of indices into `library'.
 var displayed_content;
 // Index (into displayed_content) of the currently playing song, or null if no
 // song is playing.
@@ -11,7 +13,7 @@ var current_index = null;
 // Audio object we'll use for playing songs.
 var current_audio;
 var preload_audio;
-var preload_key;
+var preload_key; // `key' attribute of the song we've preloaded.
 var preload_finished = false;
 // Current application state ('grayed', 'play', 'pause')
 var current_state = 'grayed';
@@ -143,10 +145,14 @@ function set_ui_state(new_state) {
   current_state = new_state;
 }
 
-// Evaluates the search query and shuffle mode (if selected) and set the
+// Evaluates the search query and shuffle mode (if selected) and set
+// `displayed_content' appropriately to reflect the new display. Also update
+// `current_index' so that it continues to point to the same song, if possible.
 function compute_displayed_content(search_query, shuffle) {
   var content = [];
 
+  // Extract the key corresponding to the current song so we can identify it
+  // again later. The key is invariant, unlike current_index.
   var currently_playing_song_key = null;
   if (current_index !== null) {
     currently_playing_song_key = library[displayed_content[current_index]].key;
@@ -282,7 +288,7 @@ function focus_search_box() {
   search_box.select();
 }
 
-// Shuffle the play list
+// Toggle the 'shuffled' state of the playlist.
 function shuffle() {
   clear_collection();
   is_shuffled = !is_shuffled;
