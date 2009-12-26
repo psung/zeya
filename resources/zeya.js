@@ -478,11 +478,7 @@ function select_item(index, play_track) {
   }
   // When this song is finished, advance to the next song (or stop playing if
   // this was the last song in the list).
-  if (is_last_track(index)) {
-    current_audio.addEventListener('ended', stop, false);
-  } else {
-    current_audio.addEventListener('ended', maybe_wait_and_select_next, false);
-  }
+  current_audio.addEventListener('ended', maybe_advance_to_next_song, false);
   if (!preloaded) {
     current_audio.load();
   }
@@ -513,6 +509,15 @@ function maybe_wait_and_select_next() {
     setTimeout(select_next, 700);
   } else {
     select_next();
+  }
+}
+
+// Advance to the next song, or stop if we're at the last song.
+function maybe_advance_to_next_song() {
+  if (current_index === null || is_last_track(current_index)) {
+    stop();
+  } else {
+    maybe_wait_and_select_next();
   }
 }
 
