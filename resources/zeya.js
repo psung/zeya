@@ -168,11 +168,6 @@ function compute_displayed_content(search_query, shuffle) {
       }
     }
     content.push(index);
-    if (item.key == currently_playing_song_key) {
-      // Fix current_index so it points to the currently playing song in the
-      // new collection.
-      current_index = content.length - 1;
-    }
   }
 
   // Peform the library shuffle via Durstenfeld's shuffle.
@@ -182,6 +177,15 @@ function compute_displayed_content(search_query, shuffle) {
       temp = content[--i];
       content[i] = content[j];
       content[j] = temp;
+    }
+  }
+
+  // Fix current_index so it points to the currently playing song in the
+  // new collection.
+  for (var i = 0; i < content.length; i++) {
+    var item = library[content[i]];
+    if (item.key == currently_playing_song_key) {
+      current_index = i;
     }
   }
 
