@@ -23,8 +23,8 @@
 
 import unittest
 
+import backends
 import decoders
-import directory
 import options
 import rhythmbox
 
@@ -83,41 +83,41 @@ class DecodersTest(unittest.TestCase):
         self.assertTrue(decoders.get_decoder("/path/to/SOMETHING.MP3")[0]
                         .startswith("/usr/bin"))
 
-class DirectoryBackendTest(unittest.TestCase):
+class MetadataExtractionTest(unittest.TestCase):
     def test_with_metadata(self):
         tagpy = FakeTagpy(TagData(artist="Beatles", title="Ticket to Ride",
                                   album="Help!"))
-        metadata = directory.extract_metadata("/dev/null", tagpy)
-        self.assertEqual("Ticket to Ride", metadata[directory.TITLE])
-        self.assertEqual("Beatles", metadata[directory.ARTIST])
-        self.assertEqual("Help!", metadata[directory.ALBUM])
+        metadata = backends.extract_metadata("/dev/null", tagpy)
+        self.assertEqual("Ticket to Ride", metadata[backends.TITLE])
+        self.assertEqual("Beatles", metadata[backends.ARTIST])
+        self.assertEqual("Help!", metadata[backends.ALBUM])
     def test_without_metadata(self):
         tagpy = FakeTagpy(None)
-        metadata = directory.extract_metadata("/the/path/to/Song.flac", tagpy)
-        self.assertEqual("Song.flac", metadata[directory.TITLE])
-        self.assertEqual("", metadata[directory.ARTIST])
-        self.assertEqual("path/to", metadata[directory.ALBUM])
+        metadata = backends.extract_metadata("/the/path/to/Song.flac", tagpy)
+        self.assertEqual("Song.flac", metadata[backends.TITLE])
+        self.assertEqual("", metadata[backends.ARTIST])
+        self.assertEqual("path/to", metadata[backends.ALBUM])
     def test_short_path(self):
         tagpy = FakeTagpy(None)
-        metadata = directory.extract_metadata("/music/Song.flac", tagpy)
-        self.assertEqual("music", metadata[directory.ALBUM])
+        metadata = backends.extract_metadata("/music/Song.flac", tagpy)
+        self.assertEqual("music", metadata[backends.ALBUM])
     def test_noalbum_path(self):
         tagpy = FakeTagpy(TagData(artist="Beatles", title=None, album=None))
-        metadata = directory.extract_metadata("/music/Song.flac", tagpy)
-        self.assertEqual("", metadata[directory.ALBUM])
+        metadata = backends.extract_metadata("/music/Song.flac", tagpy)
+        self.assertEqual("", metadata[backends.ALBUM])
     def test_decode_filename(self):
         tagpy = FakeTagpy(None)
-        metadata = directory.extract_metadata("/path/to/\xe4\xb8\xad.flac", tagpy)
-        self.assertEqual(u"\u4e2d.flac", metadata[directory.TITLE])
+        metadata = backends.extract_metadata("/path/to/\xe4\xb8\xad.flac", tagpy)
+        self.assertEqual(u"\u4e2d.flac", metadata[backends.TITLE])
     def test_album_name_from_path_unicode(self):
-        value1 = directory.album_name_from_path(
+        value1 = backends.album_name_from_path(
             TagData(artist="Beatles", title=None, album=None),
             "/path/to/music")
         self.assertTrue(type(value1) == unicode)
         self.assertEqual(u'', value1)
-        value2 = directory.album_name_from_path(None, "/path/\xc3\x84/music")
+        value2 = backends.album_name_from_path(None, "/path/\xc3\x84/music")
         self.assertEqual(u'path/\u00c4', value2)
-        value3 = directory.album_name_from_path(None, "/\xc3\x84/music")
+        value3 = backends.album_name_from_path(None, "/\xc3\x84/music")
         self.assertEqual(u'\u00c4', value3)
 
 class OptionsTest(unittest.TestCase):

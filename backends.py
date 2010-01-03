@@ -24,7 +24,12 @@ import os
 import signal
 import socket
 import subprocess
+import tagpy
 import time
+
+TITLE='title'
+ARTIST='artist'
+ALBUM='album'
 
 # For Python2.5 compatibility, we create an equivalent to
 # subprocess.Popen.terminate (new in Python2.6) and patch it in.
@@ -174,3 +179,54 @@ class LibraryBackend():
         #
         # Raise KeyError if the key is not valid.
         raise NotImplementedError()
+
+def extract_metadata(filename, tagpy_module=tagpy):
+    """
+    Returns a metadata dictionary (a dictionary {ARTIST: ..., ...}) containing
+    metadata (artist, title, and album) for the song in question.
+
+    filename: a string supplying a filename.
+    tagpy_module: a reference to the tagpy module. This can be faked out for
+    unit testing.
+    """
+    # tagpy can do one of three things:
+    #
+    # * Return legitimate data. We'll load that data.
+    # * Return None. We'll assume this is a music file but that it doesn't have
+    #   metadata. Create an entry for it.
+    # * Throw ValueError. We'll assume this is not something we could play.
+    #   Don't create an enty for it.
+    try:
+        tag = tagpy_module.FileRef(filename).tag()
+    except:
+        raise ValueError("Error reading metadata from %r" % (filename,))
+    # If no metadata is available, set the title to be the basename of the
+    # file. (We have to ensure that the title, in particular, is not empty
+    # since the user has to click on it in the web UI.)
+    metadata = {
+        TITLE: os.path.basename(filename).decode("UTF-8"),
+        ARTIST: '',
+        ALBUM: album_name_from_path(tag, filename),
+        }
+    if tag is not None:
+        metadata[ARTIST] = tag.artist
+        # Again, do not allow metadata[TITLE] to be an empty string, even if
+        # tag.title is an empty string.
+        metadata[TITLE] = tag.title or metadata[TITLE]
+        metadata[ALBUM] = tag.album or metadata[ALBUM]
+    return metadata
+
+def album_name_from_path(tag, filename):
+    """
+    Returns an appropriate Unicode string to use for the album name if the tag
+    is empty.
+    """
+    if tag is not None and (tag.artist or tag.album):
+        return u''
+    # Use the trailing components of the path.
+    path_components = [x for x in os.path.dirname(filename).split(os.sep) if x]
+    if len(path_components) >= 2:
+        return os.sep.join(path_components[-2:]).decode("UTF-8")
+    elif len(path_components) == 1:
+        return path_components[0].decode("UTF-8")
+    return u''
