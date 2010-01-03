@@ -95,6 +95,15 @@
 		  </para>
 		</listitem>
 	      </varlistentry>
+	      <varlistentry>
+		<term>playlist</term>
+		<listitem>
+		  <para>
+		    Read from the playlist (.m3u file) specified by
+		    <option>--path</option>.
+		  </para>
+		</listitem>
+	      </varlistentry>
 	    </variablelist>
           </para>
         </listitem>
@@ -103,8 +112,10 @@
         <term><option>--path</option></term>
         <listitem>
           <para>
-	    Directory in which to look for music. Use with
-	    <option>--backend</option>=dir. (default: ./)
+	    When used with <option>--backend</option>=dir, the directory in
+	    which to look for music (default: ./). When used
+	    with <option>--backend</option>=playlist, the absolute path of the
+	    playlist file to be read.
           </para>
         </listitem>
       </varlistentry>

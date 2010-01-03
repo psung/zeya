@@ -41,11 +41,17 @@ Read a directory's contents recursively (default). See
 .TP 
 rhythmbox
 Read from current user's Rhythmbox library.
+.TP 
+playlist
+Read from the playlist (.m3u file) specified by
+\*(T<\fB\-\-path\fR\*(T>.
 .RE
 .TP 
 \*(T<\fB\-\-path\fR\*(T>
-Directory in which to look for music. Use with
-\*(T<\fB\-\-backend\fR\*(T>=dir. (default: ./)
+When used with \*(T<\fB\-\-backend\fR\*(T>=dir, the directory in
+which to look for music (default: ./). When used
+with \*(T<\fB\-\-backend\fR\*(T>=playlist, the absolute path of the
+playlist file to be read.
 .TP 
 \*(T<\fB\-b\fR\*(T>, \*(T<\fB\-\-bitrate\fR\*(T>
 Specify the bitrate for output streams, in kbps. (default:
