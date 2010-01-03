@@ -28,7 +28,7 @@ DEFAULT_PORT = 8080
 DEFAULT_BITRATE = 64 #kbits/s
 DEFAULT_BACKEND = 'dir'
 
-valid_backends = ['rhythmbox', 'dir']
+valid_backends = ['rhythmbox', 'dir', 'playlist']
 
 class BadArgsError(Exception):
     """
@@ -92,11 +92,13 @@ def get_options(remaining_args):
                 port = int(value)
             except ValueError:
                 raise BadArgsError("Invalid port setting %r" % (value,))
-    if backend_type != 'dir' and path is not None:
+    if backend_type not in ('dir', 'playlist') and path is not None:
         print "Warning: --path was set but is ignored for --backend=%s" \
             % (backend_type,)
     if backend_type == 'dir' and path is None:
         path = "."
+    if backend_type == 'playlist' and path is None:
+        raise BadArgsError("Specify --path for playlist backend")
     return (help_msg, backend_type, bitrate, port, path, basic_auth_file)
 
 def print_usage():
@@ -111,9 +113,11 @@ Options:
       Specify the backend to use. Acceptable values:
         dir: (default) read a directory's contents recursively; see --path
         rhythmbox: read from current user's Rhythmbox library
+        playlist: read from the playlist (m3u) file specified by --path
 
   --path=PATH
-      Directory in which to look for music, under --backend=dir. (Default: ./)
+      For --backend=dir, the directory in which to look for music. (Default: ./)
+      For --backend=playlist, the absolute path to a .m3u file.
 
   -b, --bitrate=N
       Specify the bitrate for output streams, in kbits/sec. (default: 64)
