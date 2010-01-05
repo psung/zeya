@@ -49,8 +49,8 @@ INSTALLATION INSTRUCTIONS
 
 CLIENT SUPPORT
 
-Zeya works well in Firefox 3.5+ and well enough on Chrome 3+. See the section
-below, titled "NOTES ON SUPPORTED CLIENTS", for more details.
+Zeya works well in Firefox 3.5+ and Chrome 4+. See the section below, titled
+"NOTES ON SUPPORTED CLIENTS", for more details.
 
 We also provide zeyaclient.py, a rudimentary Python client (1) for use when a
 more lightweight client is needed or when no HTML5-compliant browser is
@@ -72,8 +72,7 @@ NOTES ON SUPPORTED CLIENTS
 
   Known issues:
 
-  Latency between when you click on a song and when it starts playing is very
-  high.
+  Latency between when you click on a song and when it starts playing is high.
 
     Chrome seems to require the Content-Length header to be set on audio data,
     so we have to finish encoding the entire file before we can send any data
