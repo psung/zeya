@@ -30,7 +30,7 @@ INSTALLATION INSTRUCTIONS
 
      yum install vorbis-tools flac python-simplejson python-tag
 
-3. Run zeya.py. The --help flag shows the available options. We support two
+3. Run zeya.py. The --help flag shows the available options. We support three
    backends:
 
    'dir': read all music in a directory and its subdirectories. This is the
@@ -41,6 +41,10 @@ INSTALLATION INSTRUCTIONS
    'rhythmbox': read files from the current user's Rhythmbox library.
 
      $ zeya.py --backend=rhythmbox
+
+   'playlist': read files from the specified m3u playlist file
+
+     $ zeya.py --backend=playlist --path=/path/to/your/m3u/file
 
 
 CLIENT SUPPORT
