@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2009 Amit Saha
+# Copyright (C) 2009, 2010 Amit Saha
 #
 # This file is part of Zeya.
 #
