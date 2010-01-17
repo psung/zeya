@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2009 Phil Sung
+# Copyright (C) 2009, 2010 Phil Sung
 #
 # This file is part of Zeya.
 #
