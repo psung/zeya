@@ -1,6 +1,6 @@
 USER INTERFACE
 
-- Add functions for repeat collection, repeat album, repeat song
+- Add functions for repeat album, repeat song
 
 - Add a timer and seek bar
 
@@ -12,7 +12,3 @@ ADDITIONAL FEATURES
 - Allow using a page fragment (/#xyz...) to specify a song.
 
 - Remote control of clients
-
-OTHER
-
-- Add more tests to test suite.
