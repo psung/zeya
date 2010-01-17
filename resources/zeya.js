@@ -19,6 +19,8 @@ var preload_finished = false;
 var current_state = 'grayed';
 // Value of the search box, or null if no search has been performed
 var search_string = null;
+// Whether or not the repeat feature is activated.
+var is_repeating = false;
 // Whether or not the shuffle feature is activated.
 var is_shuffled = false;
 // Information to display in the status area.
@@ -302,6 +304,16 @@ function focus_search_box() {
   search_box.select();
 }
 
+// Toggle the 'repeat' mechanism.
+function repeat() {
+  is_repeating = !is_repeating;
+  if (is_repeating) {
+    document.getElementById("repeat_img").className = 'activated';
+  } else {
+    document.getElementById("repeat_img").className = '';
+  }
+}
+
 // Toggle the 'shuffled' state of the playlist.
 function shuffle() {
   clear_collection();
@@ -512,9 +524,10 @@ function maybe_wait_and_select_next() {
   }
 }
 
-// Advance to the next song, or stop if we're at the last song.
+// Advance to the next song, or stop if we're at the last song (unless repeat
+// mode is active.).
 function maybe_advance_to_next_song() {
-  if (current_index === null || is_last_track(current_index)) {
+  if (!is_repeating && (current_index === null || is_last_track(current_index))) {
     stop();
   } else {
     maybe_wait_and_select_next();

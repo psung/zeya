@@ -33,9 +33,12 @@
     </div>
     <div id="header-right">
       <form name="search_form" onsubmit="return search(this)">
+	<span id="repeat" class="control">
+	  <img id="repeat_img" src="repeat.png" onclick="repeat()" title="Repeat">
+	</span>
 	<span id="shuffle" class="control">
 	  <img id="shuffle_img" src="shuffle.png" onclick="shuffle()" title="Shuffle"
-	       style="padding-right: 6px">
+	       style="padding-right: 2px">
 	</span>
 	<span id="searchicon" class="control">
 	  <img id="search_img" src="search.png" onclick="search()" title="Search"
