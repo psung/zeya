@@ -99,7 +99,7 @@
 		<term>playlist</term>
 		<listitem>
 		  <para>
-		    Read from the playlist (.m3u file) specified by
+		    Read from the playlist (.m3u or .pls file) specified by
 		    <option>--path</option>.
 		  </para>
 		</listitem>
