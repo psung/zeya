@@ -47,8 +47,13 @@ class PlsBackend(LibraryBackend):
                     continue
                 # only read lines starting with 'File'
                 if line.startswith('File'):
-                    #read the filename into filename
-                    filename = line.rstrip('\r\n')[line.find("=")+1:len(line)]
+                    try:
+                        # Parse the filename from the line.
+                        filename = line.rstrip('\r\n')[line.index("=") + 1:]
+                    except ValueError:
+                        print "WARNING: malformed line in playlist file: " + \
+                            line.strip()
+                        continue
                     try:
                         metadata = extract_metadata(os.path.abspath(filename))
                     except ValueError:
