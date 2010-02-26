@@ -117,7 +117,7 @@ Options:
 
   --path=PATH
       For --backend=dir, the directory in which to look for music. (Default: ./)
-      For --backend=playlist, the absolute path to a .m3u file.
+      For --backend=playlist, the absolute path to a .m3u file, or a .pls file
 
   -b, --bitrate=N
       Specify the bitrate for output streams, in kbits/sec. (default: 64)

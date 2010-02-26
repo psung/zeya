@@ -42,9 +42,9 @@ INSTALLATION INSTRUCTIONS
 
      $ zeya.py --backend=rhythmbox
 
-   'playlist': read files from the specified m3u playlist file
+   'playlist': read files from the specified m3u or PLS playlist file
 
-     $ zeya.py --backend=playlist --path=/path/to/your/m3u/file
+     $ zeya.py --backend=playlist --path=/path/to/your/m3u/pls/file
 
 
 CLIENT SUPPORT

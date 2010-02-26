@@ -309,8 +309,12 @@ def get_backend(backend_type):
         from directory import DirectoryBackend
         return DirectoryBackend(path)
     elif backend_type == 'playlist':
-        from m3u import M3uBackend
-        return M3uBackend(path)
+        if path.endswith('m3u'):
+            from m3u import M3uBackend
+            return M3uBackend(path)
+        else:
+            from pls import PlsBackend
+            return PlsBackend(path)
     else:
         raise ValueError("Invalid backend %r" % (backend_type,))
 
