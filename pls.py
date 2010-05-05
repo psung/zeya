@@ -51,7 +51,7 @@ class PlsBackend(LibraryBackend):
                         # Parse the filename from the line.
                         filename = line.rstrip('\r\n')[line.index("=") + 1:]
                     except ValueError:
-                        print "WARNING: malformed line in playlist file: " + \
+                        print "Warning: malformed line in playlist file: " + \
                             line.strip()
                         continue
                     try:
