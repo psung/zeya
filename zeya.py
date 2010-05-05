@@ -322,14 +322,17 @@ def run_server(backend, port, bitrate, basic_auth_file=None):
     # Read the library.
     print "Loading library..."
     library_contents = backend.get_library_contents()
-    # Filter out songs that we won't be able to decode.
-    library_contents = \
-        [ s for s in library_contents \
-              if decoders.has_decoder(backend.get_filename_from_key(s['key'])) ]
     if not library_contents:
         print "Warning: no tracks were found. Check that you've specified " \
             + "the right backend/path."
-    library_repr = json.dumps(library_contents, ensure_ascii=False)
+    # Filter out songs that we won't be able to decode.
+    filtered_library_contents = \
+        [ s for s in library_contents \
+              if decoders.has_decoder(backend.get_filename_from_key(s['key'])) ]
+    if not filtered_library_contents and library_contents:
+        print "Warning: no playable tracks were found. You may need to " \
+            "install one or more decoders."
+    library_repr = json.dumps(filtered_library_contents, ensure_ascii=False)
     basedir = os.path.abspath(os.path.dirname(os.path.realpath(sys.argv[0])))
 
     auth_data = None
