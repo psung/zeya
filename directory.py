@@ -105,6 +105,11 @@ class DirectoryBackend(LibraryBackend):
         """
         Populate the database, given the output of load_previous_db.
         """
+        # By default, os.walk will happily accept a non-existent directory and
+        # return an empty sequence. Detect the case of a non-existent path and
+        # bail out early.
+        if not os.path.exists(self._media_path):
+            raise IOError("Error: directory %r doesn't exist." % (self._media_path,))
         print "Scanning for music in %r..." % (os.path.abspath(self._media_path),)
         # Iterate over all the files.
         for path, dirs, files in os.walk(self._media_path):

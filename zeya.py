@@ -371,5 +371,9 @@ if __name__ == '__main__':
         options.print_usage()
         sys.exit(0)
     print "Using %r backend." % (backend_type,)
-    backend = get_backend(backend_type)
+    try:
+        backend = get_backend(backend_type)
+    except IOError, e:
+        print e
+        sys.exit(1)
     run_server(backend, port, bitrate, basic_auth_file)
