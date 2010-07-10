@@ -99,7 +99,13 @@ class DirectoryBackend(LibraryBackend):
         self.info = {DB: self.db,
                      MTIMES: self.mtimes,
                      KEY_FILENAME: self.key_filename}
-        pickle.dump(self.info, open(self.get_db_filename(), 'wb+'))
+        try:
+            pickle.dump(self.info, open(self.get_db_filename(), 'wb+'))
+        except IOError, e:
+            print "Warning: the metadata cache could not be written to disk:"
+            print "  " + str(e)
+            print "(Zeya will continue, but the directory will need to be",
+            print "re-scanned the next time Zeya is run.)"
 
     def fill_db(self, previous_db):
         """
