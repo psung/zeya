@@ -49,7 +49,7 @@ def get_options(remaining_args):
     backend: string indicating backend to use
     bitrate: bitrate for encoded streams (kbits/sec)
     port: port number to listen on
-    path: path from which to read music files (for "dir" backend only)
+    path: path from which to read music files (for "dir" and "playlist" backends only)
     basic_auth_file: file handle from which to read basic auth config, or None.
     """
     help_msg = False
