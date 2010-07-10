@@ -96,7 +96,7 @@ def get_options(remaining_args):
         print "Warning: --path was set but is ignored for --backend=%s" \
             % (backend_type,)
     if backend_type == 'dir' and path is None:
-        path = "."
+        path = os.getcwd()
     if backend_type == 'playlist' and path is None:
         raise BadArgsError("Specify --path for playlist backend")
     return (help_msg, backend_type, bitrate, port, path, basic_auth_file)
