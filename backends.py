@@ -70,7 +70,12 @@ def filename_to_stream(filename, out_stream, bitrate, buffered=False):
     except KeyError:
         raise StreamGenerationError(
             "Couldn't play specified format: %r" % (filename,))
-    encode_command = ["/usr/bin/oggenc", "-r", "-Q", "-b", str(bitrate), "-"]
+    encoder_path = "/usr/bin/oggenc"
+    if not os.path.exists(encoder_path):
+        raise StreamGenerationError(
+            ("No Vorbis encoder found at %s. " % (encoder_path,)) + \
+                "Please install 'vorbis-tools'.")
+    encode_command = [encoder_path, "-r", "-Q", "-b", str(bitrate), "-"]
     # Pipe the decode command into the encode command.
     p1 = subprocess.Popen(decode_command, stdout=subprocess.PIPE)
     if buffered:
