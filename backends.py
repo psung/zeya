@@ -175,7 +175,7 @@ class LibraryBackend():
         try:
             filename_to_stream(filename, out_stream, bitrate, buffered)
         except StreamGenerationError, e:
-            print "ERROR. %s" % (e,)
+            print "Error: %s" % (e,)
 
     def get_filename_from_key(self, key):
         # Retrieve the filename that 'key' is backed by. This is not part of
