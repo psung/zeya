@@ -200,7 +200,7 @@ def extract_metadata(filename, tagpy_module=tagpy):
     # * Return None. We'll assume this is a music file but that it doesn't have
     #   metadata. Create an entry for it.
     # * Throw ValueError. We'll assume this is not something we could play.
-    #   Don't create an enty for it.
+    #   Don't create an entry for it.
     try:
         tag = tagpy_module.FileRef(filename).tag()
     except:
