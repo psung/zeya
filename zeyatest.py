@@ -21,6 +21,7 @@
 
 # Test suite for Zeya.
 
+import os
 import unittest
 
 import backends
@@ -125,7 +126,7 @@ class OptionsTest(unittest.TestCase):
         params = options.get_options([])
         self.assertFalse(params[0])
         self.assertEqual('dir', params[1])
-        self.assertEqual('.', params[4])
+        self.assertEqual(os.path.abspath('.'), params[4])
     def test_get_help(self):
         params = options.get_options(["--help"])
         self.assertTrue(params[0])
