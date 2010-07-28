@@ -85,6 +85,10 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """
     HTTP Server that handles requests in separate threads.
     """
+    def server_bind(self):
+        HTTPServer.server_bind(self)
+
+class IPV6ThreadedHTTPServer(ThreadedHTTPServer):
     # Allow IPv6 connections if possible.
     if socket.has_ipv6:
         address_family = socket.AF_INET6
@@ -92,7 +96,7 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     def server_bind(self):
         if socket.has_ipv6:
             self.socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
-        HTTPServer.server_bind(self)
+        ThreadedHTTPServer.server_bind(self)
 
 user_pass_regexp = re.compile('([^:]):(.*)$')
 def split_user_pass(data):
@@ -341,15 +345,20 @@ def run_server(backend, port, bitrate, basic_auth_file=None):
         for line in basic_auth_file:
             s_user, s_pass = split_user_pass(line.rstrip())
             auth_data[s_user] = s_pass
-    server = ThreadedHTTPServer(
-        ('', port),
-        ZeyaHandler(backend,
-                    library_repr,
-                    os.path.join(basedir, 'resources'),
-                    bitrate,
-                    auth_type=NO_AUTH if basic_auth_file is None else BASIC_AUTH,
-                    auth_data=auth_data,
-                   ))
+    for server_class in [IPV6ThreadedHTTPServer, ThreadedHTTPServer]:
+        try:
+            server = server_class(
+                ('', port),
+                ZeyaHandler(backend,
+                            library_repr,
+                            os.path.join(basedir, 'resources'),
+                            bitrate,
+                            auth_type=NO_AUTH if basic_auth_file is None else BASIC_AUTH,
+                            auth_data=auth_data,
+                           ))
+            break
+        except:
+            continue
     print "Listening on port %d" % (port,)
     # Start up a web server.
     try:
