@@ -30,12 +30,14 @@ decoders = {
     'flac': ("/usr/bin/flac", "-d", "-c", "--totally-silent"),
     'mp3': ("/usr/bin/mpg123", "-s", "-q"),
     'ogg': ("/usr/bin/oggdec", "-Q", "-o", "-"),
+    'm4a': ("/usr/bin/faad", "-w", "-q"),
     }
 
 decoder_messages = {
     'flac': "/usr/bin/flac not found. Please install 'flac' to play .flac files.",
     'mp3': "/usr/bin/mpg123 not found. Please install 'mpg123' to play .mp3 files.",
     'ogg': "/usr/bin/oggdec not found. Please install 'vorbis-tools' to play .ogg files.",
+    'm4a': "/usr/bin/faad not found. Please install 'faad' to play .m4a files.",
     }
 
 # The set of extensions for which we've warned the user that the decoder is not

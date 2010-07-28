@@ -75,7 +75,7 @@ class DecodersTest(unittest.TestCase):
         Test decoders.is_decoder_registered.
         """
         self.assertTrue(decoders.is_decoder_registered("/path/to/something.mp3"))
-        self.assertFalse(decoders.is_decoder_registered("/path/to/something.m4a"))
+        self.assertFalse(decoders.is_decoder_registered("/path/to/something.xyz"))
     def test_get_decoder(self):
         """
         Test decoders.get_decoder
