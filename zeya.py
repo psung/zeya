@@ -345,20 +345,20 @@ def run_server(backend, port, bitrate, basic_auth_file=None):
         for line in basic_auth_file:
             s_user, s_pass = split_user_pass(line.rstrip())
             auth_data[s_user] = s_pass
-    for server_class in [IPV6ThreadedHTTPServer, ThreadedHTTPServer]:
-        try:
-            server = server_class(
-                ('', port),
-                ZeyaHandler(backend,
-                            library_repr,
-                            os.path.join(basedir, 'resources'),
-                            bitrate,
-                            auth_type=NO_AUTH if basic_auth_file is None else BASIC_AUTH,
-                            auth_data=auth_data,
-                           ))
-            break
-        except:
-            continue
+    zeya_handler = ZeyaHandler(backend,
+                               library_repr,
+                               os.path.join(basedir, 'resources'),
+                               bitrate,
+                               auth_type=NO_AUTH if basic_auth_file is None else BASIC_AUTH,
+                               auth_data=auth_data,
+                               )
+    try:
+        server = IPV6ThreadedHTTPServer(('', port), zeya_handler)
+    except socket.error:
+        # One possible failure mode (among many others...) is that IPv6 is
+        # disabled, which manifests as a socket.error. If this happens, attempt
+        # to bind only on IPv4.
+        server = ThreadedHTTPServer(('', port), zeya_handler)
     print "Listening on port %d" % (port,)
     # Start up a web server.
     try:
