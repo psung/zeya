@@ -48,11 +48,13 @@ def get_options(remaining_args):
     show_help: whether user requested help information
     backend: string indicating backend to use
     bitrate: bitrate for encoded streams (kbits/sec)
+    bind_address: IPv4/IPv6 address to bind to
     port: port number to listen on
     path: path from which to read music files (for "dir" and "playlist" backends only)
     basic_auth_file: file handle from which to read basic auth config, or None.
     """
     help_msg = False
+    bind_address = ''
     port = DEFAULT_PORT
     backend_type = DEFAULT_BACKEND
     bitrate = DEFAULT_BITRATE
@@ -61,7 +63,7 @@ def get_options(remaining_args):
     try:
         opts, file_list = getopt.getopt(
             remaining_args, "b:hp:",
-            ["help", "backend=", "bitrate=", "port=", "path=",
+            ["help", "backend=", "bitrate=", "bind_address=", "port=", "path=",
              "basic_auth_file="])
     except getopt.GetoptError, e:
         raise BadArgsError(e.msg)
@@ -92,6 +94,8 @@ def get_options(remaining_args):
                 port = int(value)
             except ValueError:
                 raise BadArgsError("Invalid port setting %r" % (value,))
+        if flag in ("--bind_address"):
+            bind_address = value
     if backend_type not in ('dir', 'playlist') and path is not None:
         print "Warning: --path was set but is ignored for --backend=%s" \
             % (backend_type,)
@@ -99,7 +103,7 @@ def get_options(remaining_args):
         path = os.getcwd()
     if backend_type == 'playlist' and path is None:
         raise BadArgsError("Specify --path for playlist backend")
-    return (help_msg, backend_type, bitrate, port, path, basic_auth_file)
+    return (help_msg, backend_type, bitrate, bind_address, port, path, basic_auth_file)
 
 def print_usage():
     print "Usage: %s [OPTIONS]" % (os.path.basename(sys.argv[0]),)
@@ -121,6 +125,9 @@ Options:
 
   -b, --bitrate=N
       Specify the bitrate for output streams, in kbits/sec. (default: 64)
+
+  --bindaddress=bindaddress
+      Specify the IPv4/IPv6 address to bind to (default: bind to everything)
 
   -p, --port=PORT
       Listen for requests on the specified port. (default: 8080)

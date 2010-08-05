@@ -322,7 +322,7 @@ def get_backend(backend_type):
     else:
         raise ValueError("Invalid backend %r" % (backend_type,))
 
-def run_server(backend, port, bitrate, basic_auth_file=None):
+def run_server(backend, bind_address, port, bitrate, basic_auth_file=None):
     # Read the library.
     print "Loading library..."
     library_contents = backend.get_library_contents()
@@ -353,12 +353,16 @@ def run_server(backend, port, bitrate, basic_auth_file=None):
                                auth_data=auth_data,
                                )
     try:
-        server = IPV6ThreadedHTTPServer(('', port), zeya_handler)
+        server = IPV6ThreadedHTTPServer((bind_address, port), zeya_handler)
     except socket.error:
         # One possible failure mode (among many others...) is that IPv6 is
         # disabled, which manifests as a socket.error. If this happens, attempt
         # to bind only on IPv4.
-        server = ThreadedHTTPServer(('', port), zeya_handler)
+        server = ThreadedHTTPServer((bind_address, port), zeya_handler)
+
+    if bind_address != '':
+        print "Binding to address %s" % bind_address
+
     print "Listening on port %d" % (port,)
     # Start up a web server.
     try:
@@ -370,7 +374,7 @@ def run_server(backend, port, bitrate, basic_auth_file=None):
 
 if __name__ == '__main__':
     try:
-        (show_help, backend_type, bitrate, port, path, basic_auth_file) = \
+        (show_help, backend_type, bitrate, bind_address, port, path, basic_auth_file) = \
             options.get_options(sys.argv[1:])
     except options.BadArgsError, e:
         print e
@@ -385,4 +389,4 @@ if __name__ == '__main__':
     except IOError, e:
         print e
         sys.exit(1)
-    run_server(backend, port, bitrate, basic_auth_file)
+    run_server(backend, bind_address, port, bitrate, basic_auth_file)
