@@ -52,6 +52,8 @@ def get_options(remaining_args):
     path: path from which to read music files (for "dir" and "playlist" backends only)
     basic_auth_file: file handle from which to read basic auth config, or None.
     """
+    # TODO: make this return a more useful data structure, e.g. a dict or an
+    # object. Returning a huge tuple is kind of unwieldy.
     help_msg = False
     port = DEFAULT_PORT
     backend_type = DEFAULT_BACKEND
