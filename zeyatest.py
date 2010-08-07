@@ -126,13 +126,13 @@ class OptionsTest(unittest.TestCase):
         params = options.get_options([])
         self.assertFalse(params[0])
         self.assertEqual('dir', params[1])
-        self.assertEqual(os.path.abspath('.'), params[4])
+        self.assertEqual(os.path.abspath('.'), params[5])
     def test_get_help(self):
         params = options.get_options(["--help"])
         self.assertTrue(params[0])
     def test_path(self):
         params = options.get_options(["--path=/foo/bar"])
-        self.assertEqual('/foo/bar', params[4])
+        self.assertEqual('/foo/bar', params[5])
     def test_backend(self):
         params = options.get_options(["--backend=rhythmbox"])
         self.assertEqual('rhythmbox', params[1])
@@ -153,7 +153,7 @@ class OptionsTest(unittest.TestCase):
             pass
     def test_port(self):
         params = options.get_options(["-p9999"])
-        self.assertEqual(9999, params[3])
+        self.assertEqual(9999, params[4])
     def test_bad_port(self):
         try:
             params = options.get_options(["--port=p"])
