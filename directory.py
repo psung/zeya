@@ -118,7 +118,7 @@ class DirectoryBackend(LibraryBackend):
             raise IOError("Error: directory %r doesn't exist." % (self._media_path,))
         print "Scanning for music in %r..." % (os.path.abspath(self._media_path),)
         # Iterate over all the files.
-        for path, dirs, files in os.walk(self._media_path):
+        for path, dirs, files in os.walk(self._media_path, followlinks=True):
             # Sort dirs so that subdirectories will subsequently be visited
             # alphabetically (see os.walk).
             dirs.sort(key=tokenize_filename)
