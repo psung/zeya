@@ -94,7 +94,7 @@ def get_options(remaining_args):
                 port = int(value)
             except ValueError:
                 raise BadArgsError("Invalid port setting %r" % (value,))
-        if flag in ("--bind_address"):
+        if flag in ("--bind_address",):
             bind_address = value
     if backend_type not in ('dir', 'playlist') and path is not None:
         print "Warning: --path was set but is ignored for --backend=%s" \
