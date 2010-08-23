@@ -14,6 +14,22 @@
       onkeydown="return keydown_handler(event);"
       onkeypress="return keypress_handler(event);">
   <div id="header">
+    <div id="navigation-bar">
+      <div id="navigation-bar-left">
+	<select name="playlist" id="corpus-selector" onchange="update_playlist()">
+	</select>
+      </div>
+      <div id="navigation-bar-right">
+	<form id="search-form" name="search_form" onsubmit="return search(this)">
+	  <span id="searchicon" class="control">
+	    <img id="search_img" src="search.png" onclick="search()" title="Search"
+		 style="margin-right: -8px;">
+	  </span>
+	  <input type="text" name="search_box" size="16" id="search_box"
+		 placeholder="Search" spellcheck="false"/>
+	</form>
+      </div>
+    </div>
     <div id="header-left">
       <span id="previous_button" class="control">
 	<img id="previous_img" src="previous.png" alt="Previous" onclick="previous()" title="Previous">
@@ -32,21 +48,13 @@
       </span>
     </div>
     <div id="header-right">
-      <form name="search_form" onsubmit="return search(this)">
-	<span id="repeat" class="control">
-	  <img id="repeat_img" src="repeat.png" onclick="repeat()" title="Repeat">
-	</span>
-	<span id="shuffle" class="control">
-	  <img id="shuffle_img" src="shuffle.png" onclick="shuffle()" title="Shuffle"
-	       style="padding-right: 2px">
-	</span>
-	<span id="searchicon" class="control">
-	  <img id="search_img" src="search.png" onclick="search()" title="Search"
-	       style="margin-right: -8px;">
-	</span>
-	<input type="text" name="search_box" size="16" id="search_box"
-	       placeholder="Search" spellcheck="false"/>
-      </form>
+      <span id="repeat" class="control">
+	<img id="repeat_img" src="repeat.png" onclick="repeat()" title="Repeat">
+      </span>
+      <span id="shuffle" class="control">
+	<img id="shuffle_img" src="shuffle.png" onclick="shuffle()" title="Shuffle"
+	     style="padding-right: 2px">
+      </span>
     </div>
     <div id="header-main">
       <div id="header-main-inner">
