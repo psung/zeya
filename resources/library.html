@@ -18,6 +18,8 @@
       <div id="navigation-bar-left">
 	<select name="playlist" id="corpus-selector" onchange="update_playlist()">
 	</select>
+	<!-- Used to persist the value of corpus-selector. -->
+	<input type="text" id="shadow-corpus-selector" name="shadow_corpus_selector" style="display: none">
       </div>
       <div id="navigation-bar-right">
 	<form id="search-form" name="search_form" onsubmit="return search(this)">

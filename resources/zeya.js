@@ -313,8 +313,15 @@ function init_playlist_map(library_obj, playlists) {
     corpus_selector.style.display = "block";
   }
 
-  // TODO: load previously selected playlist when page is refreshed.
-  current_playlist = playlist_map['all'];
+  // Attempt to load the previously selected playlist (the browser may persist
+  // the value within shadow-corpus-selector across page reloads.
+  old_playlist_id = window.document.getElementById('shadow-corpus-selector').value;
+  if (playlist_map[old_playlist_id] === undefined) {
+    old_playlist_id = 'all';
+  } else {
+    document.getElementById('corpus-selector').value = old_playlist_id;
+  }
+  current_playlist = playlist_map[old_playlist_id];
 }
 
 // Clear displayed collection.
@@ -327,6 +334,7 @@ function clear_collection() {
 // Update the collection when the playlist is updated.
 function update_playlist() {
   corpus_id = document.getElementById('corpus-selector').value;
+  window.document.getElementById('shadow-corpus-selector').value = corpus_id;
   current_playlist = playlist_map[corpus_id];
   clear_collection();
   compute_displayed_content(current_playlist, search_string, is_shuffled);
