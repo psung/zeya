@@ -4,8 +4,13 @@
 // attributes .title, .artist, .album, and .key (a unique identifier for that
 // song).
 var library;
+// Map from song key to library item
+var library_map = {};
+// Ordered collection of song keys in library
+var library_sequence = [];
 // The sequence of songs displayed in the playlist (after filtering and
-// shuffling). This is represented as a list of indices into `library'.
+// shuffling). This is represented as a list of song keys (which are also keys
+// into library_map).
 var displayed_content;
 // Index (into displayed_content) of the currently playing song, or null if no
 // song is playing.
@@ -157,19 +162,20 @@ function compute_displayed_content(search_query, shuffle) {
   // again later. The key is invariant, unlike current_index.
   var currently_playing_song_key = null;
   if (current_index !== null) {
-    currently_playing_song_key = library[displayed_content[current_index]].key;
+    currently_playing_song_key = library_map[displayed_content[current_index]].key;
   }
   current_index = null;
 
   // Apply the search filter.
-  for (var index = 0; index < library.length; index++) {
-    var item = library[index];
+  for (var index = 0; index < library_sequence.length; index++) {
+    var key = library_sequence[index];
+    var item = library_map[key];
     if (search_query !== null) {
       if (!item_match(item, search_query)) {
         continue;
       }
     }
-    content.push(index);
+    content.push(key);
   }
 
   // Peform the library shuffle via Durstenfeld's shuffle.
@@ -185,7 +191,7 @@ function compute_displayed_content(search_query, shuffle) {
   // Fix current_index so it points to the currently playing song in the
   // new collection.
   for (var i = 0; i < content.length; i++) {
-    var item = library[content[i]];
+    var item = library_map[content[i]];
     if (item.key == currently_playing_song_key) {
       current_index = i;
     }
@@ -216,7 +222,7 @@ function render_collection() {
 
   // Each item will have one row in the table.
   for (var index = 0; index < displayed_content.length; index++) {
-    var item = library[displayed_content[index]];
+    var item = library_map[displayed_content[index]];
 
     var link = document.createElement('a');
     link.setAttribute('href', '#');
@@ -267,11 +273,22 @@ function load_collection() {
     if (req.readyState == 4 && req.status == 200) {
       library = JSON.parse(req.responseText);
       status_info.total_tracks = library.length;
+      init_library_sequence();
       compute_displayed_content(search_string, is_shuffled);
       render_collection();
     }
   };
   req.send(null);
+}
+
+// Initialize the library_sequence object, which is a sequential collection of
+// the song keys in the library, in the proper order.
+function init_library_sequence() {
+  library_sequence = [];
+  for (var i = 0; i < library.length; i++) {
+    library_map[library[i].key] = library[i];
+    library_sequence.push(library[i].key);
+  }
 }
 
 // Clear displayed collection.
@@ -428,7 +445,7 @@ function preload_song() {
     return;
   }
 
-  preload_key = library[displayed_content[next_index()]].key;
+  preload_key = library_map[displayed_content[next_index()]].key;
 
   if (preload_key !== null) {
     preload_finished = false;
@@ -459,7 +476,7 @@ function select_item(index, play_track) {
     }
   }
   document.getElementById(get_row_id_from_index(index)).className = 'selectedrow';
-  var entry = library[displayed_content[index]];
+  var entry = library_map[displayed_content[index]];
   var preloaded = entry.key == preload_key;
   if (preloaded) {
     current_audio = preload_audio;
