@@ -118,7 +118,7 @@ class RhythmboxBackend(LibraryBackend):
         self._files = set()
         self._contents = None
         if infile:
-            self._infile = infile
+            self._dbfile = infile
             return
         rhythmbox_db_path = os.path.expanduser(RB_DBFILE)
         # Handle file-not-found before general IOErrors. If the Rhythmbox
@@ -130,7 +130,7 @@ class RhythmboxBackend(LibraryBackend):
             print "Consider using --path to read from a directory instead."
             sys.exit(1)
         try:
-            self._infile = open(rhythmbox_db_path)
+            self._dbfile = open(rhythmbox_db_path)
         except IOError:
             print "Couldn't read from Rhythmbox DB (%r)." \
                 % (rhythmbox_db_path,)
@@ -143,7 +143,7 @@ class RhythmboxBackend(LibraryBackend):
             p.StartElementHandler = handler.startElement
             p.EndElementHandler = handler.endElement
             p.CharacterDataHandler = handler.characters
-            p.ParseFile(self._infile)
+            p.ParseFile(self._dbfile)
             self._contents = handler.getContents()
             self._files = handler.getFiles()
             # Sort the items by filename.
