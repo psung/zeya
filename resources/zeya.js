@@ -1,10 +1,7 @@
 // Javascript implementation for Zeya client.
 
-// Representation of entire library. This is a sequence of objects, each with
-// attributes .title, .artist, .album, and .key (a unique identifier for that
-// song).
-var library;
-// Map from song key to library item
+// Map from song key to library item. Each library item is an object with
+// attributes .title, .artist, .album, and .key.
 var library_map = {};
 // Ordered collection of song keys in library
 var library_sequence = [];
@@ -271,9 +268,9 @@ function load_collection() {
   req.open('GET', '/getlibrary', true);
   req.onreadystatechange = function(e) {
     if (req.readyState == 4 && req.status == 200) {
-      library = JSON.parse(req.responseText);
+      var library = JSON.parse(req.responseText);
       status_info.total_tracks = library.length;
-      init_library_sequence();
+      init_library_sequence(library);
       compute_displayed_content(search_string, is_shuffled);
       render_collection();
     }
@@ -283,7 +280,7 @@ function load_collection() {
 
 // Initialize the library_sequence object, which is a sequential collection of
 // the song keys in the library, in the proper order.
-function init_library_sequence() {
+function init_library_sequence(library) {
   library_sequence = [];
   for (var i = 0; i < library.length; i++) {
     library_map[library[i].key] = library[i];
@@ -597,7 +594,6 @@ function hide_help() {
 // Initialize the application.
 function init() {
   current_index = null;
-  library = null;
   current_audio = null;
   set_ui_state('grayed');
   // If the client doesn't support HTML5 audio, just disable everything and
