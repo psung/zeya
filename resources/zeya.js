@@ -2,12 +2,12 @@
 
 // Map from song key to library item. Each library item is an object with
 // attributes .title, .artist, .album, and .key.
-var library_map = {};
+var library;
 // Ordered collection of song keys in library
 var library_sequence = [];
 // The sequence of songs displayed in the playlist (after filtering and
 // shuffling). This is represented as a list of song keys (which are also keys
-// into library_map).
+// into library).
 var displayed_content;
 // Index (into displayed_content) of the currently playing song, or null if no
 // song is playing.
@@ -159,14 +159,14 @@ function compute_displayed_content(search_query, shuffle) {
   // again later. The key is invariant, unlike current_index.
   var currently_playing_song_key = null;
   if (current_index !== null) {
-    currently_playing_song_key = library_map[displayed_content[current_index]].key;
+    currently_playing_song_key = library[displayed_content[current_index]].key;
   }
   current_index = null;
 
   // Apply the search filter.
   for (var index = 0; index < library_sequence.length; index++) {
     var key = library_sequence[index];
-    var item = library_map[key];
+    var item = library[key];
     if (search_query !== null) {
       if (!item_match(item, search_query)) {
         continue;
@@ -188,7 +188,7 @@ function compute_displayed_content(search_query, shuffle) {
   // Fix current_index so it points to the currently playing song in the
   // new collection.
   for (var i = 0; i < content.length; i++) {
-    var item = library_map[content[i]];
+    var item = library[content[i]];
     if (item.key == currently_playing_song_key) {
       current_index = i;
     }
@@ -219,7 +219,7 @@ function render_collection() {
 
   // Each item will have one row in the table.
   for (var index = 0; index < displayed_content.length; index++) {
-    var item = library_map[displayed_content[index]];
+    var item = library[displayed_content[index]];
 
     var link = document.createElement('a');
     link.setAttribute('href', '#');
@@ -268,9 +268,9 @@ function load_collection() {
   req.open('GET', '/getlibrary', true);
   req.onreadystatechange = function(e) {
     if (req.readyState == 4 && req.status == 200) {
-      var library = JSON.parse(req.responseText);
-      status_info.total_tracks = library.length;
-      init_library_sequence(library);
+      var library_obj = JSON.parse(req.responseText);
+      status_info.total_tracks = library_obj.length;
+      init_library_sequence(library_obj);
       compute_displayed_content(search_string, is_shuffled);
       render_collection();
     }
@@ -280,11 +280,11 @@ function load_collection() {
 
 // Initialize the library_sequence object, which is a sequential collection of
 // the song keys in the library, in the proper order.
-function init_library_sequence(library) {
+function init_library_sequence(library_obj) {
   library_sequence = [];
-  for (var i = 0; i < library.length; i++) {
-    library_map[library[i].key] = library[i];
-    library_sequence.push(library[i].key);
+  for (var i = 0; i < library_obj.length; i++) {
+    library[library_obj[i].key] = library_obj[i];
+    library_sequence.push(library_obj[i].key);
   }
 }
 
@@ -442,7 +442,7 @@ function preload_song() {
     return;
   }
 
-  preload_key = library_map[displayed_content[next_index()]].key;
+  preload_key = library[displayed_content[next_index()]].key;
 
   if (preload_key !== null) {
     preload_finished = false;
@@ -473,7 +473,7 @@ function select_item(index, play_track) {
     }
   }
   document.getElementById(get_row_id_from_index(index)).className = 'selectedrow';
-  var entry = library_map[displayed_content[index]];
+  var entry = library[displayed_content[index]];
   var preloaded = entry.key == preload_key;
   if (preloaded) {
     current_audio = preload_audio;
@@ -594,6 +594,7 @@ function hide_help() {
 // Initialize the application.
 function init() {
   current_index = null;
+  library = {};
   current_audio = null;
   set_ui_state('grayed');
   // If the client doesn't support HTML5 audio, just disable everything and
