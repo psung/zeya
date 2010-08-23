@@ -1,11 +1,13 @@
 // Javascript implementation for Zeya client.
 
-// Representation of entire library. This is a sequence of objects, each with
-// attributes .title, .artist, .album, and .key (a unique identifier for that
-// song).
+// Map from song key to library item. Each library item is an object with
+// attributes .title, .artist, .album, and .key.
 var library;
+// Ordered collection of song keys in library
+var library_sequence = [];
 // The sequence of songs displayed in the playlist (after filtering and
-// shuffling). This is represented as a list of indices into `library'.
+// shuffling). This is represented as a list of song keys (which are also keys
+// into library).
 var displayed_content;
 // Index (into displayed_content) of the currently playing song, or null if no
 // song is playing.
@@ -162,14 +164,15 @@ function compute_displayed_content(search_query, shuffle) {
   current_index = null;
 
   // Apply the search filter.
-  for (var index = 0; index < library.length; index++) {
-    var item = library[index];
+  for (var index = 0; index < library_sequence.length; index++) {
+    var key = library_sequence[index];
+    var item = library[key];
     if (search_query !== null) {
       if (!item_match(item, search_query)) {
         continue;
       }
     }
-    content.push(index);
+    content.push(key);
   }
 
   // Peform the library shuffle via Durstenfeld's shuffle.
@@ -265,13 +268,24 @@ function load_collection() {
   req.open('GET', '/getlibrary', true);
   req.onreadystatechange = function(e) {
     if (req.readyState == 4 && req.status == 200) {
-      library = JSON.parse(req.responseText);
-      status_info.total_tracks = library.length;
+      var library_obj = JSON.parse(req.responseText);
+      status_info.total_tracks = library_obj.length;
+      init_library_sequence(library_obj);
       compute_displayed_content(search_string, is_shuffled);
       render_collection();
     }
   };
   req.send(null);
+}
+
+// Initialize the library_sequence object, which is a sequential collection of
+// the song keys in the library, in the proper order.
+function init_library_sequence(library_obj) {
+  library_sequence = [];
+  for (var i = 0; i < library_obj.length; i++) {
+    library[library_obj[i].key] = library_obj[i];
+    library_sequence.push(library_obj[i].key);
+  }
 }
 
 // Clear displayed collection.
@@ -580,7 +594,7 @@ function hide_help() {
 // Initialize the application.
 function init() {
   current_index = null;
-  library = null;
+  library = {};
   current_audio = null;
   set_ui_state('grayed');
   // If the client doesn't support HTML5 audio, just disable everything and
