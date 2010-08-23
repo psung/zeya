@@ -325,6 +325,7 @@ def get_backend(backend_type):
 def run_server(backend, bind_address, port, bitrate, basic_auth_file=None):
     # Read the library.
     print "Loading library..."
+
     library_contents = backend.get_library_contents()
     if not library_contents:
         print "Warning: no tracks were found. Check that you've specified " \
@@ -336,7 +337,16 @@ def run_server(backend, bind_address, port, bitrate, basic_auth_file=None):
     if not filtered_library_contents and library_contents:
         print "Warning: no playable tracks were found. You may need to " \
             "install one or more decoders."
-    library_repr = json.dumps(filtered_library_contents, ensure_ascii=False)
+
+    try:
+        playlists = backend.get_playlists()
+    except NotImplementedError:
+        playlists = []
+
+    output = { 'library': filtered_library_contents,
+               'playlists': playlists }
+
+    library_repr = json.dumps(output, ensure_ascii=False)
     basedir = os.path.abspath(os.path.dirname(os.path.realpath(sys.argv[0])))
 
     auth_data = None

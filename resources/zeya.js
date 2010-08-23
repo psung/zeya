@@ -3,11 +3,12 @@
 // Map from song key to library item. Each library item is an object with
 // attributes .title, .artist, .album, and .key.
 var library;
-// Ordered collection of song keys in library
-var library_sequence = [];
-// The sequence of songs displayed in the playlist (after filtering and
-// shuffling). This is represented as a list of song keys (which are also keys
-// into library).
+// Representation of the set of available playlists. Maps a playlist ID to a
+// list of song keys representing that playlist.
+var playlist_map = {};
+// The sequence of songs displayed in the playlist (after selection of
+// playlist, filtering and shuffling). This is represented as a list of song
+// keys (which are also keys into library).
 var displayed_content;
 // Index (into displayed_content) of the currently playing song, or null if no
 // song is playing.
@@ -19,6 +20,8 @@ var preload_key; // `key' attribute of the song we've preloaded.
 var preload_finished = false;
 // Current application state ('grayed', 'play', 'pause')
 var current_state = 'grayed';
+// Playlist ID of the selected playlist.
+var current_playlist;
 // Value of the search box, or null if no search has been performed
 var search_string = null;
 // Whether or not the repeat feature is activated.
@@ -152,7 +155,7 @@ function set_ui_state(new_state) {
 // Evaluates the search query and shuffle mode (if selected) and set
 // `displayed_content' appropriately to reflect the new display. Also update
 // `current_index' so that it continues to point to the same song, if possible.
-function compute_displayed_content(search_query, shuffle) {
+function compute_displayed_content(current_playlist, search_query, shuffle) {
   var content = [];
 
   // Extract the key corresponding to the current song so we can identify it
@@ -164,8 +167,8 @@ function compute_displayed_content(search_query, shuffle) {
   current_index = null;
 
   // Apply the search filter.
-  for (var index = 0; index < library_sequence.length; index++) {
-    var key = library_sequence[index];
+  for (var index = 0; index < current_playlist.length; index++) {
+    var key = current_playlist[index];
     var item = library[key];
     if (search_query !== null) {
       if (!item_match(item, search_query)) {
@@ -268,24 +271,50 @@ function load_collection() {
   req.open('GET', '/getlibrary', true);
   req.onreadystatechange = function(e) {
     if (req.readyState == 4 && req.status == 200) {
-      var library_obj = JSON.parse(req.responseText);
+      server_response = JSON.parse(req.responseText);
+      var library_obj = server_response.library;
       status_info.total_tracks = library_obj.length;
-      init_library_sequence(library_obj);
-      compute_displayed_content(search_string, is_shuffled);
+      init_playlist_map(library_obj, server_response.playlists);
+      compute_displayed_content(current_playlist, search_string, is_shuffled);
       render_collection();
     }
   };
   req.send(null);
 }
 
-// Initialize the library_sequence object, which is a sequential collection of
-// the song keys in the library, in the proper order.
-function init_library_sequence(library_obj) {
-  library_sequence = [];
+// Initialize the playlist_map object, where 'library' and 'playlists' are the
+// deserialized collection objects returned by the server.
+function init_playlist_map(library_obj, playlists) {
+  // Create the default playlist, which corresponds to the entire collection.
+  default_playlist = [];
   for (var i = 0; i < library_obj.length; i++) {
     library[library_obj[i].key] = library_obj[i];
-    library_sequence.push(library_obj[i].key);
+    default_playlist.push(library_obj[i].key);
   }
+  playlist_map['all'] = default_playlist;
+
+  // Show the playlist selector if, and only if, there are playlists available.
+  if (playlists.length > 0) {
+    corpus_selector = document.getElementById("corpus-selector");
+
+    new_playlist_item = document.createElement("option");
+    new_playlist_item.value = "all";
+    new_playlist_item.appendChild(document.createTextNode("All music"));
+    corpus_selector.appendChild(new_playlist_item);
+
+    for (var i = 0; i < playlists.length; i++) {
+      var playlist_id = "playlist:" + i;
+      new_playlist_item = document.createElement("option");
+      new_playlist_item.value = playlist_id;
+      new_playlist_item.appendChild(document.createTextNode(playlists[i].name));
+      corpus_selector.appendChild(new_playlist_item);
+      playlist_map[playlist_id] = playlists[i].items;
+    }
+    corpus_selector.style.display = "block";
+  }
+
+  // TODO: load previously selected playlist when page is refreshed.
+  current_playlist = playlist_map['all'];
 }
 
 // Clear displayed collection.
@@ -293,6 +322,15 @@ function clear_collection() {
   clear_children(document.getElementById('collection'));
   document.getElementById('collection').style.display = 'none';
   document.getElementById('loading').style.display = 'block';
+}
+
+// Update the collection when the playlist is updated.
+function update_playlist() {
+  corpus_id = document.getElementById('corpus-selector').value;
+  current_playlist = playlist_map[corpus_id];
+  clear_collection();
+  compute_displayed_content(current_playlist, search_string, is_shuffled);
+  render_collection();
 }
 
 // Update current search string and reload collection.
@@ -305,7 +343,7 @@ function search() {
   clear_collection();
   // The setTimeout trick is to force the browser to display the loading
   // message before rendering the collection.
-  compute_displayed_content(search_string, is_shuffled);
+  compute_displayed_content(current_playlist, search_string, is_shuffled);
   window.setTimeout("render_collection()", 1);
   // Return false to prevent an actual form submit.
   return false;
@@ -337,7 +375,7 @@ function shuffle() {
   } else {
     document.getElementById("shuffle_img").className = '';
   }
-  compute_displayed_content(search_string, is_shuffled);
+  compute_displayed_content(current_playlist, search_string, is_shuffled);
   window.setTimeout("render_collection()", 1);
 }
 

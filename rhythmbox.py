@@ -33,6 +33,8 @@ from xml.parsers import expat
 
 # Path to XML file containing Rhythmbox library
 RB_DBFILE = '~/.local/share/rhythmbox/rhythmdb.xml'
+# Path to XML file containing Rhythmbox library
+RB_PLAYLISTFILE = '~/.local/share/rhythmbox/playlists.xml'
 
 class RhythmboxDbHandler():
     """
@@ -105,6 +107,65 @@ class RhythmboxDbHandler():
     def getContents(self):
         return self.contents
 
+class RhythmboxPlaylistsHandler():
+    """
+    Parser for Rhythmbox playlist XML files.
+    """
+    def __init__(self, file_list):
+        # Construct a map of filename to key so we can represent playlists as
+        # lists of keys.
+        self.file_to_key_map = {}
+        for key, filename in enumerate(file_list):
+            self.file_to_key_map[filename] = key
+
+        self.in_playlist = False
+        self.in_location = False
+        # List containing library metadata (see backends.LibraryBackend for
+        # full description).
+        self.playlists = []
+        # While parsing each playlist, remember its name and the list of the
+        # paths we encounter. When we actually populate the self.playlists
+        # object, we'll map those paths back to keys.
+        self.current_playlist_name = ""
+        self.current_playlist_items = None
+    def startElement(self, name, attrs):
+        # Within each <entry type="song">, record the attributes.
+        if name == 'playlist' and attrs['type'] == 'static':
+            self.in_playlist = True
+            self.current_playlist_items = []
+            self.current_playlist_name = attrs['name']
+        if name == 'location':
+            self.in_location = True
+            self.current_location = ''
+    def endElement(self, name):
+        if self.in_playlist and name == 'playlist':
+            self.in_playlist = False
+            playlist_keys = []
+            for item_path in self.current_playlist_items:
+                if item_path in self.file_to_key_map:
+                    playlist_keys.append(self.file_to_key_map[item_path])
+                else:
+                    print ("Warning: encountered a playlist item that is " +
+                           "not in the global database.\n  Path: %r, " +
+                           "Playlist: %r.") % \
+                           (item_path, self.current_playlist_name)
+            self.playlists.append({
+                'name' : self.current_playlist_name,
+                'items' : playlist_keys})
+        if self.in_location and name == 'location':
+            self.in_title = False
+            if self.current_location.startswith('file://'):
+                # The <location> field contains a URL-encoded version of the
+                # file path. Use the decoded version in all of our data
+                # structures.
+                path = urllib.unquote(str(self.current_location))[7:]
+                self.current_playlist_items.append(path)
+    def characters(self, ch):
+        if self.in_location:
+            self.current_location += ch
+    def getPlaylists(self):
+        return self.playlists
+
 class RhythmboxBackend(LibraryBackend):
     """
     Object that controls access to a Rhythmbox music collection.
@@ -117,6 +178,7 @@ class RhythmboxBackend(LibraryBackend):
     def __init__(self, infile = None):
         self._files = set()
         self._contents = None
+        self._playlists = None
         if infile:
             self._dbfile = infile
             return
@@ -135,6 +197,16 @@ class RhythmboxBackend(LibraryBackend):
             print "Couldn't read from Rhythmbox DB (%r)." \
                 % (rhythmbox_db_path,)
             sys.exit(1)
+
+        rhythmbox_playlist_path = os.path.expanduser(RB_PLAYLISTFILE)
+        try:
+            self._playlistfile = open(rhythmbox_playlist_path)
+        except IOError:
+            self._playlistfile = None
+            print ("Warning: could not open Rhythmbox playlists.xml file " + \
+                       "at %r. Playlists will not be loaded." % \
+                       (rhythmbox_playlist_path,))
+
     def get_library_contents(self):
         # Memoize self._contents and self._files.
         if not self._contents:
@@ -151,6 +223,25 @@ class RhythmboxBackend(LibraryBackend):
                 key = (lambda item:
                            tokenize_filename(self._files[item['key']])))
         return self._contents
+
+    def get_playlists(self):
+        if not self._contents:
+            # Make sure _contents and _files are populated.
+            self.get_library_contents()
+        if self._playlists is None:
+            if self._playlistfile is None:
+                self._playlists = []
+            else:
+                handler = RhythmboxPlaylistsHandler(self._files)
+                p = expat.ParserCreate()
+                p.StartElementHandler = handler.startElement
+                p.EndElementHandler = handler.endElement
+                p.CharacterDataHandler = handler.characters
+                p.ParseFile(self._playlistfile)
+                self._playlists = handler.getPlaylists()
+                self._playlists.sort(key = (lambda playlist: playlist['name']))
+        return self._playlists
+
     def get_filename_from_key(self, key):
         try:
             return self._files[int(key)]

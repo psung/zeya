@@ -155,10 +155,27 @@ class LibraryBackend():
         where each entry represents one file. The values coresponding to
         'title', 'artist', and 'album' are strings or unicode strings giving
         the song attributes. The value corresponding to 'key' may be passed to
-        self.write_content in order to obtain the data for a particular file.
+        self.write_content in order to obtain the data for a particular file,
+        and the same key appears in the result of get_playlists().
 
         The items will be displayed to the user in the order that they appear
         here.
+        """
+        raise NotImplementedError()
+
+    def get_playlists(self):
+        """
+        Return a list of the available playlists.
+
+        The return value should be of the form
+
+          [ {'name': ..., 'items': [ ... ] },
+            ... ]
+
+        where each entry represents one playlist. The 'name' field contains a
+        string representing the user-displayable name of the playlist. The
+        'items' field is a list of the song keys identifying the songs in the
+        playlist, in order.
         """
         raise NotImplementedError()
 
