@@ -380,9 +380,12 @@ function set_title(title, artist) {
 // Return the index of the next song, with wraparound.
 function next_index() {
   if (current_index === null) {
-    // Display changed since we began playing and the displayed
-    // collection is empty.
-    return null;
+    // Display changed since we began playing.
+    if (displayed_content.length > 0) {
+      return 0;
+    } else {
+      return null;
+    }
   }
 
   // If on the last row, go back to the first.
@@ -396,9 +399,12 @@ function next_index() {
 // Return the index of the next song, with wraparound.
 function previous_index() {
   if (current_index === null) {
-    // Display changed since we began playing and the displayed
-    // collection is empty.
-    return null;
+    // Display changed since we began playing.
+    if (displayed_content.length > 0) {
+      return 0;
+    } else {
+      return null;
+    }
   }
 
   // If on the last row, go back to the first.
@@ -558,15 +564,15 @@ function select_previous() {
 
 // Skip to the next song.
 function next() {
-  if (current_index !== null) {
+  if (current_state != 'grayed') {
     select_next();
   }
 }
 
 // Skip to the beginning of the current song, or to the previous song.
 function previous() {
-  if (current_index !== null) {
-    if (current_audio.currentTime > 5.00) {
+  if (current_state != 'grayed') {
+    if (current_index !== null && current_audio.currentTime > 5.00) {
       current_audio.currentTime = 0.0;
     } else {
       select_previous();
