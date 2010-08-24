@@ -431,9 +431,12 @@ function set_title(title, artist) {
 // Return the index of the next song, with wraparound.
 function next_index() {
   if (current_index === null) {
-    // Display changed since we began playing and the displayed
-    // collection is empty.
-    return null;
+    // Display changed since we began playing.
+    if (displayed_content.length > 0) {
+      return 0;
+    } else {
+      return null;
+    }
   }
 
   // If on the last row, go back to the first.
@@ -447,9 +450,12 @@ function next_index() {
 // Return the index of the next song, with wraparound.
 function previous_index() {
   if (current_index === null) {
-    // Display changed since we began playing and the displayed
-    // collection is empty.
-    return null;
+    // Display changed since we began playing.
+    if (displayed_content.length > 0) {
+      return 0;
+    } else {
+      return null;
+    }
   }
 
   // If on the last row, go back to the first.
@@ -545,6 +551,9 @@ function select_item(index, play_track) {
   // Hide the spinner when the song has loaded.
   current_audio.addEventListener(
     'play', function() {set_spinner_visible(false);}, false);
+  // Update the time/progress element.
+  current_audio.addEventListener(
+    'timeupdate', function() {update_time();}, false);
   // If the song we're about to play has already finished, loading, kick off
   // the next preload. Otherwise, start it when the current song has finished
   // loading.
@@ -609,15 +618,15 @@ function select_previous() {
 
 // Skip to the next song.
 function next() {
-  if (current_index !== null) {
+  if (current_state != 'grayed') {
     select_next();
   }
 }
 
 // Skip to the beginning of the current song, or to the previous song.
 function previous() {
-  if (current_index !== null) {
-    if (current_audio.currentTime > 5.00) {
+  if (current_state != 'grayed') {
+    if (current_index !== null && current_audio.currentTime > 5.00) {
       current_audio.currentTime = 0.0;
     } else {
       select_previous();
@@ -664,6 +673,16 @@ function init() {
   // Focus the scrollable area so that PgUp and PgDn keypresses are interpreted
   // properly.
   window.document.getElementById('content').focus();
+}
+
+function update_time() {
+  var current_time = current_audio.currentTime;
+  var minute = Math.floor(current_time / 60);
+  var second = Math.floor(current_time - minute * 60);
+  if (second < 10) {
+    second = '0' + second;
+  }
+  document.getElementById('time-text-field').innerHTML = minute + ":" + second;
 }
 
 // Clean up after ourselves when the page is unloaded.
