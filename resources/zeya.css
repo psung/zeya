@@ -15,7 +15,7 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    height: 72px;
+    height: 71px;
     overflow: hidden;
     background-color: #f6f5f4;
     border-bottom: 1px solid #999;
@@ -62,13 +62,15 @@ form#search-form input {
 #header-left {
     float: left;
     height: 40px;
+    margin-top: -1px;
 }
 
 #header-right {
     height: 100%;
     float: right;
     width: 80px;
-    padding-right: 6px;
+    margin-top: -1px;
+    padding-right: 2px;
     text-align: right;
 }
 
@@ -108,7 +110,7 @@ form#search-form input {
 
 #content {
     position: fixed;
-    top: 73px;
+    top: 72px;
     left: 0;
     bottom: 17px;
     right: 0;
