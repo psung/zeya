@@ -364,6 +364,11 @@ function focus_search_box() {
   search_box.select();
 }
 
+function clear_search() {
+  document.getElementById('search_box').value = '';
+  search();
+}
+
 // Toggle the 'repeat' mechanism.
 function repeat() {
   is_repeating = !is_repeating;
