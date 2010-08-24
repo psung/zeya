@@ -68,10 +68,18 @@ form#search-form input {
 #header-right {
     height: 100%;
     float: right;
-    width: 80px;
+    width: 250px;
     margin-top: -1px;
     padding-right: 2px;
     text-align: right;
+}
+
+#scrubber-box {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 12px;
+    text-align: right;
+    font-size: small;
 }
 
 #header-main {

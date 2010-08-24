@@ -540,6 +540,9 @@ function select_item(index, play_track) {
   // Hide the spinner when the song has loaded.
   current_audio.addEventListener(
     'play', function() {set_spinner_visible(false);}, false);
+  // Update the time/progress element.
+  current_audio.addEventListener(
+    'timeupdate', function() {update_time();}, false);
   // If the song we're about to play has already finished, loading, kick off
   // the next preload. Otherwise, start it when the current song has finished
   // loading.
@@ -659,6 +662,16 @@ function init() {
   // Focus the scrollable area so that PgUp and PgDn keypresses are interpreted
   // properly.
   window.document.getElementById('content').focus();
+}
+
+function update_time() {
+  var current_time = current_audio.currentTime;
+  var minute = Math.floor(current_time / 60);
+  var second = Math.floor(current_time - minute * 60);
+  if (second < 10) {
+    second = '0' + second;
+  }
+  document.getElementById('time-text-field').innerHTML = minute + ":" + second;
 }
 
 // Clean up after ourselves when the page is unloaded.
