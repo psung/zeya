@@ -35,7 +35,7 @@ class M3uBackend(LibraryBackend):
             sys.exit(1)
 
     def get_library_contents(self):
-        # Sequence of dicts contanining the metadata for all the songs.
+        # Sequence of dicts containing the metadata for all the songs.
         library = []
         # Dict mapping keys to the original filenames.
         self.file_list = {}
