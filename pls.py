@@ -42,10 +42,7 @@ class PlsBackend(LibraryBackend):
         next_index = 0
         try:
             for line in open(self.pls_file):
-                # Ignore lines in the pls file starting with '#'.
-                if line.startswith('#'):
-                    continue
-                # only read lines starting with 'File'
+                # Only read lines starting with 'File'
                 if line.startswith('File'):
                     try:
                         # Parse the filename from the line.
