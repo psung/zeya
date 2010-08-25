@@ -25,6 +25,23 @@ import sys
 from backends import LibraryBackend
 from backends import extract_metadata
 
+class M3uPlaylist(object):
+    def __init__(self, file_obj):
+        """
+        Parses data from FILE_OBJ (a file-like object), which contains a
+        playlist in M3U format.
+        """
+        self._filenames = []
+        for line in file_obj:
+            if not line.startswith('#'):
+                self._filenames.append(line.rstrip('\r\n'))
+
+    def get_filenames(self):
+        """
+        Returns the sequence of filenames represented by the playlist.
+        """
+        return self._filenames
+
 class M3uBackend(LibraryBackend):
     def __init__(self, file_path=None):
         self.m3u_file = file_path
@@ -41,11 +58,8 @@ class M3uBackend(LibraryBackend):
         self.file_list = {}
         next_index = 0
         try:
-            for line in open(self.m3u_file):
-                # Ignore lines in the m3u file starting with '#'.
-                if line.startswith('#'):
-                    continue
-                filename = line.rstrip('\r\n')
+            playlist = M3uPlaylist(open(self.m3u_file))
+            for filename in playlist.get_filenames():
                 try:
                     metadata = extract_metadata(os.path.abspath(filename))
                 except ValueError:
