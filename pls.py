@@ -25,6 +25,33 @@ import sys
 from backends import LibraryBackend
 from backends import extract_metadata
 
+class PlsPlaylist(object):
+    def __init__(self, file_obj):
+        """
+        Parses data from FILE_OBJ (a file-like object), which contains a
+        playlist in PLS format.
+        """
+        self._filenames = []
+        for line in file_obj:
+            # Ignore lines in the pls file starting with '#'.
+            if line.startswith('#'):
+                continue
+            # only read lines starting with 'File'
+            if line.startswith('File'):
+                try:
+                    # Parse the filename from the line.
+                    self._filenames.append(line.rstrip('\r\n')[line.index("=") + 1:])
+                except ValueError:
+                    print "Warning: malformed line in playlist file: " + \
+                        line.strip()
+                    continue
+
+    def get_filenames(self):
+        """
+        Returns the sequence of filenames represented by the playlist.
+        """
+        return self._filenames
+
 class PlsBackend(LibraryBackend):
     def __init__(self, file_path=None):
         self.pls_file = file_path
@@ -41,27 +68,16 @@ class PlsBackend(LibraryBackend):
         self.file_list = {}
         next_index = 0
         try:
-            for line in open(self.pls_file):
-                # Ignore lines in the pls file starting with '#'.
-                if line.startswith('#'):
+            playlist = PlsPlaylist(open(self.pls_file))
+            for filename in playlist.get_filenames():
+                try:
+                    metadata = extract_metadata(os.path.abspath(filename))
+                except ValueError:
                     continue
-                # only read lines starting with 'File'
-                if line.startswith('File'):
-                    try:
-                        # Parse the filename from the line.
-                        filename = line.rstrip('\r\n')[line.index("=") + 1:]
-                    except ValueError:
-                        print "Warning: malformed line in playlist file: " + \
-                            line.strip()
-                        continue
-                    try:
-                        metadata = extract_metadata(os.path.abspath(filename))
-                    except ValueError:
-                        continue
-                    metadata['key'] = next_index
-                    self.file_list[next_index] = filename
-                    library.append(metadata)
-                    next_index = next_index + 1
+                metadata['key'] = next_index
+                self.file_list[next_index] = filename
+                library.append(metadata)
+                next_index = next_index + 1
             return library
         except IOError:
             print "Error: could not read the specified playlist (%r)" \
