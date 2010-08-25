@@ -33,7 +33,7 @@ class PlsPlaylist(object):
         (used for evaluating the absolute filename of each file).
         """
         self._filenames = []
-        for line in file_obj:
+        for line_number, line in enumerate(file_obj):
             # Only read lines starting with 'File'
             if line.startswith('File'):
                 try:
@@ -43,8 +43,8 @@ class PlsPlaylist(object):
                         os.path.join(os.getcwd(), os.path.dirname(filename), rel_path))
                     self._filenames.append(abs_path)
                 except ValueError:
-                    print "Warning: malformed line in playlist file: " + \
-                        line.strip()
+                    print "Warning: malformed line in %s:%d: %r" % \
+                        (filename, line_number+1, line.strip())
                     continue
 
     def get_filenames(self):
