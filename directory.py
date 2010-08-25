@@ -30,6 +30,8 @@ import pickle
 from backends import LibraryBackend
 from backends import extract_metadata
 from common import tokenize_filename
+from m3u import M3uPlaylist
+from pls import PlsPlaylist
 
 KEY = 'key'
 
@@ -52,8 +54,11 @@ class DirectoryBackend(LibraryBackend):
         self._save_db = save_db
         # Sequence of dicts containing song metadata (key, artist, title, album)
         self.db = []
-        # Dict mapping keys to source filenames
+        # Playlists
+        self._playlists = []
+        # Dict mapping keys to source filenames and vice versa
         self.key_filename = {}
+        self.filename_key = {}
         # Dict mapping filenames to mtimes
         self.mtimes = {}
 
@@ -107,6 +112,52 @@ class DirectoryBackend(LibraryBackend):
             print "(Zeya will continue, but the directory will need to be",
             print "re-scanned the next time Zeya is run.)"
 
+    def write_metadata(self, filename, previous_db):
+        """
+        Obtains and writes the metadata for the specified FILENAME to the
+        database. The metadata may be found by looking in the cache
+        (PREVIOUS_DB), and failing that, by pulling the metadata from the file
+        itself.
+
+        Returns the key associated with the filename.
+        """
+        if filename in self.filename_key:
+            # First, if the filename is already in our database, we don't have
+            # to do anything. We can encounter the same filename twice if a
+            # playlist contains a reference to a file we've already scanned.
+            key = self.filename_key[filename]
+        else:
+            # The filename is not in the database. We have to obtain a metadata
+            # entry, either by reading it out of our cache, or by calling out
+            # to tagpy.
+            #
+            # previous_db acts as a cache of mtime and metadata, keyed by
+            # filename.
+            rec_mtime, old_metadata = previous_db.get(filename, (None, None))
+            file_mtime = os.stat(filename).st_mtime
+
+            if rec_mtime is not None and rec_mtime >= file_mtime:
+                # Use cached data. However, we potentially renumber the keys
+                # every time the program runs, so the old KEY is no good. We'll
+                # fix up the KEY field below.
+                metadata = old_metadata
+            else:
+                # In this branch, we actually need to read the file and
+                # extract its metadata.
+                metadata = extract_metadata(filename)
+
+            # Assign a key for this song. These are just integers assigned
+            # sequentially.
+            key = len(self.key_filename)
+            metadata[KEY] = key
+
+            self.db.append(metadata)
+            self.key_filename[key] = filename
+            self.filename_key[filename] = key
+            self.mtimes[filename] = file_mtime
+
+        return key
+
     def fill_db(self, previous_db):
         """
         Populate the database, given the output of load_previous_db.
@@ -124,42 +175,35 @@ class DirectoryBackend(LibraryBackend):
             dirs.sort(key=tokenize_filename)
             for filename in sorted(files, key=tokenize_filename):
                 filename = os.path.abspath(os.path.join(path, filename))
-                # For each file that we encounter, see if we have cached data
-                # for it, and if we do, use it instead of calling out to tagpy.
-                # previous_db acts as a cache of mtime and metadata, keyed by
-                # filename.
-                rec_mtime, old_metadata = previous_db.get(filename, (None, None))
-                try:
-                    file_mtime = os.stat(filename).st_mtime
-                except OSError:
-                    continue
 
-                # Set the artist, title, and album in this block, and the key
-                # below.
-                if rec_mtime is not None and rec_mtime >= file_mtime:
-                    # Use cached data. However, we potentially renumber the
-                    # keys every time, so the old KEY is no good. We'll update
-                    # the KEY field later.
-                    metadata = old_metadata
+                if filename.lower().endswith('.m3u') or filename.lower().endswith('.pls'):
+                    # Encountered a playlist file.
+                    if filename.lower().endswith('.m3u'):
+                        playlist = M3uPlaylist(open(filename))
+                    elif filename.lower().endswith('.pls'):
+                        playlist = PlsPlaylist(filename, open(filename))
+                    items = []
+                    for song_filename in playlist.get_filenames():
+                        try:
+                            song_key = self.write_metadata(
+                                song_filename, previous_db)
+                        except (OSError, ValueError):
+                            continue
+                        items.append(song_key)
+                    self._playlists.append(
+                        {'name' : os.path.basename(filename), 'items': items})
                 else:
-                    # In this branch, we actually need to read the file and
-                    # extract its metadata.
+                    # Encountered what is possibly a regular music file.
                     try:
-                        metadata = extract_metadata(filename)
-                    except ValueError:
-                        # If there was any exception, then ignore the file and
-                        # continue.
+                        self.write_metadata(filename, previous_db)
+                    except (OSError, ValueError):
                         continue
-
-                # Number the keys consecutively starting from 0.
-                next_key = len(self.key_filename)
-                metadata[KEY] = next_key
-                self.db.append(metadata)
-                self.key_filename[next_key] = filename
-                self.mtimes[filename] = file_mtime
 
     def get_library_contents(self):
         return self.db
+
+    def get_playlists(self):
+        return self._playlists
 
     def get_filename_from_key(self, key):
         return self.key_filename[int(key)]
