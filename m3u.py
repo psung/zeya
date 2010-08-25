@@ -31,10 +31,19 @@ class M3uPlaylist(object):
         Parses data from FILE_OBJ (a file-like object), which contains a
         playlist in M3U format.
         """
+        self._filename = filename
         self._filenames = []
         for line in file_obj:
             if not line.startswith('#'):
                 self._filenames.append(line.rstrip('\r\n'))
+
+    def get_title(self):
+        """
+        Returns the title of this playlist.
+        """
+        # M3U doesn't provide for specifying the title. Just use the basename
+        # of the file as the title of the playlist.
+        return os.path.basename(self._filename).decode('UTF-8')
 
     def get_filenames(self):
         """

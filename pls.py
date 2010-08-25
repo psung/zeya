@@ -33,9 +33,11 @@ class PlsPlaylist(object):
         playlist in PLS format. FILENAME is the path of the input playlist file
         (used for evaluating the absolute filename of each file).
         """
+        self._title = "(Untitled)"
         self._filenames = []
         for line_number, line in enumerate(file_obj):
-            # Only read lines starting with 'File'
+            if line.startswith('X-GNOME-Title='):
+                self._title = line[14:].rstrip('\r\n').decode('UTF-8')
             if line.startswith('File'):
                 try:
                     # Parse the filename from the line.
@@ -52,6 +54,12 @@ class PlsPlaylist(object):
                     print "Warning: malformed line in %s:%d: %r" % \
                         (filename, line_number+1, line.strip())
                     continue
+
+    def get_title(self):
+        """
+        Returns the title of this playlist.
+        """
+        return self._title
 
     def get_filenames(self):
         """

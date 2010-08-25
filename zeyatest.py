@@ -98,6 +98,7 @@ class M3uTest(unittest.TestCase):
                                    StringIO.StringIO(playlist_data))
         self.assertEqual(['/home/phil/music/1 One.flac', '/home/phil/music/2 Two.flac'],
                          playlist.get_filenames())
+        self.assertEqual(u'foo.m3u', playlist.get_title())
 
 class MetadataExtractionTest(unittest.TestCase):
     def test_with_metadata(self):
@@ -191,6 +192,7 @@ Title2=Something"""
         self.assertEqual(['/home/phil/foo/bar/1 one.flac',
                           '/var/bar/2 two.flac'],
                          playlist.get_filenames())
+        self.assertEqual(u'Foo', playlist.get_title())
     def test_parse_pls_with_file_url(self):
         playlist_data = """[playlist]
 X-GNOME-Title=Foo
