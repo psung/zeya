@@ -21,12 +21,14 @@
 
 # Test suite for Zeya.
 
+import StringIO
 import os
 import unittest
 
 import backends
 import decoders
 import options
+import pls
 import rhythmbox
 
 class FakeTagpy():
@@ -160,6 +162,19 @@ class OptionsTest(unittest.TestCase):
             self.fail("get_options should have raised BadArgsError")
         except options.BadArgsError:
             pass
+
+class PlsTest(unittest.TestCase):
+    def test_parse_pls(self):
+        playlist_data = """[playlist]
+X-GNOME-Title=Foo
+NumberOfEntries=2
+File1=foo/bar/1 one.flac
+Title1=One
+File2=foo/bar/2 two.flac
+Title2=Something"""
+        playlist = pls.PlsPlaylist(StringIO.StringIO(playlist_data))
+        self.assertEqual(['foo/bar/1 one.flac', 'foo/bar/2 two.flac'],
+                         playlist.get_filenames())
 
 class RhythmboxTest(unittest.TestCase):
     def test_read_library(self):
