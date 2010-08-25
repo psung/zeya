@@ -27,6 +27,7 @@ import unittest
 
 import backends
 import decoders
+import m3u
 import options
 import pls
 import rhythmbox
@@ -85,6 +86,17 @@ class DecodersTest(unittest.TestCase):
         """
         self.assertTrue(decoders.get_decoder("/path/to/SOMETHING.MP3")[0]
                         .startswith("/usr/bin"))
+
+class M3uTest(unittest.TestCase):
+    def test_parse_meu(self):
+        playlist_data = """#EXTM3U
+#EXTINF:,One
+/home/phil/music/1 One.flac
+#EXTINF:,Something
+/home/phil/music/2 Two.flac"""
+        playlist = m3u.M3uPlaylist(StringIO.StringIO(playlist_data))
+        self.assertEqual(['/home/phil/music/1 One.flac', '/home/phil/music/2 Two.flac'],
+                         playlist.get_filenames())
 
 class MetadataExtractionTest(unittest.TestCase):
     def test_with_metadata(self):
