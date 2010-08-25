@@ -21,6 +21,7 @@
 
 import os.path
 import sys
+import urllib
 
 from backends import LibraryBackend
 from backends import extract_metadata
@@ -38,9 +39,14 @@ class PlsPlaylist(object):
             if line.startswith('File'):
                 try:
                     # Parse the filename from the line.
-                    rel_path = line.rstrip('\r\n')[line.index("=") + 1:]
-                    abs_path = os.path.normpath(
-                        os.path.join(os.getcwd(), os.path.dirname(filename), rel_path))
+                    path = line.rstrip('\r\n')[line.index("=") + 1:]
+                    if path.startswith("file:///"):
+                        # Is this (which leaves a leading '/') going to be
+                        # problematic for Windows systems)?
+                        abs_path = urllib.unquote(path[7:])
+                    else:
+                        abs_path = os.path.normpath(
+                            os.path.join(os.getcwd(), os.path.dirname(filename), path))
                     self._filenames.append(abs_path)
                 except ValueError:
                     print "Warning: malformed line in %s:%d: %r" % \

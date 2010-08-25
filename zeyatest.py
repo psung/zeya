@@ -190,6 +190,17 @@ Title2=Something"""
         self.assertEqual(['/home/phil/foo/bar/1 one.flac',
                           '/var/bar/2 two.flac'],
                          playlist.get_filenames())
+    def test_parse_pls_with_file_url(self):
+        playlist_data = """[playlist]
+X-GNOME-Title=Foo
+NumberOfEntries=1
+File1=file:///home/phil/music/Beach%20Boys,%20The/One.flac
+Title1=One"""
+        playlist = \
+            pls.PlsPlaylist("/home/phil/playlist.pls",
+                            StringIO.StringIO(playlist_data))
+        self.assertEqual(['/home/phil/music/Beach Boys, The/One.flac'],
+                         playlist.get_filenames())
 
 class RhythmboxTest(unittest.TestCase):
     def test_read_library(self):
