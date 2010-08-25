@@ -191,7 +191,7 @@ class DirectoryBackend(LibraryBackend):
                             continue
                         items.append(song_key)
                     self._playlists.append(
-                        {'name' : os.path.basename(filename), 'items': items})
+                        {'name' : playlist.get_title(), 'items': items})
                 else:
                     # Encountered what is possibly a regular music file.
                     try:
