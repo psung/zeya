@@ -26,10 +26,11 @@ from backends import LibraryBackend
 from backends import extract_metadata
 
 class PlsPlaylist(object):
-    def __init__(self, file_obj):
+    def __init__(self, filename, file_obj):
         """
         Parses data from FILE_OBJ (a file-like object), which contains a
-        playlist in PLS format.
+        playlist in PLS format. FILENAME is the path of the input playlist file
+        (used for evaluating the absolute filename of each file).
         """
         self._filenames = []
         for line in file_obj:
@@ -37,7 +38,10 @@ class PlsPlaylist(object):
             if line.startswith('File'):
                 try:
                     # Parse the filename from the line.
-                    self._filenames.append(line.rstrip('\r\n')[line.index("=") + 1:])
+                    rel_path = line.rstrip('\r\n')[line.index("=") + 1:]
+                    abs_path = os.path.normpath(
+                        os.path.join(os.getcwd(), os.path.dirname(filename), rel_path))
+                    self._filenames.append(abs_path)
                 except ValueError:
                     print "Warning: malformed line in playlist file: " + \
                         line.strip()
@@ -65,7 +69,7 @@ class PlsBackend(LibraryBackend):
         self.file_list = {}
         next_index = 0
         try:
-            playlist = PlsPlaylist(open(self.pls_file))
+            playlist = PlsPlaylist(self.pls_file, open(self.pls_file))
             for filename in playlist.get_filenames():
                 try:
                     metadata = extract_metadata(os.path.abspath(filename))

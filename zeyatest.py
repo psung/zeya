@@ -182,10 +182,13 @@ X-GNOME-Title=Foo
 NumberOfEntries=2
 File1=foo/bar/1 one.flac
 Title1=One
-File2=foo/bar/2 two.flac
+File2=/var/bar/2 two.flac
 Title2=Something"""
-        playlist = pls.PlsPlaylist(StringIO.StringIO(playlist_data))
-        self.assertEqual(['foo/bar/1 one.flac', 'foo/bar/2 two.flac'],
+        playlist = \
+            pls.PlsPlaylist("/home/phil/playlist.pls",
+                            StringIO.StringIO(playlist_data))
+        self.assertEqual(['/home/phil/foo/bar/1 one.flac',
+                          '/var/bar/2 two.flac'],
                          playlist.get_filenames())
 
 class RhythmboxTest(unittest.TestCase):
