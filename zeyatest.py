@@ -94,7 +94,8 @@ class M3uTest(unittest.TestCase):
 /home/phil/music/1 One.flac
 #EXTINF:,Something
 /home/phil/music/2 Two.flac"""
-        playlist = m3u.M3uPlaylist(StringIO.StringIO(playlist_data))
+        playlist = m3u.M3uPlaylist("/home/phil/foo.m3u",
+                                   StringIO.StringIO(playlist_data))
         self.assertEqual(['/home/phil/music/1 One.flac', '/home/phil/music/2 Two.flac'],
                          playlist.get_filenames())
 

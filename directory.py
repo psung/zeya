@@ -179,7 +179,7 @@ class DirectoryBackend(LibraryBackend):
                 if filename.lower().endswith('.m3u') or filename.lower().endswith('.pls'):
                     # Encountered a playlist file.
                     if filename.lower().endswith('.m3u'):
-                        playlist = M3uPlaylist(open(filename))
+                        playlist = M3uPlaylist(filename, open(filename))
                     elif filename.lower().endswith('.pls'):
                         playlist = PlsPlaylist(filename, open(filename))
                     items = []

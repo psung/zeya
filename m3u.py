@@ -26,7 +26,7 @@ from backends import LibraryBackend
 from backends import extract_metadata
 
 class M3uPlaylist(object):
-    def __init__(self, file_obj):
+    def __init__(self, filename, file_obj):
         """
         Parses data from FILE_OBJ (a file-like object), which contains a
         playlist in M3U format.
@@ -58,7 +58,7 @@ class M3uBackend(LibraryBackend):
         self.file_list = {}
         next_index = 0
         try:
-            playlist = M3uPlaylist(open(self.m3u_file))
+            playlist = M3uPlaylist(self.m3u_file, open(self.m3u_file))
             for filename in playlist.get_filenames():
                 try:
                     metadata = extract_metadata(os.path.abspath(filename))
