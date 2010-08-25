@@ -33,10 +33,7 @@ class PlsPlaylist(object):
         """
         self._filenames = []
         for line in file_obj:
-            # Ignore lines in the pls file starting with '#'.
-            if line.startswith('#'):
-                continue
-            # only read lines starting with 'File'
+            # Only read lines starting with 'File'
             if line.startswith('File'):
                 try:
                     # Parse the filename from the line.
