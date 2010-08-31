@@ -88,7 +88,7 @@ class DecodersTest(unittest.TestCase):
                         .startswith("/usr/bin"))
 
 class M3uTest(unittest.TestCase):
-    def test_parse_meu(self):
+    def test_parse_m3u(self):
         playlist_data = """#EXTM3U
 #EXTINF:,One
 /home/phil/music/1 One.flac
