@@ -99,6 +99,12 @@ class M3uTest(unittest.TestCase):
         self.assertEqual(['/home/phil/music/1 One.flac', '/home/phil/music/2 Two.flac'],
                          playlist.get_filenames())
         self.assertEqual(u'foo.m3u', playlist.get_title())
+    def test_parse_m3u_with_relative_paths(self):
+        playlist_data = "music/1 One.flac\nmusic/2 Two.flac"
+        playlist = m3u.M3uPlaylist("/home/phil/foo.m3u",
+                                   StringIO.StringIO(playlist_data))
+        self.assertEqual(['/home/phil/music/1 One.flac', '/home/phil/music/2 Two.flac'],
+                         playlist.get_filenames())
 
 class MetadataExtractionTest(unittest.TestCase):
     def test_with_metadata(self):

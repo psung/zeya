@@ -35,7 +35,10 @@ class M3uPlaylist(object):
         self._filenames = []
         for line in file_obj:
             if not line.startswith('#'):
-                self._filenames.append(line.rstrip('\r\n'))
+                rel_path = line.rstrip('\r\n')
+                abs_path = os.path.normpath(os.path.join(
+                        os.getcwd(), os.path.dirname(filename), rel_path))
+                self._filenames.append(abs_path)
 
     def get_title(self):
         """
