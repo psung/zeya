@@ -293,8 +293,8 @@ function init_playlist_map(library_obj, playlists) {
   }
   playlist_map['all'] = default_playlist;
 
-  // Show the playlist selector if, and only if, there are playlists available.
-  if (playlists.length > 0) {
+  // Show the playlist selector if the backend supports it.
+  if (playlists !== null) {
     corpus_selector = document.getElementById("corpus-selector");
 
     new_playlist_item = document.createElement("option");
@@ -311,6 +311,9 @@ function init_playlist_map(library_obj, playlists) {
       playlist_map[playlist_id] = playlists[i].items;
     }
     corpus_selector.style.display = "block";
+
+    // TODO: add some placeholder items when there are no playlists. (e.g.
+    // simply a disabled item labeled "(No playlists)")
   }
 
   // Attempt to load the previously selected playlist (the browser may persist

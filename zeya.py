@@ -341,7 +341,7 @@ def run_server(backend, bind_address, port, bitrate, basic_auth_file=None):
     try:
         playlists = backend.get_playlists()
     except NotImplementedError:
-        playlists = []
+        playlists = None
 
     output = { 'library': filtered_library_contents,
                'playlists': playlists }

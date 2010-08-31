@@ -176,6 +176,9 @@ class LibraryBackend():
         string representing the user-displayable name of the playlist. The
         'items' field is a list of the song keys identifying the songs in the
         playlist, in order.
+
+        NotImplementedError may be thrown if the backend does not have any
+        concept of playlists.
         """
         raise NotImplementedError()
 
