@@ -80,7 +80,7 @@ def run(server_path):
     except urllib2.URLError, e:
         print "Error: %s" % (e.reason,)
         sys.exit(1)
-    library_data = json.loads(library_file.read())
+    library_data = json.loads(library_file.read())['library']
     print "Loaded %d songs from library." % (len(library_data),)
     print 'You can issue queries like: "Beatles" or "help, the beatles"'
     while True:
