@@ -27,7 +27,7 @@ INSTALLATION INSTRUCTIONS
      aptitude install python-tagpy
 
    If you're using Fedora, you can install the requisite packages (excluding
-   MP3 support) with:
+   MP3/M4A support) with:
 
      yum install vorbis-tools flac python-simplejson python-tag
 
