@@ -5,13 +5,14 @@ INSTALLATION INSTRUCTIONS
 2. Install dependencies:
 
    Install the Ogg/Vorbis encoder and the decoders for one or more of the
-   following: Ogg/Vorbis, FLAC, and MP3. On a Debian/Ubuntu system you can do
-   this with:
+   following: Ogg/Vorbis, FLAC, MP3, and M4A. On a Debian/Ubuntu system you can
+   do this with:
 
      # Vorbis encoder and decoder (required)
      aptitude install vorbis-tools
-     # Flac/MP3 decoders (optional; needed for playing music in those formats)
-     aptitude install flac mpg123
+     # Flac/MP3/M4A decoders (optional; needed for playing music in those
+     # formats)
+     aptitude install flac mpg123 faad
 
    Make sure you have Python 2.5 or 2.6 installed:
 
