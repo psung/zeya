@@ -183,6 +183,10 @@ class DirectoryBackend(LibraryBackend):
             for filename in sorted(files, key=tokenize_filename):
                 filename = os.path.abspath(os.path.join(path, filename))
 
+                # Skip broken symlinks
+                if not os.path.exists(filename):
+                    continue
+
                 if filename.lower().endswith('.m3u') or filename.lower().endswith('.pls'):
                     # Encountered a playlist file.
                     if filename.lower().endswith('.m3u'):
