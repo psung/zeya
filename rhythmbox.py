@@ -33,7 +33,7 @@ from xml.parsers import expat
 
 # Path to XML file containing Rhythmbox library
 RB_DBFILE = '~/.local/share/rhythmbox/rhythmdb.xml'
-# Path to XML file containing Rhythmbox library
+# Path to XML file containing Rhythmbox playlists
 RB_PLAYLISTFILE = '~/.local/share/rhythmbox/playlists.xml'
 
 class RhythmboxDbHandler():
