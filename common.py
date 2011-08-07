@@ -41,5 +41,6 @@ def tokenize_filename(filename):
         try:
             return int(s)
         except ValueError:
-            return s
+            # Normalize case so we alphabetize logically.
+            return s.lower()
     return [maybe_convert_to_int(s) for s in re.split(r'(/|\d+)', filename)]
