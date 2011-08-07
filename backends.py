@@ -98,6 +98,11 @@ def filename_to_stream(filename, out_stream, bitrate, buffered=False):
         except socket.error:
             p1.terminate()
             p2.terminate()
+        # Close the FIFO we opened.
+        try:
+            os.close(read_fd)
+        except OSError:
+            pass
 
 def copy_output_with_shaping(read_fd, out_stream, bitrate,
                              encoder_finished_callback = lambda : True):
