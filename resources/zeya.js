@@ -96,7 +96,7 @@ function plural(number) {
 // Returns an Audio object corresponding to the track with the given key.
 function get_stream(key) {
   var buffer_param = using_webkit ? 'buffered=true&' : '';
-  return new Audio('/getcontent?' + buffer_param + 'key=' + escape(key));
+  return new Audio('getcontent?' + buffer_param + 'key=' + escape(key));
 }
 
 function update_status_area() {
@@ -268,7 +268,7 @@ function render_collection() {
 // Request the collection from the server then render it.
 function load_collection() {
   var req = new XMLHttpRequest();
-  req.open('GET', '/getlibrary', true);
+  req.open('GET', 'getlibrary', true);
   req.onreadystatechange = function(e) {
     if (req.readyState == 4 && req.status == 200) {
       server_response = JSON.parse(req.responseText);
