@@ -134,6 +134,11 @@ class DirectoryBackend(LibraryBackend):
             # previous_db acts as a cache of mtime and metadata, keyed by
             # filename.
             rec_mtime, old_metadata = previous_db.get(filename, (None, None))
+            if u'\0' in filename:
+                # This can happen when the playlist files are malformed;
+                # detect this condition here because stat below gives an
+                # unenlightening error message.
+                raise ValueError('Encountered invalid filename: %r' % (filename,))
             file_mtime = os.stat(filename).st_mtime
 
             if rec_mtime is not None and rec_mtime >= file_mtime:
